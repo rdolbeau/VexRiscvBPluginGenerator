@@ -1,6 +1,6 @@
 # B plugin generator for VexRiscv
 
-## This repostory
+## This repository
 
 This is a quick'n'dirty plugin generator to add a subset of the [B](https://github.com/riscv/riscv-bitmanip) extension to the [VexRiscv](https://github.com/SpinalHDL/VexRiscv) core.
 
