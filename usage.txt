@@ -1,0 +1,31 @@
+Usage in Artix-7 35T for the whole LiteX SoC without B:
++----------------------------+------+-------+-----------+-------+
+|          Site Type         | Used | Fixed | Available | Util% |
++----------------------------+------+-------+-----------+-------+
+| Slice LUTs                 | 5400 |     0 |     20800 | 25.96 |
+|   LUT as Logic             | 5230 |     0 |     20800 | 25.14 |
+|   LUT as Memory            |  170 |     0 |      9600 |  1.77 |
+|     LUT as Distributed RAM |  168 |     0 |           |       |
+|     LUT as Shift Register  |    2 |     0 |           |       |
+| Slice Registers            | 4660 |     0 |     41600 | 11.20 |
+|   Register as Flip Flop    | 4660 |     0 |     41600 | 11.20 |
+|   Register as Latch        |    0 |     0 |     41600 |  0.00 |
+| F7 Muxes                   |   78 |     0 |     16300 |  0.48 |
+| F8 Muxes                   |   13 |     0 |      8150 |  0.16 |
++----------------------------+------+-------+-----------+-------+
+
+Usage in Artix-7 35T for the whole LiteX SoC with 44 B instructions (all implemented now):
++----------------------------+------+-------+-----------+-------+
+|          Site Type         | Used | Fixed | Available | Util% |
++----------------------------+------+-------+-----------+-------+
+| Slice LUTs                 | 6731 |     0 |     20800 | 32.36 |
+|   LUT as Logic             | 6561 |     0 |     20800 | 31.54 |
+|   LUT as Memory            |  170 |     0 |      9600 |  1.77 |
+|     LUT as Distributed RAM |  168 |     0 |           |       |
+|     LUT as Shift Register  |    2 |     0 |           |       |
+| Slice Registers            | 4674 |     0 |     41600 | 11.24 |
+|   Register as Flip Flop    | 4674 |     0 |     41600 | 11.24 |
+|   Register as Latch        |    0 |     0 |     41600 |  0.00 |
+| F7 Muxes                   |  134 |     0 |     16300 |  0.82 |
+| F8 Muxes                   |   13 |     0 |      8150 |  0.16 |
++----------------------------+------+-------+-----------+-------+
