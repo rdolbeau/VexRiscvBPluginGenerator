@@ -2,7 +2,7 @@
 
 ## This repostory
 
-This is a quick'n'dirty plugin generator to add a subset of the [https://github.com/riscv/riscv-bitmanip](B) extension to the [https://github.com/SpinalHDL/VexRiscv](VexRiscv) core.
+This is a quick'n'dirty plugin generator to add a subset of the [B](https://github.com/riscv/riscv-bitmanip) extension to the [VexRiscv](https://github.com/SpinalHDL/VexRiscv) core.
 
 The generated plugin is for RV32 only. It doesn't yet support all instructions; missing instructions are:
 
@@ -15,7 +15,7 @@ The generated plugin is for RV32 only. It doesn't yet support all instructions; 
 
 There is no support for 'partial' instruction - implementing only a subset of the functionality of one instruction. So `grev` is supported, but `rev8` alone isn't. Subextension are defined without 'partial' instructions - so Zbb doesn't have `rev8` or `orc.B`.
 
-This has received limited testing in a [https://github.com/litex-hub/linux-on-litex-vexriscv](Linux-on-Litex-VexRiscv) SoC. YMMV.
+This has received limited testing in a [Linux-on-Litex-VexRiscv](https://github.com/litex-hub/linux-on-litex-vexriscv) SoC. YMMV.
 
 Also, the implementations of the instructions in SpinalHDL are written for tuncitonality, and not tuned or optimized in any way for performance/area/... (file usage.txt has some numbers).
 
