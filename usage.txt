@@ -30,18 +30,18 @@ Usage in Artix-7 35T for the whole LiteX SoC with 44 B instructions (all impleme
 | F8 Muxes                   |   13 |     0 |      8150 |  0.16 |
 +----------------------------+------+-------+-----------+-------+
 
-Adding another plugin with 4 custom AES instructions on top of that:
+Adding another plugin with Zkne (AES encoding) instructions on top of that:
 +----------------------------+------+-------+-----------+-------+
 |          Site Type         | Used | Fixed | Available | Util% |
 +----------------------------+------+-------+-----------+-------+
-| Slice LUTs                 | 7211 |     0 |     20800 | 34.67 |
-|   LUT as Logic             | 7041 |     0 |     20800 | 33.85 |
+| Slice LUTs                 | 7134 |     0 |     20800 | 34.30 |
+|   LUT as Logic             | 6964 |     0 |     20800 | 33.48 |
 |   LUT as Memory            |  170 |     0 |      9600 |  1.77 |
 |     LUT as Distributed RAM |  168 |     0 |           |       |
 |     LUT as Shift Register  |    2 |     0 |           |       |
-| Slice Registers            | 4671 |     0 |     41600 | 11.23 |
-|   Register as Flip Flop    | 4671 |     0 |     41600 | 11.23 |
+| Slice Registers            | 4690 |     0 |     41600 | 11.27 |
+|   Register as Flip Flop    | 4690 |     0 |     41600 | 11.27 |
 |   Register as Latch        |    0 |     0 |     41600 |  0.00 |
-| F7 Muxes                   |  259 |     0 |     16300 |  1.59 |
-| F8 Muxes                   |   55 |     0 |      8150 |  0.67 |
+| F7 Muxes                   |  271 |     0 |     16300 |  1.66 |
+| F8 Muxes                   |   82 |     0 |      8150 |  1.01 |
 +----------------------------+------+-------+-----------+-------+
