@@ -54,11 +54,6 @@ asm("#define reg_t3 28\n");
 asm("#define reg_t4 29\n");
 asm("#define reg_t5 30\n");
 asm("#define reg_t6 31\n");
-  
-ASM2MACRO(AESX0,0x0000000b)
-ASM2MACRO(AESX1,0x0000100b)
-ASM2MACRO(AESX2,0x0000200b)
-ASM2MACRO(AESX3,0x0000300b)
 
 #define FUN1(NAME, ASNAME)						\
   static inline uint32_t NAME(uint32_t rs1) {				\
@@ -76,30 +71,42 @@ ASM2MACRO(AESX3,0x0000300b)
 	 : "r" (rs1), "r" (rs2));					\
     return r;								\
   }
+  
+ASM2MACRO(AES32ESMI0,0x0000202b)
+ASM2MACRO(AES32ESMI1,0x4000202b)
+ASM2MACRO(AES32ESMI2,0x8000202b)
+ASM2MACRO(AES32ESMI3,0xc000202b)
+ASM2MACRO(AES32ESI0,0x0200202b)
+ASM2MACRO(AES32ESI1,0x4200202b)
+ASM2MACRO(AES32ESI2,0x8200202b)
+ASM2MACRO(AES32ESI3,0xc200202b)
+FUN2(aes32esmi0,AES32ESMI0)
+FUN2(aes32esmi1,AES32ESMI1)
+FUN2(aes32esmi2,AES32ESMI2)
+FUN2(aes32esmi3,AES32ESMI3)
+FUN2(aes32esi0,AES32ESI0)
+FUN2(aes32esi1,AES32ESI1)
+FUN2(aes32esi2,AES32ESI2)
+FUN2(aes32esi3,AES32ESI3)
 
-FUN2(aesx0,AESX0)
-FUN2(aesx1,AESX1)
-FUN2(aesx2,AESX2)
-FUN2(aesx3,AESX3)
-
-#define AES_ROUND1T(TAB,I,X0,X1,X2,X3,Y0,Y1,Y2,Y3)	 \
-  {                                                      \
-    X0 = aesx0(Y0,TAB[I++]);				 \
-    X0 = aesx1(Y1,X0);					 \
-    X0 = aesx2(Y2,X0);					 \
-    X0 = aesx3(Y3,X0);					 \
-    X1 = aesx0(Y1,TAB[I++]);				 \
-    X1 = aesx1(Y2,X1);					 \
-    X1 = aesx2(Y3,X1);					 \
-    X1 = aesx3(Y0,X1);					 \
-    X2 = aesx0(Y2,TAB[I++]);				 \
-    X2 = aesx1(Y3,X2);					 \
-    X2 = aesx2(Y0,X2);					 \
-    X2 = aesx3(Y1,X2);					 \
-    X3 = aesx0(Y3,TAB[I++]);				 \
-    X3 = aesx1(Y0,X3);					 \
-    X3 = aesx2(Y1,X3);					 \
-    X3 = aesx3(Y2,X3);					 \
+#define AES_ROUND1T(TAB,I,X0,X1,X2,X3,Y0,Y1,Y2,Y3)		 \
+  {								 \
+    X0 = aes32esmi0(TAB[I++],Y0);				 \
+    X0 = aes32esmi1(X0,Y1);					 \
+    X0 = aes32esmi2(X0,Y2);					 \
+    X0 = aes32esmi3(X0,Y3);					 \
+    X1 = aes32esmi0(TAB[I++],Y1);				 \
+    X1 = aes32esmi1(X1,Y2);					 \
+    X1 = aes32esmi2(X1,Y3);					 \
+    X1 = aes32esmi3(X1,Y0);					 \
+    X2 = aes32esmi0(TAB[I++],Y2);				 \
+    X2 = aes32esmi1(X2,Y3);					 \
+    X2 = aes32esmi2(X2,Y0);					 \
+    X2 = aes32esmi3(X2,Y1);					 \
+    X3 = aes32esmi0(TAB[I++],Y3);				 \
+    X3 = aes32esmi1(X3,Y0);					 \
+    X3 = aes32esmi2(X3,Y1);					 \
+    X3 = aes32esmi3(X3,Y2);					 \
   }
 
 static inline void aes256_4ft_encrypt(uint32_t *output, const uint32_t *input, const uint32_t *aes_edrk)
@@ -278,28 +285,26 @@ static inline void aes256_1Tft_encrypt(uint32_t *output, const uint32_t *input, 
     X3=Y3;
   }
   /* last round */
-  /* the two middle bytes of FT0 are the FSb table.
-     this re-use aesx* to get a byte in the proper spot
-     so we can directly XOR with the keys */
-  Y0 = (aesx2((X0 &       0xFF) << 16, aes_edrk[i]) &       0xFF) ^
-       (aesx0((X1 &     0xFF00) >>  8, aes_edrk[i]) &     0xFF00) ^
-       (aesx0((X2 &   0xFF0000) >> 16, aes_edrk[i]) &   0xFF0000) ^
-       (aesx2((X3 & 0xFF000000) >>  8, aes_edrk[i]) & 0xFF000000);
+
+  Y0 = aes32esi0(aes_edrk[i], X0);
+  Y0 = aes32esi1(Y0, X1);
+  Y0 = aes32esi2(Y0, X2);
+  Y0 = aes32esi3(Y0, X3);
   i++;
-  Y1 = (aesx2((X1 &       0xFF) << 16, aes_edrk[i]) &       0xFF) ^
-       (aesx0((X2 &     0xFF00) >>  8, aes_edrk[i]) &     0xFF00) ^
-       (aesx0((X3 &   0xFF0000) >> 16, aes_edrk[i]) &   0xFF0000) ^
-       (aesx2((X0 & 0xFF000000) >>  8, aes_edrk[i]) & 0xFF000000);
+  Y1 = aes32esi0(aes_edrk[i], X1);
+  Y1 = aes32esi1(Y1, X2);
+  Y1 = aes32esi2(Y1, X3);
+  Y1 = aes32esi3(Y1, X0);
   i++;
-  Y2 = (aesx2((X2 &       0xFF) << 16, aes_edrk[i]) &       0xFF) ^
-       (aesx0((X3 &     0xFF00) >>  8, aes_edrk[i]) &     0xFF00) ^
-       (aesx0((X0 &   0xFF0000) >> 16, aes_edrk[i]) &   0xFF0000) ^
-       (aesx2((X1 & 0xFF000000) >>  8, aes_edrk[i]) & 0xFF000000);
+  Y2 = aes32esi0(aes_edrk[i], X2);
+  Y2 = aes32esi1(Y2, X3);
+  Y2 = aes32esi2(Y2, X0);
+  Y2 = aes32esi3(Y2, X1);
   i++;
-  Y3 = (aesx2((X3 &       0xFF) << 16, aes_edrk[i]) &       0xFF) ^
-       (aesx0((X0 &     0xFF00) >>  8, aes_edrk[i]) &     0xFF00) ^
-       (aesx0((X1 &   0xFF0000) >> 16, aes_edrk[i]) &   0xFF0000) ^
-       (aesx2((X2 & 0xFF000000) >>  8, aes_edrk[i]) & 0xFF000000);
+  Y3 = aes32esi0(aes_edrk[i], X3);
+  Y3 = aes32esi1(Y3, X0);
+  Y3 = aes32esi2(Y3, X1);
+  Y3 = aes32esi3(Y3, X2);
 
   output[0] = (Y0);
   output[1] = (Y1);
