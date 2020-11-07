@@ -12,7 +12,7 @@ CXX=$(COMPDIR)/bin/riscv64-unknown-elf-g++
 STRIP=$(COMPDIR)/bin/riscv64-unknown-elf-strip
 NEWOPT=-march=rv32imab -mabi=ilp32 -I. -O3 -DRV32B #-fno-vectorize #-DUSE_EPI_CUSTOM
 OPT=-march=rv32ima -mabi=ilp32 -I. -O3 #-fno-vectorize #-DUSE_EPI_CUSTOM
-NEWOPT=$(OPT)
+#NEWOPT=$(OPT)
 
 all: aes256ctr aes256ctr_small
 
@@ -28,7 +28,10 @@ try.o: try.c
 try_small.o: try.c
 	$(CC) $(NEWOPT) $< -c -o $@ -DSMALL
 
-riscv32.o: riscv32.c
+riscv32.S: riscv32.c
+	$(CC) $(NEWOPT) $< -S -o $@
+
+riscv32.o: riscv32.S
 	$(CC) $(NEWOPT) $< -c -o $@
 
 aes256ctr: $(OBJs) riscv32.o try.o $(SCLIBS)
