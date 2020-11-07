@@ -47,10 +47,10 @@ BitManipZbpPlugin.scala: gen_plugin data_bitmanip.txt
 BitManipAllPlugin.scala: gen_plugin data_bitmanip.txt
 	./gen_plugin BitManipAll data_bitmanip.txt '*' >| $@
 
-RDAESPlugin.scala: gen_plugin data_aes.txt
-	./gen_plugin RDAES data_aes.txt Zrdaes >| $@
+CryptoZknePlugin.scala: gen_plugin data_aes.txt
+	./gen_plugin CryptoZkne data_aes.txt Zkne >| $@
 
-scala: BitManipZbpPlugin.scala BitManipAllPlugin.scala RDAESPlugin.scala
+scala: BitManipZbpPlugin.scala BitManipAllPlugin.scala CryptoZknePlugin.scala
 
 
 include $(DEPXX)
