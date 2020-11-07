@@ -41,6 +41,8 @@ void unparse(std::ostream& output,
 	     std::string prologue) {
 	std::set<group*>* groups = createGroups(instructions);
 
+	output << "// WARNING: this is auto-generated code!" << std::endl;
+	output << "// See https://github.com/rdolbeau/VexRiscvBPluginGenerator/" << std::endl;
 	output << "package vexriscv.plugin" << std::endl;
 	output << "import spinal.core._" << std::endl;
 	output << "import vexriscv.{Stageable, DecoderService, VexRiscv}" << std::endl;

@@ -1,3 +1,5 @@
+// WARNING: this is auto-generated code!
+// See https://github.com/rdolbeau/VexRiscvBPluginGenerator/
 package vexriscv.plugin
 import spinal.core._
 import vexriscv.{Stageable, DecoderService, VexRiscv}
