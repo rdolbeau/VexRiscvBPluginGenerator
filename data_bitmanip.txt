@@ -387,9 +387,9 @@ P	"""
    }
    def fun_xperm_b(rs1:Bits, rs2:Bits) : Bits = {
        val i0 = rs2(7 downto 0).asUInt;
-       val i1 = rs2(15 downto 0).asUInt;
-       val i2 = rs2(23 downto 0).asUInt;
-       val i3 = rs2(31 downto 0).asUInt;
+       val i1 = rs2(15 downto 8).asUInt;
+       val i2 = rs2(23 downto 16).asUInt;
+       val i3 = rs2(31 downto 24).asUInt;
        val r0 = (i0).mux(
 	   0 -> rs1(7 downto 0),
 	   1 -> rs1(15 downto 8),
