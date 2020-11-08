@@ -50,7 +50,9 @@ BitManipAllPlugin.scala: gen_plugin data_bitmanip.txt
 CryptoZknePlugin.scala: gen_plugin data_aes.txt
 	./gen_plugin CryptoZkne data_aes.txt Zkne >| $@
 
-scala: BitManipZbpPlugin.scala BitManipAllPlugin.scala CryptoZknePlugin.scala
+BitManipZclmul.scala: gen_plugin data_clmul.txt
+	./gen_plugin BitManipZclmul data_clmul.txt '*' >| $@
 
+scala: BitManipZbpPlugin.scala BitManipAllPlugin.scala CryptoZknePlugin.scala BitManipZclmul.scala
 
 include $(DEPXX)
