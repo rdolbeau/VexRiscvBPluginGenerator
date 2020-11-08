@@ -113,6 +113,8 @@ FUN2(xperm_h,XPERM_H)
 FUN2(sh1add,SH1ADD)
 FUN2(sh2add,SH2ADD)
 FUN2(sh3add,SH3ADD)
+
+#define _rv64_clmul2(a,b) _rv64_clmul(a,b)
 #else
   uint_xlen_t xperm(uint_xlen_t rs1, uint_xlen_t rs2, int sz_log2)
 {
@@ -145,6 +147,31 @@ uint_xlen_t sh3add(uint_xlen_t rs1, uint_xlen_t rs2)
     return (rs1 << 3) + rs2;
 }
 #endif
+
+
+/* emulates 64 bits clmul with 32 bit clmul/clmulh */
+static inline int64_t _rv64_clmul2(int64_t rs1, int64_t rs2)
+{
+  int64_t r = 0;
+  uint32_t rs1l = rs1 & 0xFFFFFFFF;
+  uint32_t rs1h = (rs1>>32) & 0xFFFFFFFF;
+  uint32_t rs2l = rs2 & 0xFFFFFFFF;
+  uint32_t rs2h = (rs2>>32) & 0xFFFFFFFF;
+  uint32_t lll = _rv32_clmul(rs1l, rs2l);
+  uint32_t llh = _rv32_clmulh(rs1l, rs2l);
+  //uint32_t hhl = _rv32_clmul(rs1h, rs2h);
+  // hhh
+  uint32_t lhl = _rv32_clmul(rs1l, rs2h);
+  /* uint32_t lhh = _rv32_clmulh(rs1l, rs2h); */
+  uint32_t hll = _rv32_clmul(rs1h, rs2l);
+  /* uint32_t hlh = _rv32_clmulh(rs1h, rs2l); */
+  
+  uint32_t L = lll;
+  uint32_t H = llh ^ lhl ^ hll;
+  r =  (int64_t)(((uint64_t)L)| ((uint64_t)H) << 32);
+  return r;
+}
+
 
   unsigned int a = 0x01234567;
 
@@ -207,6 +234,18 @@ int main(int argc, char **argv) {
   T1(_rv32_clz);
   T1(_rv32_ctz);
   T1(_rv32_pcnt);
+
+  T2(_rv32_clmul);
+  T2(_rv32_clmulr);
+  T2(_rv32_clmulh);
+
+  {
+    int64_t x = 0xc4f5a63e4ac4567bULL ^ (uint64_t)a << 32 ^ (uint64_t)c << 17 ^ (uint64_t)b;
+    int64_t y = 0x9ff123456aabbcc9ULL ^ (uint64_t)c << 32 ^ (uint64_t)b << 23 ^ (uint64_t)a;
+    int64_t z = _rv64_clmul(x, y);
+    int64_t z2 = _rv64_clmul2(x, y);
+    printf("0x%016llx 0x%016llx (0x%016llx)\n", z, z2, z^z2);
+  }
 
   // extra stuff
   T2(sh1add);
