@@ -4,11 +4,11 @@
 
 This is a quick'n'dirty plugin generator to add a subset of the [B](https://github.com/riscv/riscv-bitmanip) extension to the [VexRiscv](https://github.com/SpinalHDL/VexRiscv) core.
 
-The generated plugin is for RV32 only. It doesn't yet support all instructions; missing instructions are:
+The generated plugin is for RV32 only. It doesn't yet support all B instructions; missing instructions are:
 
 * all instructions ending in 'W', as they are RV64-only
 * BMAT*, as they are RV64-only
-* CLMUL*
+* CLMUL* (prototype now available in their own file)
 * BDEP/BEXT/BFP
 * CRC32*
 * Three-operands instructions (CMIX, CMOV, FS[RL]*)
@@ -18,6 +18,8 @@ There is no support for 'partial' instruction - implementing only a subset of th
 This has received limited testing in a [Linux-on-Litex-VexRiscv](https://github.com/litex-hub/linux-on-litex-vexriscv) SoC. YMMV. See below for some tests.
 
 Also, the implementations of the instructions in SpinalHDL are written for tuncitonality, and not tuned or optimized in any way for performance/area/... (file usage.txt has some numbers).
+
+A separate data file includes prototype support for RV32Zkne (AES encryption instructions).
 
 ## How to use
 
