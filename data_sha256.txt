@@ -25,21 +25,85 @@ S	sha256sig1 "fun_sha256sig1(input(SRC1))"
 S	sha256sum0 "fun_sha256sum0(input(SRC1))"
 S	sha256sum1 "fun_sha256sum1(input(SRC1))"
 
+//#define MATCH_SHA512SIG0L 0x1000702b
+//#define MASK_SHA512SIG0L 0xfe00707f
+//#define MATCH_SHA512SIG0H 0x1200702b
+//#define MASK_SHA512SIG0H 0xfe00707f
+//#define MATCH_SHA512SIG1L 0x1400702b
+//#define MASK_SHA512SIG1L 0xfe00707f
+//#define MATCH_SHA512SIG1H 0x1600702b
+//#define MASK_SHA512SIG1H 0xfe00707f
+//#define MATCH_SHA512SUM0R 0x1800702b
+//#define MASK_SHA512SUM0R 0xfe00707f
+//#define MATCH_SHA512SUM1R 0x1a00702b
+//#define MASK_SHA512SUM1R 0xfe00707f
+//{"sha512sig0l"  , 0, INSN_CLASS_I,    "d,s,t", MATCH_SHA512SIG0L, MASK_SHA512SIG0L, match_opcode, 0},
+//{"sha512sig0h"  , 0, INSN_CLASS_I,    "d,s,t", MATCH_SHA512SIG0H, MASK_SHA512SIG0H, match_opcode, 0},
+//{"sha512sig1l"  , 0, INSN_CLASS_I,    "d,s,t", MATCH_SHA512SIG1L, MASK_SHA512SIG1L, match_opcode, 0},
+//{"sha512sig1h"  , 0, INSN_CLASS_I,    "d,s,t", MATCH_SHA512SIG1H, MASK_SHA512SIG1H, match_opcode, 0},
+//{"sha512sum0r"  , 0, INSN_CLASS_I,    "d,s,t", MATCH_SHA512SUM0R, MASK_SHA512SUM0R, match_opcode, 0},
+//{"sha512sum1r"  , 0, INSN_CLASS_I,    "d,s,t", MATCH_SHA512SUM1R, MASK_SHA512SUM1R, match_opcode, 0},
+//0001000 rs2 rs1 111 rd 0101011 sha512sig0l
+//0001001 rs2 rs1 111 rd 0101011 sha512sig0h
+//0001010 rs2 rs1 111 rd 0101011 sha512sig1l
+//0001011 rs2 rs1 111 rd 0101011 sha512sig1h
+//0001100 rs2 rs1 111 rd 0101011 sha512sum0r
+//0001101 rs2 rs1 111 rd 0101011 sha512sum1r
+
+I	sha512sig0l sha512sig0l	0001000----------111-----0101011	sha512sig	Zknh
+I	sha512sig0h sha512sig0h	0001001----------111-----0101011	sha512sig	Zknh
+I	sha512sig1l sha512sig1l	0001010----------111-----0101011	sha512sig	Zknh
+I	sha512sig1h sha512sig1h 0001011----------111-----0101011	sha512sig	Zknh
+I	sha512sum0r sha512sum0r	0001100----------111-----0101011	sha512sum	Zknh
+I	sha512sum1r sha512sum1r	0001101----------111-----0101011	sha512sum	Zknh
+
+S	sha512sig0l "fun_sha512sig0l(input(SRC1),input(SRC2))"
+S	sha512sig0h "fun_sha512sig0h(input(SRC1),input(SRC2))"
+S	sha512sig1l "fun_sha512sig1l(input(SRC1),input(SRC2))"
+S	sha512sig1h "fun_sha512sig1h(input(SRC1),input(SRC2))"
+S	sha512sum0r "fun_sha512sum0r(input(SRC1),input(SRC2))"
+S	sha512sum1r "fun_sha512sum1r(input(SRC1),input(SRC2))"
+
 P	"""
- 	def fun_sha256sig0(rs1:Bits) : Bits = {
+	def fun_sha256sig0(rs1:Bits) : Bits = {
 	     val r = rs1.rotateRight(7) ^ rs1.rotateRight(18) ^ (rs1 |>> 3)
 	     r // return value
 	}
- 	def fun_sha256sig1(rs1:Bits) : Bits = {
+	def fun_sha256sig1(rs1:Bits) : Bits = {
 	     val r = rs1.rotateRight(17) ^ rs1.rotateRight(19) ^ (rs1 |>> 10)
 	     r // return value
 	}
- 	def fun_sha256sum0(rs1:Bits) : Bits = {
+	def fun_sha256sum0(rs1:Bits) : Bits = {
 	     val r = rs1.rotateRight(2) ^ rs1.rotateRight(13) ^ rs1.rotateRight(22)
 	     r // return value
 	}
- 	def fun_sha256sum1(rs1:Bits) : Bits = {
+	def fun_sha256sum1(rs1:Bits) : Bits = {
 	     val r = rs1.rotateRight(6) ^ rs1.rotateRight(11) ^ rs1.rotateRight(25)
 	     r // return value
+	}
+
+	def fun_sha512sig0l(rs1:Bits, rs2:Bits) : Bits = {
+	    val r = (rs1 |>> 1) ^ (rs1 |>> 7) ^ (rs1 |>> 8) ^ (rs2 |<< 31) ^ (rs2 |<< 25) ^ (rs2 |<< 24)
+	    r // return value
+	}
+	def fun_sha512sig0h(rs1:Bits, rs2:Bits) : Bits = {
+	    val r = (rs1 |>> 1) ^ (rs1 |>> 7) ^ (rs1 |>> 8) ^ (rs2 |<< 31)                ^ (rs2 |<< 24)
+	    r // return value
+	}
+	def fun_sha512sig1l(rs1:Bits, rs2:Bits) : Bits = {
+	    val r = (rs1 |<< 3) ^ (rs1 |>> 6) ^ (rs1 |>> 19) ^ (rs2 |>> 29) ^ (rs2 |<< 26) ^ (rs2 |<< 13)
+	    r // return value
+	}
+	def fun_sha512sig1h(rs1:Bits, rs2:Bits) : Bits = {
+	    val r = (rs1 |<< 3) ^ (rs1 |>> 6) ^ (rs1 |>> 19) ^ (rs2 |>> 29)                ^ (rs2 |<< 13)
+	    r // return value
+	}
+	def fun_sha512sum0r(rs1:Bits, rs2:Bits) : Bits = {
+	    val r = (rs1 |<< 25) ^ (rs1 |<< 30) ^ (rs1 |>> 28) ^ (rs2 |>> 7) ^ (rs2 |>> 2) ^ (rs2 |<< 4)
+	    r // return value
+	}
+	def fun_sha512sum1r(rs1:Bits, rs2:Bits) : Bits = {
+	    val r = (rs1 |<< 23) ^ (rs1 |>> 14) ^ (rs1 |>> 18) ^ (rs2 |>> 9) ^ (rs2 |<< 18) ^ (rs2 |<< 14)
+	    r // return value
 	}
 """
