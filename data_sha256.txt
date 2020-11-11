@@ -1,0 +1,45 @@
+//#define MATCH_SHA256SIG0 0xe00702b
+//#define MASK_SHA256SIG0 0xfff0707f
+//#define MATCH_SHA256SIG1 0xe10702b
+//#define MASK_SHA256SIG1 0xfff0707f
+//#define MATCH_SHA256SUM0 0xe20702b
+//#define MASK_SHA256SUM0 0xfff0707f
+//#define MATCH_SHA256SUM1 0xe30702b
+//#define MASK_SHA256SUM1 0xfff0707f
+//{"sha256sig0"   , 0, INSN_CLASS_I,      "d,s", MATCH_SHA256SIG0, MASK_SHA256SIG0, match_opcode, 0},
+//{"sha256sig1"   , 0, INSN_CLASS_I,      "d,s", MATCH_SHA256SIG1, MASK_SHA256SIG1, match_opcode, 0},
+//{"sha256sum0"   , 0, INSN_CLASS_I,      "d,s", MATCH_SHA256SUM0, MASK_SHA256SUM0, match_opcode, 0},
+//{"sha256sum1"   , 0, INSN_CLASS_I,      "d,s", MATCH_SHA256SUM1, MASK_SHA256SUM1, match_opcode, 0},
+//0000111 00000 rs1 111 rd 0101011 sha256sig0
+//0000111 00001 rs1 111 rd 0101011 sha256sig1
+//0000111 00010 rs1 111 rd 0101011 sha256sum0
+//0000111 00011 rs1 111 rd 0101011 sha256sum1
+
+I	sha256sig0 sha256sig0	000011100000-----111-----0101011	sha256sig	Zknh
+I	sha256sig1 sha256sig1	000011100001-----111-----0101011	sha256sig	Zknh
+I	sha256sum0 sha256sum0	000011100010-----111-----0101011	sha256sum	Zknh
+I	sha256sum1 sha256sum1	000011100011-----111-----0101011	sha256sum	Zknh
+
+S	sha256sig0 "fun_sha256sig0(input(SRC1))"
+S	sha256sig1 "fun_sha256sig1(input(SRC1))"
+S	sha256sum0 "fun_sha256sum0(input(SRC1))"
+S	sha256sum1 "fun_sha256sum1(input(SRC1))"
+
+P	"""
+ 	def fun_sha256sig0(rs1:Bits) : Bits = {
+	     val r = rs1.rotateRight(7) ^ rs1.rotateRight(18) ^ (rs1 |>> 3)
+	     r // return value
+	}
+ 	def fun_sha256sig1(rs1:Bits) : Bits = {
+	     val r = rs1.rotateRight(17) ^ rs1.rotateRight(19) ^ (rs1 |>> 10)
+	     r // return value
+	}
+ 	def fun_sha256sum0(rs1:Bits) : Bits = {
+	     val r = rs1.rotateRight(2) ^ rs1.rotateRight(13) ^ rs1.rotateRight(22)
+	     r // return value
+	}
+ 	def fun_sha256sum1(rs1:Bits) : Bits = {
+	     val r = rs1.rotateRight(6) ^ rs1.rotateRight(11) ^ rs1.rotateRight(25)
+	     r // return value
+	}
+"""
