@@ -41,4 +41,6 @@ Will generate a plugin supporting Zbb (using the full version of `grev` and `gor
 
 test_b.c is a small synthetic test for RV32IMAB Linux, to check B instructions with various test patterns. See in the file on how to use it.
 
-[aes256ctrstandalone-rv32] and [chacha20standalone-rv32] are stand-alone codes extracted from the [Supercop](http://bench.cr.yp.to/supercop.html) benchmark (similar to https://github.com/rdolbeau/EPI-test-codes-vector/). They should give the same results (checksum) as the version in Supercop, and can be compiled for RV32IMA or RV32IMAB. From B, they mostly rely on the rotation instructions (although the B toolchain also generates other instructions, in particular those from Zba).
+`chacha20standalone-rv32` is a stand-alone code extracted from the [Supercop](http://bench.cr.yp.to/supercop.html) benchmark (similar to https://github.com/rdolbeau/EPI-test-codes-vector/). It should give the same results (checksums) as the version in Supercop, and can be compiled for RV32IMA or RV32IMAB. From B, they mostly rely on the rotation instructions (although the B toolchain also generates other instructions, in particular those from Zba).
+
+`aes256ctrstandalone-rv32` and `aes256gcmv1standalone-rv32` are stand-alone codes extracted from the [Supercop](http://bench.cr.yp.to/supercop.html) benchmark. They should give the same results (checksums) as the version in Supercop, and require `Zkne` (AES encryption instructions) in addition to some of B. `aes256gcmv1standalone-rv32` also requires `clmul[h]`.
