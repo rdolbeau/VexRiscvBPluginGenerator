@@ -46,7 +46,7 @@ object BitManipZclmulPlugin {
 		x0 ^ x1 ^ x2 ^ x3 ^ x4 ^ x5 ^ x6 ^ x7 ^ x8 ^ x9 ^ x10 ^ x11 ^ x12 ^ x13 ^ x14 ^ x15 ^ x16 ^ x17 ^ x18 ^ x19 ^ x20 ^ x21 ^ x22 ^ x23 ^ x24 ^ x25 ^ x26 ^ x27 ^ x28 ^ x29 ^ x30 ^ x31 // return value	
 	}
 
-	def fun_clmulh(rs1:Bits, rs2:Bits) : Bits = {
+	def fun_clmulr(rs1:Bits, rs2:Bits) : Bits = {
 		val x0 = (((rs2 & B"32'x00000001") =/= B"32'x00000000") ? (rs1 |>> 31) | (B"32'x00000000"))
 		val x1 = (((rs2 & B"32'x00000002") =/= B"32'x00000000") ? (rs1 |>> 30) | (B"32'x00000000"))
 		val x2 = (((rs2 & B"32'x00000004") =/= B"32'x00000000") ? (rs1 |>> 29) | (B"32'x00000000"))
@@ -81,8 +81,8 @@ object BitManipZclmulPlugin {
 		val x31 = (((rs2 & B"32'x80000000") =/= B"32'x00000000") ? (rs1 |>> 0) | (B"32'x00000000"))
 		x0 ^ x1 ^ x2 ^ x3 ^ x4 ^ x5 ^ x6 ^ x7 ^ x8 ^ x9 ^ x10 ^ x11 ^ x12 ^ x13 ^ x14 ^ x15 ^ x16 ^ x17 ^ x18 ^ x19 ^ x20 ^ x21 ^ x22 ^ x23 ^ x24 ^ x25 ^ x26 ^ x27 ^ x28 ^ x29 ^ x30 ^ x31 // return value	
 	}
-	def fun_clmulr(rs1:Bits, rs2:Bits) : Bits = {
-		val r = fun_clmulh(rs1, rs2) |>> 1
+	def fun_clmulh(rs1:Bits, rs2:Bits) : Bits = {
+		val r = fun_clmulr(rs1, rs2) |>> 1
 		r // return value
 	}
 
@@ -139,8 +139,8 @@ class BitManipZclmulPlugin extends Plugin[VexRiscv] {
 			when (input(IS_BitManipZclmul)) {
 				execute.output(REGFILE_WRITE_DATA) := input(BitManipZclmulCtrl).mux(
 					BitManipZclmulCtrlEnum.CTRL_CLMUL -> fun_clmul(input(SRC1),input(SRC2)).asBits,
-					BitManipZclmulCtrlEnum.CTRL_CLMULR -> fun_clmulh(input(SRC1),input(SRC2)).asBits,
-					BitManipZclmulCtrlEnum.CTRL_CLMULH -> fun_clmulr(input(SRC1),input(SRC2)).asBits
+					BitManipZclmulCtrlEnum.CTRL_CLMULR -> fun_clmulr(input(SRC1),input(SRC2)).asBits,
+					BitManipZclmulCtrlEnum.CTRL_CLMULH -> fun_clmulh(input(SRC1),input(SRC2)).asBits
 				) // primary mux 
 			} // when input is 
 		} // execute plug newArea
