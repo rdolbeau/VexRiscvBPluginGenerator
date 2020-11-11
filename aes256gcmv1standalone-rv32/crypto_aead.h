@@ -1,0 +1,17 @@
+#ifndef crypto_aead_H
+#define crypto_aead_H
+
+#include "crypto_aead_aes256gcmv1.h"
+
+#define crypto_aead_encrypt crypto_aead_aes256gcmv1_encrypt
+#define crypto_aead_decrypt crypto_aead_aes256gcmv1_decrypt
+#define crypto_aead_KEYBYTES crypto_aead_aes256gcmv1_KEYBYTES
+#define crypto_aead_NSECBYTES crypto_aead_aes256gcmv1_NSECBYTES
+#define crypto_aead_NPUBBYTES crypto_aead_aes256gcmv1_NPUBBYTES
+#define crypto_aead_ABYTES crypto_aead_aes256gcmv1_ABYTES
+#define crypto_aead_NOOVERLAP crypto_aead_aes256gcmv1_NOOVERLAP
+#define crypto_aead_PRIMITIVE "aes256gcmv1"
+#define crypto_aead_IMPLEMENTATION crypto_aead_aes256gcmv1_IMPLEMENTATION
+#define crypto_aead_VERSION crypto_aead_aes256gcmv1_VERSION
+
+#endif
