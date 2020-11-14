@@ -53,8 +53,8 @@ CryptoZknePlugin.scala: gen_plugin data_aes.txt
 BitManipZclmul.scala: gen_plugin data_clmul.txt
 	./gen_plugin BitManipZclmul data_clmul.txt '*' >| $@
 
-CryptoZknh.scala: gen_plugin data_sha256.txt
-	./gen_plugin CryptoZknh data_sha256.txt '*' >| $@
+CryptoZknh.scala: gen_plugin data_sha.txt
+	./gen_plugin CryptoZknh data_sha.txt '*' >| $@
 
 scala: BitManipZbpPlugin.scala BitManipAllPlugin.scala CryptoZknePlugin.scala BitManipZclmul.scala CryptoZknh.scala
 
