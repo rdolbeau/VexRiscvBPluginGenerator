@@ -62,18 +62,18 @@ And adding the clmul plugin:
 | F8 Muxes                   |   85 |     0 |      8150 |  1.04 |
 +----------------------------+------+-------+-----------+-------+
 
-And adding the sha256* plugin as well:
+And adding the sha256* plugin as well (including sha512)
 +----------------------------+------+-------+-----------+-------+
 |          Site Type         | Used | Fixed | Available | Util% |
 +----------------------------+------+-------+-----------+-------+
-| Slice LUTs                 | 7950 |     0 |     20800 | 38.22 |
-|   LUT as Logic             | 7780 |     0 |     20800 | 37.40 |
+| Slice LUTs*                | 8196 |     0 |     20800 | 39.40 |
+|   LUT as Logic             | 8026 |     0 |     20800 | 38.59 |
 |   LUT as Memory            |  170 |     0 |      9600 |  1.77 |
 |     LUT as Distributed RAM |  168 |     0 |           |       |
 |     LUT as Shift Register  |    2 |     0 |           |       |
-| Slice Registers            | 4678 |     0 |     41600 | 11.25 |
-|   Register as Flip Flop    | 4678 |     0 |     41600 | 11.25 |
+| Slice Registers            | 4688 |     0 |     41600 | 11.27 |
+|   Register as Flip Flop    | 4688 |     0 |     41600 | 11.27 |
 |   Register as Latch        |    0 |     0 |     41600 |  0.00 |
-| F7 Muxes                   |  301 |     0 |     16300 |  1.85 |
-| F8 Muxes                   |   87 |     0 |      8150 |  1.07 |
+| F7 Muxes                   |  251 |     0 |     16300 |  1.54 |
+| F8 Muxes                   |   85 |     0 |      8150 |  1.04 |
 +----------------------------+------+-------+-----------+-------+
