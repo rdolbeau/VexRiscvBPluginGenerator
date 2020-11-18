@@ -7,10 +7,11 @@
 #include <iostream>
 #include <set>
 #include <map>
-
+#include <vector>
 
 #include "inst.hpp"
 #include "group.hpp"
+#include "unparse.hpp"
 
 std::set<group*>* createGroups(const std::set<const instruction*> instructions) {
 	std::set<group*>* groups = new std::set<group*>();
@@ -38,7 +39,7 @@ void unparse(std::ostream& output,
 	     const std::string prefix,
 	     const std::set<const instruction*> instructions,
 	     std::map<std::string,std::string> semantics,
-	     std::string prologue) {
+	     std::vector<std::string> prologues) {
 	std::set<group*>* groups = createGroups(instructions);
 
 	output << "// WARNING: this is auto-generated code!" << std::endl;
@@ -89,8 +90,9 @@ void unparse(std::ostream& output,
 	output << '\t' << "object " << prefix << "Ctrl" << " extends Stageable(" << prefix << "Ctrl" << "Enum())" << std::endl;
 
 	output << "// Prologue" << std::endl;
-	output << prologue;
-	output << std::endl << "// End prologue" << std::endl;
+	for (std::string prologue : prologues)
+	  output << prologue << std::endl;
+	output << "// End prologue" << std::endl;
 
 	output << "} // object Plugin" << std::endl;
 

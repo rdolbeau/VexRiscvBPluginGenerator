@@ -7,6 +7,7 @@
 #include <iostream>
 #include <set>
 #include <map>
+#include <vector>
 
 #include "inst.hpp"
 
@@ -25,7 +26,7 @@ extern int yydebug;
 
 std::set<const instruction*> instructions;
 std::map<std::string, std::string> semantics;
-const char* prologue;
+std::vector<std::string> prologues;
 
 void add_inst0(const char* name, const char* opname, const char* key, const char* group) {
 	instruction* i = new instruction(name, opname, key, group);
@@ -61,7 +62,7 @@ void add_sem(const char* name, const char* sem) {
 	semantics[std::string(name)] = std::string(sem);
 }
 void add_prol(const char *prol) {
-	prologue = prol;
+	prologues.push_back(std::string(prol));
 }
 
 
@@ -124,7 +125,7 @@ int main(int argc, char **argv) {
 		//printf("adding %s\n", inst->name.c_str());
 	}
 
-	unparse(std::cout, argv[1], filtered_instructions, semantics, prologue);
+	unparse(std::cout, argv[1], filtered_instructions, semantics, prologues);
 
 	return 0;
 }
