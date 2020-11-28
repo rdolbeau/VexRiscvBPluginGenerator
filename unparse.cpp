@@ -39,7 +39,8 @@ void unparse(std::ostream& output,
 	     const std::string prefix,
 	     const std::set<const instruction*> instructions,
 	     std::map<std::string,std::string> semantics,
-	     std::vector<std::string> prologues) {
+	     std::vector<std::string> prologues,
+	     std::vector<std::string> extras) {
 	std::set<group*>* groups = createGroups(instructions);
 
 	output << "// WARNING: this is auto-generated code!" << std::endl;
@@ -99,7 +100,7 @@ void unparse(std::ostream& output,
 	output << "class " << prefix << "Plugin extends Plugin[VexRiscv] {" << std::endl;
 	output << '\t' << "import " << prefix << "Plugin._" << std::endl;
 	output << '\t' << "object IS_" << prefix << " extends Stageable(Bool)" << std::endl;
-
+	
 	output << '\t' << "override def setup(pipeline: VexRiscv): Unit = {" << std::endl;
 	output << '\t' << '\t' << "import pipeline.config._" << std::endl;
 	
@@ -174,6 +175,14 @@ void unparse(std::ostream& output,
 	output << '\t' << "override def build(pipeline: VexRiscv): Unit = {" << std::endl;
 	output << '\t' << '\t' << "import pipeline._" << std::endl;
 	output << '\t' << '\t' << "import pipeline.config._" << std::endl;
+
+	if (extras.size()>0) {
+	  output << "// Extra" << std::endl;
+	  for (std::string extra : extras)
+	    output << extra << std::endl;
+	  output << "// End Extra" << std::endl;
+	}
+	
 	output << '\t' << '\t' << "execute plug new Area{" << std::endl;
 	output << '\t' << '\t' << '\t' << "import execute._" << std::endl;
 

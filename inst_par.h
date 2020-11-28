@@ -49,7 +49,8 @@ extern int yydebug;
     STRING = 259,
     INST = 260,
     SEM = 261,
-    PROL = 262
+    PROL = 262,
+    EXTRA = 263
   };
 #endif
 
@@ -62,7 +63,7 @@ union YYSTYPE
 
   char* string;
 
-#line 66 "inst_par.h" /* yacc.c:1909  */
+#line 67 "inst_par.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

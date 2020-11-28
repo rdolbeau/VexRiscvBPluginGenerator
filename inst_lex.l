@@ -20,11 +20,15 @@ SPACE           [ \t]
 
 ^"P"                          { return PROL; }
 
+^"E"                          { return EXTRA; }
+
 "//".*                       { }
 
 {CHARNAME}{CHARNAME}{CHARNAME}*      { yylval.string = strdup(yytext); return NAME; }
 
 "\"\"\""[^ù]*"\"\"\""      { yylval.string = strndup(yytext+3, strlen(yytext)-6); return STRING; }
+
+"'''"[^ù]*"'''"      { yylval.string = strndup(yytext+3, strlen(yytext)-6); return STRING; }
 
 "\"".*"\""      { yylval.string = strndup(yytext+1, strlen(yytext)-2); return STRING; }
 

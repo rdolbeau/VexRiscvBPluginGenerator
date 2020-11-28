@@ -27,6 +27,7 @@ extern int yydebug;
 std::set<const instruction*> instructions;
 std::map<std::string, std::string> semantics;
 std::vector<std::string> prologues;
+std::vector<std::string> extras;
 
 void add_inst0(const char* name, const char* opname, const char* key, const char* group) {
 	instruction* i = new instruction(name, opname, key, group);
@@ -63,6 +64,9 @@ void add_sem(const char* name, const char* sem) {
 }
 void add_prol(const char *prol) {
 	prologues.push_back(std::string(prol));
+}
+void add_extra(const char *extra) {
+	extras.push_back(std::string(extra));
 }
 
 
@@ -125,7 +129,7 @@ int main(int argc, char **argv) {
 		//printf("adding %s\n", inst->name.c_str());
 	}
 
-	unparse(std::cout, argv[1], filtered_instructions, semantics, prologues);
+	unparse(std::cout, argv[1], filtered_instructions, semantics, prologues, extras);
 
 	return 0;
 }

@@ -14,60 +14,12 @@ Usage in Artix-7 35T for the whole LiteX SoC without B:
 | F8 Muxes                   |   13 |     0 |      8150 |  0.16 |
 +----------------------------+------+-------+-----------+-------+
 
-Usage in Artix-7 35T for the whole LiteX SoC with 44 B instructions (all implemented now except clmul*):
+Usage in Artix-7 35T for the whole LiteX SoC with everything:
 +----------------------------+------+-------+-----------+-------+
 |          Site Type         | Used | Fixed | Available | Util% |
 +----------------------------+------+-------+-----------+-------+
-| Slice LUTs                 | 6731 |     0 |     20800 | 32.36 |
-|   LUT as Logic             | 6561 |     0 |     20800 | 31.54 |
-|   LUT as Memory            |  170 |     0 |      9600 |  1.77 |
-|     LUT as Distributed RAM |  168 |     0 |           |       |
-|     LUT as Shift Register  |    2 |     0 |           |       |
-| Slice Registers            | 4674 |     0 |     41600 | 11.24 |
-|   Register as Flip Flop    | 4674 |     0 |     41600 | 11.24 |
-|   Register as Latch        |    0 |     0 |     41600 |  0.00 |
-| F7 Muxes                   |  134 |     0 |     16300 |  0.82 |
-| F8 Muxes                   |   13 |     0 |      8150 |  0.16 |
-+----------------------------+------+-------+-----------+-------+
-
-Adding another plugin with Zkne (AES encoding) instructions on top of that:
-+----------------------------+------+-------+-----------+-------+
-|          Site Type         | Used | Fixed | Available | Util% |
-+----------------------------+------+-------+-----------+-------+
-| Slice LUTs                 | 7134 |     0 |     20800 | 34.30 |
-|   LUT as Logic             | 6964 |     0 |     20800 | 33.48 |
-|   LUT as Memory            |  170 |     0 |      9600 |  1.77 |
-|     LUT as Distributed RAM |  168 |     0 |           |       |
-|     LUT as Shift Register  |    2 |     0 |           |       |
-| Slice Registers            | 4690 |     0 |     41600 | 11.27 |
-|   Register as Flip Flop    | 4690 |     0 |     41600 | 11.27 |
-|   Register as Latch        |    0 |     0 |     41600 |  0.00 |
-| F7 Muxes                   |  271 |     0 |     16300 |  1.66 |
-| F8 Muxes                   |   82 |     0 |      8150 |  1.01 |
-+----------------------------+------+-------+-----------+-------+
-
-And adding the clmul plugin:
-+----------------------------+------+-------+-----------+-------+
-|          Site Type         | Used | Fixed | Available | Util% |
-+----------------------------+------+-------+-----------+-------+
-| Slice LUTs                 | 7778 |     0 |     20800 | 37.39 |
-|   LUT as Logic             | 7608 |     0 |     20800 | 36.58 |
-|   LUT as Memory            |  170 |     0 |      9600 |  1.77 |
-|     LUT as Distributed RAM |  168 |     0 |           |       |
-|     LUT as Shift Register  |    2 |     0 |           |       |
-| Slice Registers            | 4704 |     0 |     41600 | 11.31 |
-|   Register as Flip Flop    | 4704 |     0 |     41600 | 11.31 |
-|   Register as Latch        |    0 |     0 |     41600 |  0.00 |
-| F7 Muxes                   |  241 |     0 |     16300 |  1.48 |
-| F8 Muxes                   |   85 |     0 |      8150 |  1.04 |
-+----------------------------+------+-------+-----------+-------+
-
-And adding the sha256* plugin as well (including sha512)
-+----------------------------+------+-------+-----------+-------+
-|          Site Type         | Used | Fixed | Available | Util% |
-+----------------------------+------+-------+-----------+-------+
-| Slice LUTs*                | 8196 |     0 |     20800 | 39.40 |
-|   LUT as Logic             | 8026 |     0 |     20800 | 38.59 |
+| Slice LUTs                 | 8040 |     0 |     20800 | 38.65 |
+|   LUT as Logic             | 7870 |     0 |     20800 | 37.84 |
 |   LUT as Memory            |  170 |     0 |      9600 |  1.77 |
 |     LUT as Distributed RAM |  168 |     0 |           |       |
 |     LUT as Shift Register  |    2 |     0 |           |       |

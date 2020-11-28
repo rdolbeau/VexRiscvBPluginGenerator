@@ -7,10 +7,13 @@
 #ifndef __UNPARSE_HPP__
 #define __UNPARSE_HPP__
 
+#include "inst.hpp"
+
 void unparse(std::ostream& output,
 	     const std::string prefix,
 	     const std::set<const instruction*> instructions,
 	     std::map<std::string,std::string> semantics,
-	     std::vector<std::string> prologues);
+	     std::vector<std::string> prologues,
+	     std::vector<std::string> extras);
 
 #endif // __UNPARSE_HPP__
