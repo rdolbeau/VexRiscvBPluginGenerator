@@ -8,14 +8,13 @@ The generated plugin is for RV32 only. It doesn't yet support all B instructions
 
 * all instructions ending in 'W', as they are RV64-only
 * BMAT*, as they are RV64-only
-* CLMUL* (prototype now available in their own file)
 * BDEP/BEXT/BFP
 * CRC32*
 * Three-operands instructions (CMIX, CMOV, FS[RL]*); the first two are available but need a VexRiscv patch to support the third input
 
 There is no support for 'partial' instruction - implementing only a subset of the functionality of one instruction. So `grev` is supported, but `rev8` alone isn't. Subextension are defined without 'partial' instructions - so Zbb doesn't have `rev8` or `orc.B`.
 
-This has received limited testing in a [Linux-on-Litex-VexRiscv](https://github.com/litex-hub/linux-on-litex-vexriscv) SoC. YMMV. See below for some tests.
+This has received limited testing in a [Linux-on-Litex-VexRiscv](https://github.com/litex-hub/linux-on-litex-vexriscv) SoC. YMMV. SMP mode was tested as well.
 
 Also, the implementations of the instructions in SpinalHDL are written for tuncitonality, and not tuned or optimized in any way for performance/area/... (file usage.txt has some numbers).
 
