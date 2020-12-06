@@ -1,20 +1,20 @@
-//#define MATCH_AES32ESMI 0x202b
-//#define MASK_AES32ESMI 0x3e00707f
-//#define MATCH_AES32ESI 0x200202b
-//#define MASK_AES32ESI 0x3e00707f
-//{"aes32esmi"           , 0, INSN_CLASS_ZSCRYPTO,  "d,s,t,w", MATCH_AES32ESMI, MASK_AES32ESMI, match_opcode, 0},
-//{"aes32esi"            , 0, INSN_CLASS_ZSCRYPTO,  "d,s,t,w", MATCH_AES32ESI, MASK_AES32ESI, match_opcode, 0},
-//bs 00000 rs2 rs1 010 rd 0101011 aes32esmi
-//bs 00001 rs2 rs1 010 rd 0101011  aes32esi
+//for v0.8 of K scalar
+//#define MASK_AES32ESMI  0x3e00707f
+//#define MATCH_AES32ESMI 0x36000033
+//#define MASK_AES32ESI  0x3e00707f
+//#define MATCH_AES32ESI 0x32000033
+//bs 11011 rs2 rs1==rd 000 rd 0110011 aes32esmi
+//bs 11001 rs2 rs1==rd 000 rd 0110011  aes32esi
 
-I	aes32esmi0 aes32esmi0	0000000----------010-----0101011	aes0	Zkne
-I	aes32esmi1 aes32esmi1	0100000----------010-----0101011	aes0	Zkne
-I	aes32esmi2 aes32esmi2	1000000----------010-----0101011	aes0	Zkne
-I	aes32esmi3 aes32esmi3	1100000----------010-----0101011	aes0	Zkne
-I	aes32esi0  aes32esi0	0000001----------010-----0101011	aes1	Zkne
-I	aes32esi1  aes32esi1	0100001----------010-----0101011	aes1	Zkne
-I	aes32esi2  aes32esi2	1000001----------010-----0101011	aes1	Zkne
-I	aes32esi3  aes32esi3	1100001----------010-----0101011	aes1	Zkne
+
+I	aes32esmi0 aes32esmi0	0011011----------000-----0110011	aes0	Zkne
+I	aes32esmi1 aes32esmi1	0111011----------000-----0110011	aes0	Zkne
+I	aes32esmi2 aes32esmi2	1011011----------000-----0110011	aes0	Zkne
+I	aes32esmi3 aes32esmi3	1111011----------000-----0110011	aes0	Zkne
+I	aes32esi0  aes32esi0	0011001----------000-----0110011	aes1	Zkne
+I	aes32esi1  aes32esi1	0111001----------000-----0110011	aes1	Zkne
+I	aes32esi2  aes32esi2	1011001----------000-----0110011	aes1	Zkne
+I	aes32esi3  aes32esi3	1111001----------000-----0110011	aes1	Zkne
 
 S	aes32esmi0 "fun_aesx_0(input(SRC2), input(SRC1))"
 S	aes32esmi1 "fun_aesx_1(input(SRC2), input(SRC1))"
