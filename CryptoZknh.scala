@@ -114,16 +114,16 @@ class CryptoZknhPlugin extends Plugin[VexRiscv] {
 			RS3_USE -> True,
 			IS_CryptoZknh -> True
 			)
-		def sha256sig0_KEY = M"000011100000-----111-----0101011"
-		def sha256sig1_KEY = M"000011100001-----111-----0101011"
-		def sha256sum0_KEY = M"000011100010-----111-----0101011"
-		def sha256sum1_KEY = M"000011100011-----111-----0101011"
-		def sha512sig0l_KEY = M"0001000----------111-----0101011"
-		def sha512sig0h_KEY = M"0001001----------111-----0101011"
-		def sha512sig1l_KEY = M"0001010----------111-----0101011"
-		def sha512sig1h_KEY = M"0001011----------111-----0101011"
-		def sha512sum0r_KEY = M"0001100----------111-----0101011"
-		def sha512sum1r_KEY = M"0001101----------111-----0101011"
+		def sha256sig0_KEY = M"000100000010-----001-----0010011"
+		def sha256sig1_KEY = M"000100000011-----001-----0010011"
+		def sha256sum0_KEY = M"000100000000-----001-----0010011"
+		def sha256sum1_KEY = M"000100000001-----001-----0010011"
+		def sha512sig0l_KEY = M"0101010----------000-----0110011"
+		def sha512sig0h_KEY = M"0101110----------000-----0110011"
+		def sha512sig1l_KEY = M"0101011----------000-----0110011"
+		def sha512sig1h_KEY = M"0101111----------000-----0110011"
+		def sha512sum0r_KEY = M"0101000----------000-----0110011"
+		def sha512sum1r_KEY = M"0101001----------000-----0110011"
 		val decoderService = pipeline.service(classOf[DecoderService])
 		decoderService.addDefault(IS_CryptoZknh, False)
 		decoderService.add(List(
