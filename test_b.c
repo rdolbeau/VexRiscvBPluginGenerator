@@ -38,29 +38,39 @@ typedef uint32_t uint_xlen_t;
 #define XLEN 32
 #ifdef __riscv
   //when missing in toolchain
-#define FUN(NAME, OPC)							\
-  static inline uint_xlen_t NAME(uint_xlen_t rs1, uint_xlen_t rs2) {	\
+#define FUN1(NAME, ASNAME)						\
+  static inline uint32_t NAME(uint32_t rs1) {				\
     uint32_t r;								\
-    asm ("or x17, %1 ,%1\n"						\
-	       "or x18, %2, %2\n"					\
-	       ".word " #OPC "\n"					\
-	       "or %0, x19, x19\n"					\
-	       : "=r" (r)						\
-	       : "r" (rs1), "r" (rs2)					\
-	       : "x17", "x18", "x19");					\
+    asm (#ASNAME " reg_%0, reg_%1\n"					\
+	 : "=r" (r)							\
+	 : "r" (rs1));							\
     return r;								\
   }
 #define FUN2(NAME, ASNAME)						\
   static inline uint_xlen_t NAME(uint_xlen_t rs1, uint_xlen_t rs2) {	\
     uint32_t r;								\
-    asm (#ASNAME " reg_%0, reg_%1, reg_%2\n"					\
+    asm (#ASNAME " reg_%0, reg_%1, reg_%2\n"				\
 	       : "=r" (r)						\
 	       : "r" (rs1), "r" (rs2));					\
     return r;								\
   }
+#define FUN3(NAME, ASNAME)						\
+  static inline uint_xlen_t NAME(uint_xlen_t rs1, uint_xlen_t rs2, uint_xlen_t rs3) {	\
+    uint32_t r;								\
+    asm (#ASNAME " reg_%0, reg_%1, reg_%2, reg_%3\n"			\
+	       : "=r" (r)						\
+	 : "r" (rs1), "r" (rs2), "r" (rs3));				\
+    return r;								\
+  }
 
-#define ASMMACRO(N, O) asm(".macro "#N" rd, rs1, rs2\n"		\
+#define ASM1MACRO(N, O) asm(".macro "#N" rd, rs1\n"		\
+			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15))\n"	\
+			   ".endm\n");
+#define ASM2MACRO(N, O) asm(".macro "#N" rd, rs1, rs2\n"		\
 			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15) | (\\rs2 << 20))\n"	\
+			   ".endm\n");
+#define ASM3MACRO(N, O) asm(".macro "#N" rd, rs1, rs2, rs3\n"		\
+			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15) | (\\rs2 << 20) | (\\rs3 << 27) )\n"	\
 			   ".endm\n");
 asm("#define reg_zero 0\n");
 asm("#define reg_ra 1\n");
@@ -94,12 +104,12 @@ asm("#define reg_t3 28\n");
 asm("#define reg_t4 29\n");
 asm("#define reg_t5 30\n");
 asm("#define reg_t6 31\n");
-ASMMACRO(XPERM_N,0x28002033)
-ASMMACRO(XPERM_B,0x28004033)
-ASMMACRO(XPERM_H,0x28006033)
-ASMMACRO(SH1ADD,0x20002033)
-ASMMACRO(SH2ADD,0x20004033)
-ASMMACRO(SH3ADD,0x20006033)
+ASM2MACRO(XPERM_N,0x28002033)
+ASM2MACRO(XPERM_B,0x28004033)
+ASM2MACRO(XPERM_H,0x28006033)
+ASM2MACRO(SH1ADD,0x20002033)
+ASM2MACRO(SH2ADD,0x20004033)
+ASM2MACRO(SH3ADD,0x20006033)
 
 /* FUN(xperm_n,0x2928a9b3) */
 /* FUN(xperm_b,0x2928c9b3) */
@@ -146,7 +156,7 @@ uint_xlen_t sh3add(uint_xlen_t rs1, uint_xlen_t rs2)
 {
     return (rs1 << 3) + rs2;
 }
-#endif
+#endif // riscv
 
 
 /* emulates 64 bits clmul with 32 bit clmul/clmulh */
@@ -178,17 +188,22 @@ static inline int64_t _rv64_clmul2(int64_t rs1, int64_t rs2)
 int main(int argc, char **argv) {
   unsigned int b = 0xdeadbeef;
   unsigned int c;
+  unsigned int d = 0xC0FFEE00;
   unsigned int index;
 
   if (argc > 1)
     a = strtoul(argv[1], NULL, 16);
   if (argc > 2)
     b = strtoul(argv[2], NULL, 16);
+  if (argc > 3)
+    d = strtoul(argv[2], NULL, 16);
 
 #define T2(X) \
   c = X(a,b);printf(#X "(0x%08x, 0x%08x) -> 0x%08x\n", a, b, c)
 #define T1(X) \
   c = X(a);printf(#X "(0x%08x) -> 0x%08x\n", a, c)
+#define T3(X) \
+  c = X(a,b,d);printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, b, d, c)
 
   for (index = 0 ; index < 32 ; index++) {
   
@@ -255,6 +270,9 @@ int main(int argc, char **argv) {
   T2(xperm_n);
   T2(xperm_b);
   T2(xperm_h);
+
+  T3(_rv_cmix);
+  T3(_rv_cmov);
 
   b = index;
   }

@@ -134,6 +134,19 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tIS_" << prefix << " -> True" << std::endl;
 	output << '\t' << '\t' << "\t)" << std::endl;
+	
+	output << '\t' << '\t' << "val ternaryActions = List[(Stageable[_ <: BaseType],Any)](" << std::endl;
+	output << '\t' << '\t' << "\tSRC1_CTRL                -> Src1CtrlEnum.RS," << std::endl;
+	output << '\t' << '\t' << "\tSRC2_CTRL                -> Src2CtrlEnum.RS," << std::endl;
+	output << '\t' << '\t' << "\tSRC3_CTRL                -> Src2CtrlEnum.RS," << std::endl;
+	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
+	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> True," << std::endl;
+	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
+	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
+	output << '\t' << '\t' << "\tRS2_USE -> True," << std::endl;
+	output << '\t' << '\t' << "\tRS3_USE -> True," << std::endl;
+	output << '\t' << '\t' << "\tIS_" << prefix << " -> True" << std::endl;
+	output << '\t' << '\t' << "\t)" << std::endl;
 
 	// inst keys
 	for (const instruction* inst : instructions) {
@@ -157,9 +170,12 @@ void unparse(std::ostream& output,
 				control = prefix + "Ctrl -> " + prefix + "CtrlEnum.CTRL_" + inst->opname;
 			if (!inst->isImm()) {
 				if (semantics[inst->opname].find("SRC2") != std::string::npos)
-					output << '\t' << '\t' << "\t" << inst->keyName() << "\t-> (binaryActions ++ List("<< control << "))";
+				  if (semantics[inst->opname].find("SRC3") != std::string::npos)
+				    output << '\t' << '\t' << "\t" << inst->keyName() << "\t-> (ternaryActions ++ List("<< control << "))";
+				  else
+				    output << '\t' << '\t' << "\t" << inst->keyName() << "\t-> (binaryActions ++ List("<< control << "))";
 				else
-					output << '\t' << '\t' << "\t" << inst->keyName() << "\t-> (unaryActions ++ List("<< control << "))";
+				  output << '\t' << '\t' << "\t" << inst->keyName() << "\t-> (unaryActions ++ List("<< control << "))";
 			} else {
 				output << '\t' << '\t' << "\t" << inst->keyName() << "\t-> (immediateActions ++ List("<< control << "))";
 			}

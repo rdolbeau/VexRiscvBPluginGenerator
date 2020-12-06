@@ -120,6 +120,18 @@ class BitManipZclmulPlugin extends Plugin[VexRiscv] {
 			RS1_USE -> True,
 			IS_BitManipZclmul -> True
 			)
+		val ternaryActions = List[(Stageable[_ <: BaseType],Any)](
+			SRC1_CTRL                -> Src1CtrlEnum.RS,
+			SRC2_CTRL                -> Src2CtrlEnum.RS,
+			SRC3_CTRL                -> Src2CtrlEnum.RS,
+			REGFILE_WRITE_VALID      -> True,
+			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_MEMORY_STAGE  -> True,
+			RS1_USE -> True,
+			RS2_USE -> True,
+			RS3_USE -> True,
+			IS_BitManipZclmul -> True
+			)
 		def CLMUL_KEY = M"0000101----------001-----0110011"
 		def CLMULR_KEY = M"0000101----------010-----0110011"
 		def CLMULH_KEY = M"0000101----------011-----0110011"
