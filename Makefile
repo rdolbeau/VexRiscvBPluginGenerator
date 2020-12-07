@@ -48,7 +48,7 @@ BitManipAllPlugin.scala: gen_plugin data_bitmanip.txt
 	./gen_plugin BitManipAll data_bitmanip.txt '*' >| $@
 
 CryptoZknePlugin.scala: gen_plugin data_aes.txt
-	./gen_plugin CryptoZkne data_aes.txt Zkne >| $@
+	./gen_plugin CryptoZkne data_aes.txt '*' >| $@
 
 BitManipZclmul.scala: gen_plugin data_clmul.txt
 	./gen_plugin BitManipZclmul data_clmul.txt '*' >| $@

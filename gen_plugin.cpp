@@ -59,6 +59,15 @@ void add_inst4(const char* name, const char* opname, const char* key, const char
 	i->addExt(e4);
 	instructions.insert(i);
 }
+void add_inst5(const char* name, const char* opname, const char* key, const char* group, const char* e1, const char* e2, const char *e3, const char *e4, const char *e5) {
+	instruction* i = new instruction(name, opname, key, group);
+	i->addExt(e1);
+	i->addExt(e2);
+	i->addExt(e3);
+	i->addExt(e4);
+	i->addExt(e5);
+	instructions.insert(i);
+}
 void add_sem(const char* name, const char* sem) {
 	semantics[std::string(name)] = std::string(sem);
 }

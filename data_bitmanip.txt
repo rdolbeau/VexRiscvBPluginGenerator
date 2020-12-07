@@ -2,26 +2,26 @@
 // Starting with // is a comment
 // Fields are separated by any number of spaces and tabs
 // For S: Followed by a single field in double-quotes (space allowed but not carriage return), the instruction semantic in SpinalHDL
-// For P : Followed by a single field in triple double-quotes (anything allowed), extra code to add
-// For I : Followed by 4-8 Fields:
+// For P: Followed by a single field in triple double-quotes (anything allowed), extra code to add
+// For I: Followed by 4-9 Fields:
 // 1) instruction name
 // 2) semantic name (usually idential between R and I form)
 // 3) pattern to match
 // 4) mux (group) name
-// 5-8) optional,  (sub-)extension the instruction belongs to
+// 5-9) optional,  (sub-)extension the instruction belongs to (up to 5)
 // Avoids non-ASCII (7 bit) characters, as some string ends up in SpinalHDL code
 //
 // INSTRUCTIONS
 // register-register
-//	inst	semant	pattern					group/mux	ext1	ext2	ext3	ext4
-//	----	-----	-------					---------	----	----	----	----
-I	ANDN	ANDN	0100000----------111-----0110011	bitwise		Zbb	Zbp
-I	ORN	ORN	0100000----------110-----0110011	bitwise		Zbb	Zbp
-I	XNOR	XNOR	0100000----------100-----0110011	bitwise		Zbb	Zbp
+//	inst	semant	pattern					group/mux	ext1	ext2	ext3	ext4	ext5
+//	----	-----	-------					---------	----	----	----	----	----
+I	ANDN	ANDN	0100000----------111-----0110011	bitwise		Zbb	Zbp	Zkb
+I	ORN	ORN	0100000----------110-----0110011	bitwise		Zbb	Zbp	Zkb
+I	XNOR	XNOR	0100000----------100-----0110011	bitwise		Zbb	Zbp	Zkb
 I	SLO	SLO	0010000----------001-----0110011	shift		Zxx
 I	SRO	SRO	0010000----------101-----0110011	shift		Zxx
-I	ROL	ROL	0110000----------001-----0110011	rotation		Zbp
-I	ROR	ROR	0110000----------101-----0110011	rotation	Zbb	Zbp
+I	ROL	ROL	0110000----------001-----0110011	rotation		Zbp	Zkb
+I	ROR	ROR	0110000----------101-----0110011	rotation	Zbb	Zbp	Zkb
 I	SH1ADD	SH1ADD	0010000----------010-----0110011	sh_add		Zba
 I	SH2ADD	SH2ADD	0010000----------100-----0110011	sh_add		Zba
 I	SH3ADD	SH3ADD	0010000----------110-----0110011	sh_add		Zba
@@ -31,9 +31,6 @@ I	SBINV	SBINV	0110100----------001-----0110011	singlebit	Zbs
 I	SBEXT	SBEXT	0100100----------101-----0110011	singlebit	Zbs
 I	GORC	GORC	0010100----------101-----0110011	grevroc		Zbp
 I	GREV	GREV	0110100----------101-----0110011	grevroc		Zbp
-I	CLMUL	CLMUL	0000101----------001-----0110011	CLMUL
-I	CLMULR	CLMULR	0000101----------010-----0110011	CLMULR
-I	CLMULH	CLMULH	0000101----------011-----0110011	CLMULH
 I	MIN	MIN	0000101----------100-----0110011	minmax		Zbb
 I	MINU	MINU	0000101----------101-----0110011	minmax		Zbb
 I	MAX	MAX	0000101----------110-----0110011	minmax		Zbb
@@ -42,15 +39,15 @@ I	SHFL	SHFL	0000100----------001-----0110011	shuffle		Zbp
 I	UNSHFL	UNSHFL	0000100----------101-----0110011	shuffle		Zbp
 I	BDEP	BDEP	0100100----------110-----0110011	BDEP
 I	BEXT	BEXT	0000100----------110-----0110011	BEXT
-I	PACK	PACK	0000100----------100-----0110011	pack		Zbb	Zbp	Zbe	Zbf
-I	PACKU	PACKU	0100100----------100-----0110011	pack		Zbp
+I	PACK	PACK	0000100----------100-----0110011	pack		Zbb	Zbp	Zbe	Zbf	Zkb
+I	PACKU	PACKU	0100100----------100-----0110011	pack		Zbp				Zkb
 I	BMATOR	BMATOR	0000100----------011-----0110011	BMATOR
 I	BMATXOR	BMATXOR	0100100----------011-----0110011	BMATXOR
-I	PACKH	PACKH	0000100----------111-----0110011	pack		Zbp	Zbe	Zbf
+I	PACKH	PACKH	0000100----------111-----0110011	pack		Zbp	Zbe	Zbf		Zkb
 I	BFP	BFP	0100100----------111-----0110011	BFP
 I	ADDUdotW ADDUdotW 0000100----------000-----0111011	ADDUdotW
-I	SLOW	SLOW	0010000----------001-----0111011	shift
-I	SROW	SROW	0010000----------101-----0111011	shift
+I	SLOW	SLOW	0010000----------001-----0111011	SLOW
+I	SROW	SROW	0010000----------101-----0111011	SROW
 I	ROLW	ROLW	0110000----------001-----0111011	rotation	Zbb	Zbp
 I	RORW	RORW	0110000----------101-----0111011	rotation	Zbb	Zbp
 I	SH1ADDUdotW SH1ADDUdotW	0010000----------010-----0111011 SH1ADDUdotW
@@ -60,23 +57,23 @@ I	SBCLRW	SBCLRW	0100100----------001-----0111011	singlebit	Zbs
 I	SBSETW	SBSETW	0010100----------001-----0111011	singlebit	Zbs
 I	SBINVW	SBINVW	0110100----------001-----0111011	singlebit	Zbs
 I	SBEXTW	SBEXTW	0100100----------101-----0111011	singlebit	Zbs
-I	GORCW	GORCW	0010100----------101-----0111011	grevroc
-I	GREVW	GREVW	0110100----------101-----0111011	grevroc
+I	GORCW	GORCW	0010100----------101-----0111011	GORCW
+I	GREVW	GREVW	0110100----------101-----0111011	GREVW
 I	SHFLW	SHFLW	0000100----------001-----0111011	shuffle		Zbp
 I	UNSHFLW	UNSHFLW	0000100----------101-----0111011	shuffle		Zbp
 I	BDEPW	BDEPW	0100100----------110-----0111011	BDEPW
 I	BEXTW	BEXTW	0000100----------110-----0111011	BEXTW
-I	PACKW	PACKW	0000100----------100-----0111011	pack
-I	PACKUW	PACKUW	0100100----------100-----0111011	pack
+I	PACKW	PACKW	0000100----------100-----0111011	PACKW
+I	PACKUW	PACKUW	0100100----------100-----0111011	PACKUW
 I	BFPW	BFPW	0100100----------111-----0111011	BFPW
-I	XPERMdotN XPERMdotN 0010100----------010-----0110011	xperm		Zbp
-I	XPERMdotB XPERMdotB 0010100----------100-----0110011	xperm		Zbp
-I	XPERMdotH XPERMdotH 0010100----------110-----0110011	xperm		Zbp
+I	XPERMdotN XPERMdotN 0010100----------010-----0110011	xperm		Zbp	Zkb
+I	XPERMdotB XPERMdotB 0010100----------100-----0110011	xperm		Zbp	Zkb
+I	XPERMdotH XPERMdotH 0010100----------110-----0110011	xperm		Zbp	
 I	XPERMdotW XPERMdotW 0010100----------000-----0110011	XPERMdotW
 // register-immediate (7bits)
 I	SLOI	SLO	00100------------001-----0010011	shift		Zxx
 I	SROI	SRO	00100------------101-----0010011	shift		Zxx
-I	RORI	ROR	01100------------101-----0010011	rotation	Zbb	Zbp
+I	RORI	ROR	01100------------101-----0010011	rotation	Zbb	Zbp	Zkb
 I	SBCLRI	SBCLR	01001------------001-----0010011	singlebit	Zbs
 I	SBSETI	SBSET	00101------------001-----0010011	singlebit	Zbs
 I	SBINVI	SBINV	01101------------001-----0010011	singlebit	Zbs
