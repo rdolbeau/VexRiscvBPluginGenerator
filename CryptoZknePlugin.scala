@@ -369,6 +369,17 @@ class CryptoZknePlugin extends Plugin[VexRiscv] {
 			RS3_USE -> True,
 			IS_CryptoZkne -> True
 			)
+		val immTernaryActions = List[(Stageable[_ <: BaseType],Any)](
+			SRC1_CTRL                -> Src1CtrlEnum.RS,
+			SRC2_CTRL                -> Src2CtrlEnum.IMI,
+			SRC3_CTRL                -> Src2CtrlEnum.RS,
+			REGFILE_WRITE_VALID      -> True,
+			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_MEMORY_STAGE  -> True,
+			RS1_USE -> True,
+			RS3_USE -> True,
+			IS_CryptoZkne -> True
+			)
 		def aes32esmi0_KEY = M"0011011----------000-----0110011"
 		def aes32esmi1_KEY = M"0111011----------000-----0110011"
 		def aes32esmi2_KEY = M"1011011----------000-----0110011"

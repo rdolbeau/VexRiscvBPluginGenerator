@@ -114,6 +114,17 @@ class CryptoZknhPlugin extends Plugin[VexRiscv] {
 			RS3_USE -> True,
 			IS_CryptoZknh -> True
 			)
+		val immTernaryActions = List[(Stageable[_ <: BaseType],Any)](
+			SRC1_CTRL                -> Src1CtrlEnum.RS,
+			SRC2_CTRL                -> Src2CtrlEnum.IMI,
+			SRC3_CTRL                -> Src2CtrlEnum.RS,
+			REGFILE_WRITE_VALID      -> True,
+			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_MEMORY_STAGE  -> True,
+			RS1_USE -> True,
+			RS3_USE -> True,
+			IS_CryptoZknh -> True
+			)
 		def sha256sig0_KEY = M"000100000010-----001-----0010011"
 		def sha256sig1_KEY = M"000100000011-----001-----0010011"
 		def sha256sum0_KEY = M"000100000000-----001-----0010011"

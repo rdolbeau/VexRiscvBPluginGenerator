@@ -312,6 +312,26 @@ object BitManipZbpPlugin {
        r1 ## r0 // return value
    }
 
+   def fun_fsl(rs1:Bits, rs3:Bits, rs2:Bits) : Bits = {
+       val rawshamt = (rs2 & B"32'x0000003F").asUInt
+       val shamt = (rawshamt >= 32) ? (rawshamt - 32) | (rawshamt)
+       val A = (shamt === rawshamt) ? (rs1) | (rs3)
+       val B = (shamt === rawshamt) ? (rs3) | (rs1)
+       val r = (shamt === 0) ? (A) | ((A |<< shamt) | (B |>> (32-shamt))) 
+
+       r // return value
+   }
+
+   def fun_fsr(rs1:Bits, rs3:Bits, rs2:Bits) : Bits = {
+       val rawshamt = (rs2 & B"32'x0000003F").asUInt
+       val shamt = (rawshamt >= 32) ? (rawshamt - 32) | (rawshamt)
+       val A = (shamt === rawshamt) ? (rs1) | (rs3)
+       val B = (shamt === rawshamt) ? (rs3) | (rs1)
+       val r = (shamt === 0) ? (A) | ((A |>> shamt) | (B |<< (32-shamt))) 
+
+       r // return value
+   }
+
 // End prologue
 } // object Plugin
 class BitManipZbpPlugin extends Plugin[VexRiscv] {
@@ -355,6 +375,17 @@ class BitManipZbpPlugin extends Plugin[VexRiscv] {
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS2_USE -> True,
+			RS3_USE -> True,
+			IS_BitManipZbp -> True
+			)
+		val immTernaryActions = List[(Stageable[_ <: BaseType],Any)](
+			SRC1_CTRL                -> Src1CtrlEnum.RS,
+			SRC2_CTRL                -> Src2CtrlEnum.IMI,
+			SRC3_CTRL                -> Src2CtrlEnum.RS,
+			REGFILE_WRITE_VALID      -> True,
+			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_MEMORY_STAGE  -> True,
+			RS1_USE -> True,
 			RS3_USE -> True,
 			IS_BitManipZbp -> True
 			)

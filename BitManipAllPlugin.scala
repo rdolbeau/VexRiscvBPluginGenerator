@@ -44,7 +44,7 @@ object BitManipAllPlugin {
 		 val CTRL_SEXTdotB, CTRL_SEXTdotH = newElement()
 	}
 	object BitManipAllCtrlternaryEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_CMIX, CTRL_CMOV = newElement()
+		 val CTRL_CMIX, CTRL_CMOV, CTRL_FSL, CTRL_FSR = newElement()
 	}
 	object BitManipAllCtrlEnum extends SpinalEnum(binarySequential) {
 		 val CTRL_bitwise, CTRL_shift, CTRL_rotation, CTRL_sh_add, CTRL_singlebit, CTRL_grevroc, CTRL_minmax, CTRL_shuffle, CTRL_pack, CTRL_xperm, CTRL_grevorc, CTRL_countzeroes, CTRL_signextend, CTRL_ternary = newElement()
@@ -340,6 +340,26 @@ object BitManipAllPlugin {
        r1 ## r0 // return value
    }
 
+   def fun_fsl(rs1:Bits, rs3:Bits, rs2:Bits) : Bits = {
+       val rawshamt = (rs2 & B"32'x0000003F").asUInt
+       val shamt = (rawshamt >= 32) ? (rawshamt - 32) | (rawshamt)
+       val A = (shamt === rawshamt) ? (rs1) | (rs3)
+       val B = (shamt === rawshamt) ? (rs3) | (rs1)
+       val r = (shamt === 0) ? (A) | ((A |<< shamt) | (B |>> (32-shamt))) 
+
+       r // return value
+   }
+
+   def fun_fsr(rs1:Bits, rs3:Bits, rs2:Bits) : Bits = {
+       val rawshamt = (rs2 & B"32'x0000003F").asUInt
+       val shamt = (rawshamt >= 32) ? (rawshamt - 32) | (rawshamt)
+       val A = (shamt === rawshamt) ? (rs1) | (rs3)
+       val B = (shamt === rawshamt) ? (rs3) | (rs1)
+       val r = (shamt === 0) ? (A) | ((A |>> shamt) | (B |<< (32-shamt))) 
+
+       r // return value
+   }
+
 // End prologue
 } // object Plugin
 class BitManipAllPlugin extends Plugin[VexRiscv] {
@@ -383,6 +403,17 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS2_USE -> True,
+			RS3_USE -> True,
+			IS_BitManipAll -> True
+			)
+		val immTernaryActions = List[(Stageable[_ <: BaseType],Any)](
+			SRC1_CTRL                -> Src1CtrlEnum.RS,
+			SRC2_CTRL                -> Src2CtrlEnum.IMI,
+			SRC3_CTRL                -> Src2CtrlEnum.RS,
+			REGFILE_WRITE_VALID      -> True,
+			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_MEMORY_STAGE  -> True,
+			RS1_USE -> True,
 			RS3_USE -> True,
 			IS_BitManipAll -> True
 			)
@@ -432,6 +463,9 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 		def SEXTdotH_KEY = M"011000000101-----001-----0010011"
 		def CMIX_KEY = M"-----11----------001-----0110011"
 		def CMOV_KEY = M"-----11----------101-----0110011"
+		def FSL_KEY = M"-----10----------001-----0110011"
+		def FSR_KEY = M"-----10----------101-----0110011"
+		def FSRI_KEY = M"-----1-----------101-----0010011"
 		val decoderService = pipeline.service(classOf[DecoderService])
 		decoderService.addDefault(IS_BitManipAll, False)
 		decoderService.add(List(
@@ -480,7 +514,10 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 			SEXTdotB_KEY	-> (unaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_signextend, BitManipAllCtrlsignextend -> BitManipAllCtrlsignextendEnum.CTRL_SEXTdotB)),
 			SEXTdotH_KEY	-> (unaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_signextend, BitManipAllCtrlsignextend -> BitManipAllCtrlsignextendEnum.CTRL_SEXTdotH)),
 			CMIX_KEY	-> (ternaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_ternary, BitManipAllCtrlternary -> BitManipAllCtrlternaryEnum.CTRL_CMIX)),
-			CMOV_KEY	-> (ternaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_ternary, BitManipAllCtrlternary -> BitManipAllCtrlternaryEnum.CTRL_CMOV))
+			CMOV_KEY	-> (ternaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_ternary, BitManipAllCtrlternary -> BitManipAllCtrlternaryEnum.CTRL_CMOV)),
+			FSL_KEY	-> (ternaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_ternary, BitManipAllCtrlternary -> BitManipAllCtrlternaryEnum.CTRL_FSL)),
+			FSR_KEY	-> (ternaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_ternary, BitManipAllCtrlternary -> BitManipAllCtrlternaryEnum.CTRL_FSR)),
+			FSRI_KEY	-> (immTernaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_ternary, BitManipAllCtrlternary -> BitManipAllCtrlternaryEnum.CTRL_FSR))
 		))
 	} // override def setup
 	override def build(pipeline: VexRiscv): Unit = {
@@ -551,7 +588,9 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 			) // mux signextend
 			val val_ternary = input(BitManipAllCtrlternary).mux(
 				BitManipAllCtrlternaryEnum.CTRL_CMIX -> ((input(SRC1) & input(SRC2)) | (input(SRC3) & ~input(SRC2))),
-				BitManipAllCtrlternaryEnum.CTRL_CMOV -> ((input(SRC2).asUInt =/= 0) ? input(SRC1) | input(SRC3))
+				BitManipAllCtrlternaryEnum.CTRL_CMOV -> ((input(SRC2).asUInt =/= 0) ? input(SRC1) | input(SRC3)),
+				BitManipAllCtrlternaryEnum.CTRL_FSL -> fun_fsl(input(SRC1), input(SRC3), input(SRC2)),
+				BitManipAllCtrlternaryEnum.CTRL_FSR -> fun_fsr(input(SRC1), input(SRC3), input(SRC2))
 			) // mux ternary
 			when (input(IS_BitManipAll)) {
 				execute.output(REGFILE_WRITE_DATA) := input(BitManipAllCtrl).mux(

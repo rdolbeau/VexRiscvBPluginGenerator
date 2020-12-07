@@ -203,7 +203,7 @@ int main(int argc, char **argv) {
 #define T1(X) \
   c = X(a);printf(#X "(0x%08x) -> 0x%08x\n", a, c)
 #define T3(X) \
-  c = X(a,b,d);printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, b, d, c)
+  c = X(a,d,b);printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, d, b, c)
 
   for (index = 0 ; index < 32 ; index++) {
   
@@ -273,6 +273,9 @@ int main(int argc, char **argv) {
 
   T3(_rv_cmix);
   T3(_rv_cmov);
+
+  T3(_rv32_fsl);
+  T3(_rv32_fsr);
 
   b = index;
   }

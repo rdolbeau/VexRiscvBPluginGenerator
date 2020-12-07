@@ -112,11 +112,11 @@ I	CLZW	CLZW	011000000000-----001-----0011011	countzeroes
 I	CTZW	CTZW	011000000001-----001-----0011011	countzeroes
 I	PCNTW	PCNTW	011000000010-----001-----0011011	countzeroes
 // register-register-register
-I       CMIX    CMIX    -----11----------001-----0110011        ternary		Zbt	Zbb
-I       CMOV    CMOV    -----11----------101-----0110011        ternary		Zbt	Zbb
-I       FSL     FSL     -----10----------001-----0110011        FSL
-I       FSR     FSR     -----10----------101-----0110011        FSR
-I       FSRI    FSRI    -----1-----------101-----0010011        FSRI
+I       CMIX    CMIX    -----11----------001-----0110011        ternary		Zbt
+I       CMOV    CMOV    -----11----------101-----0110011        ternary		Zbt
+I       FSL     FSL     -----10----------001-----0110011        ternary		Zbt
+I       FSR     FSR     -----10----------101-----0110011        ternary		Zbt
+I       FSRI    FSR     -----1-----------101-----0010011        ternary		Zbt
 I       FSLW    FSLW    -----10----------001-----0111011        FSLW
 I       FSRW    FSRW    -----10----------101-----0111011        FSRW
 I       FSRIW   FSRIW   -----10----------101-----0011011        FSRIW
@@ -159,6 +159,8 @@ S	PCNT		"fun_popcnt(input(SRC1))"
 // if 'SRC3' appear in the semantic, the code assume ternary
 S	CMIX	"((input(SRC1) & input(SRC2)) | (input(SRC3) & ~input(SRC2)))"
 S	CMOV	"((input(SRC2).asUInt =/= 0) ? input(SRC1) | input(SRC3))"
+S	FSL	"fun_fsl(input(SRC1), input(SRC3), input(SRC2))"
+S	FSR	"fun_fsr(input(SRC1), input(SRC3), input(SRC2))"
 
 // PROLOGUE
 P	"""
@@ -434,5 +436,25 @@ P	"""
 	   default -> B"16'x0000"
 	   )
        r1 ## r0 // return value
+   }
+
+   def fun_fsl(rs1:Bits, rs3:Bits, rs2:Bits) : Bits = {
+       val rawshamt = (rs2 & B"32'x0000003F").asUInt
+       val shamt = (rawshamt >= 32) ? (rawshamt - 32) | (rawshamt)
+       val A = (shamt === rawshamt) ? (rs1) | (rs3)
+       val B = (shamt === rawshamt) ? (rs3) | (rs1)
+       val r = (shamt === 0) ? (A) | ((A |<< shamt) | (B |>> (32-shamt))) 
+
+       r // return value
+   }
+
+   def fun_fsr(rs1:Bits, rs3:Bits, rs2:Bits) : Bits = {
+       val rawshamt = (rs2 & B"32'x0000003F").asUInt
+       val shamt = (rawshamt >= 32) ? (rawshamt - 32) | (rawshamt)
+       val A = (shamt === rawshamt) ? (rs1) | (rs3)
+       val B = (shamt === rawshamt) ? (rs3) | (rs1)
+       val r = (shamt === 0) ? (A) | ((A |>> shamt) | (B |<< (32-shamt))) 
+
+       r // return value
    }
 """
