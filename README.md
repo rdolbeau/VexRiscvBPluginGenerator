@@ -1,5 +1,7 @@
 # B plugin generator for VexRiscv
 
+**beware** This is targeting B on an intermediate draft between 0.92 and 0.93, so opcodes and subsets might be not match the current version of B. Ditto for Z, this is targeting version 0.8.0.
+
 ## This repository
 
 This is a quick'n'dirty plugin generator to add a subset of the [B](https://github.com/riscv/riscv-bitmanip) extension to the [VexRiscv](https://github.com/SpinalHDL/VexRiscv) core.
