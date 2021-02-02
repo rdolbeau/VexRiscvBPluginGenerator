@@ -25,10 +25,10 @@ I	ROR	ROR	0110000----------101-----0110011	rotation	Zbb	Zbp	Zkb
 I	SH1ADD	SH1ADD	0010000----------010-----0110011	sh_add		Zba
 I	SH2ADD	SH2ADD	0010000----------100-----0110011	sh_add		Zba
 I	SH3ADD	SH3ADD	0010000----------110-----0110011	sh_add		Zba
-I	SBCLR	SBCLR	0100100----------001-----0110011	singlebit	Zbs
-I	SBSET	SBSET	0010100----------001-----0110011	singlebit	Zbs
-I	SBINV	SBINV	0110100----------001-----0110011	singlebit	Zbs
-I	SBEXT	SBEXT	0100100----------101-----0110011	singlebit	Zbs
+I	BCLR	BCLR	0100100----------001-----0110011	singlebit	Zbs
+I	BSET	BSET	0010100----------001-----0110011	singlebit	Zbs
+I	BINV	BINV	0110100----------001-----0110011	singlebit	Zbs
+I	BEXT	BEXT	0100100----------101-----0110011	singlebit	Zbs
 I	GORC	GORC	0010100----------101-----0110011	grevroc		Zbp
 I	GREV	GREV	0110100----------101-----0110011	grevroc		Zbp
 I	MIN	MIN	0000101----------100-----0110011	minmax		Zbb
@@ -53,10 +53,10 @@ I	RORW	RORW	0110000----------101-----0111011	rotation	Zbb	Zbp
 I	SH1ADDUdotW SH1ADDUdotW	0010000----------010-----0111011 SH1ADDUdotW
 I	SH2ADDUdotW SH2ADDUdotW	0010000----------100-----0111011 SH2ADDUdotW
 I	SH3ADDUdotW SH3ADDUdotW	0010000----------110-----0111011 SH3ADDUdotW
-I	SBCLRW	SBCLRW	0100100----------001-----0111011	singlebit	Zbs
-I	SBSETW	SBSETW	0010100----------001-----0111011	singlebit	Zbs
-I	SBINVW	SBINVW	0110100----------001-----0111011	singlebit	Zbs
-I	SBEXTW	SBEXTW	0100100----------101-----0111011	singlebit	Zbs
+I	BCLRW	BCLRW	0100100----------001-----0111011	singlebit	Zbs
+I	BSETW	BSETW	0010100----------001-----0111011	singlebit	Zbs
+I	BINVW	BINVW	0110100----------001-----0111011	singlebit	Zbs
+I	BEXTW	BEXTW	0100100----------101-----0111011	singlebit	Zbs
 I	GORCW	GORCW	0010100----------101-----0111011	GORCW
 I	GREVW	GREVW	0110100----------101-----0111011	GREVW
 I	SHFLW	SHFLW	0000100----------001-----0111011	shuffle		Zbp
@@ -74,10 +74,10 @@ I	XPERMdotW XPERMdotW 0010100----------000-----0110011	XPERMdotW
 I	SLOI	SLO	00100------------001-----0010011	shift		Zxx
 I	SROI	SRO	00100------------101-----0010011	shift		Zxx
 I	RORI	ROR	01100------------101-----0010011	rotation	Zbb	Zbp	Zkb
-I	SBCLRI	SBCLR	01001------------001-----0010011	singlebit	Zbs
-I	SBSETI	SBSET	00101------------001-----0010011	singlebit	Zbs
-I	SBINVI	SBINV	01101------------001-----0010011	singlebit	Zbs
-I	SBEXTI	SBEXT	01001------------101-----0010011	singlebit	Zbs
+I	BCLRI	BCLR	01001------------001-----0010011	singlebit	Zbs
+I	BSETI	BSET	00101------------001-----0010011	singlebit	Zbs
+I	BINVI	BINV	01101------------001-----0010011	singlebit	Zbs
+I	BEXTI	BEXT	01001------------101-----0010011	singlebit	Zbs
 I	GORCI	GORC	00101------------101-----0010011	grevorc		Zbp
 I	GREVI	GREV	01101------------101-----0010011	grevorc		Zbp
 I	SLLIUdotW SLLIUdotW 00001------------001-----0011011	SLLIUdotW
@@ -88,9 +88,9 @@ I	UNSHFLI	UNSHFL	000010-----------101-----0010011	shuffle		Zbp
 I	SLOIW	SLOW	0010000----------001-----0011011	shift
 I	SROIW	SROW	0010000----------101-----0011011	shift
 I	RORIW	RORW	0110000----------101-----0011011	rotation
-I	SBCLRIW	SBCLRW	0100100----------001-----0011011	singlebit
-I	SBSETIW	SBSETW	0010100----------001-----0011011	singlebit
-I	SBINVIW	SBINVW	0110100----------001-----0011011	singlebit
+I	BCLRIW	BCLRW	0100100----------001-----0011011	singlebit
+I	BSETIW	BSETW	0010100----------001-----0011011	singlebit
+I	BINVIW	BINVW	0110100----------001-----0011011	singlebit
 I	GORCIW	GORCW	0010100----------101-----0011011	grevroc
 I	GREVIW	GREVW	0110100----------101-----0011011	grevroc
 // unary register
@@ -137,10 +137,10 @@ S	XNOR	"(input(SRC1) ^ ~input(SRC2))"
 S	SH1ADD	"((input(SRC1) |<< 1).asUInt + input(SRC2).asUInt)"
 S	SH2ADD	"((input(SRC1) |<< 2).asUInt + input(SRC2).asUInt)"
 S	SH3ADD	"((input(SRC1) |<< 3).asUInt + input(SRC2).asUInt)"
-S	SBSET	"(input(SRC1) |  (B"32'x00000001"|<<((input(SRC2)&31).asUInt)))"
-S	SBCLR	"(input(SRC1) & ~(B"32'x00000001"|<<((input(SRC2)&31).asUInt)))"
-S	SBINV	"(input(SRC1) ^  (B"32'x00000001"|<<((input(SRC2)&31).asUInt)))"
-S	SBEXT	"((input(SRC1) |>> ((input(SRC2)&31).asUInt)) & B"32'x00000001")"
+S	BSET	"(input(SRC1) |  (B"32'x00000001"|<<((input(SRC2)&31).asUInt)))"
+S	BCLR	"(input(SRC1) & ~(B"32'x00000001"|<<((input(SRC2)&31).asUInt)))"
+S	BINV	"(input(SRC1) ^  (B"32'x00000001"|<<((input(SRC2)&31).asUInt)))"
+S	BEXT	"((input(SRC1) |>> ((input(SRC2)&31).asUInt)) & B"32'x00000001")"
 S	SLO	"~((~input(SRC1)) |<< (input(SRC2)&31).asUInt)"
 S	SRO	"~((~input(SRC1)) |>> (input(SRC2)&31).asUInt)"
 S	MIN	"((input(SRC1).asSInt < input(SRC2).asSInt) ? input(SRC1) | input(SRC2))"
