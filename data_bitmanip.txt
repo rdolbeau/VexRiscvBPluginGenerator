@@ -11,6 +11,19 @@
 // 5-9) optional,  (sub-)extension the instruction belongs to (up to 5)
 // Avoids non-ASCII (7 bit) characters, as some string ends up in SpinalHDL code
 //
+// Known differences with the specifications:
+// Zbb: doesn't include pack (to implement zext.h), grevi (to implement rev8), gorci (to implement orc.b)
+// Zbp: 
+// Zbs: 
+// Zba: 
+// Zbe: bcompress/bdecompress currently unimplemented
+// Zbf: bfp currently unimplemented
+// Zbc: in a dedicated file, 'data_clmul.txt'
+// Zbm: ignored, RV64-only
+// Zbr: ignored, crc32 unimplemented
+// Zbt: 
+// B  : should be Zbb, Zbp, Zbs, Zba, Zbe, Zbf, Zbc, Zbm
+//
 // INSTRUCTIONS
 // register-register
 //	inst	semant	pattern					group/mux	ext1	ext2	ext3	ext4	ext5
@@ -20,7 +33,7 @@ I	ORN	ORN	0100000----------110-----0110011	bitwise		Zbb	Zbp	Zkb
 I	XNOR	XNOR	0100000----------100-----0110011	bitwise		Zbb	Zbp	Zkb
 I	SLO	SLO	0010000----------001-----0110011	shift		Zxx
 I	SRO	SRO	0010000----------101-----0110011	shift		Zxx
-I	ROL	ROL	0110000----------001-----0110011	rotation		Zbp	Zkb
+I	ROL	ROL	0110000----------001-----0110011	rotation	Zbb	Zbp	Zkb
 I	ROR	ROR	0110000----------101-----0110011	rotation	Zbb	Zbp	Zkb
 I	SH1ADD	SH1ADD	0010000----------010-----0110011	sh_add		Zba
 I	SH2ADD	SH2ADD	0010000----------100-----0110011	sh_add		Zba
@@ -39,7 +52,7 @@ I	SHFL	SHFL	0000100----------001-----0110011	shuffle		Zbp
 I	UNSHFL	UNSHFL	0000100----------101-----0110011	shuffle		Zbp
 I	BDECOMPRESS	BDECOMPRESS	0100100----------110-----0110011	BDECOMPRESS
 I	BCOMPRESS	BCOMPRESS	0000100----------110-----0110011	BCOMPRESS
-I	PACK	PACK	0000100----------100-----0110011	pack		Zbb	Zbp	Zbe	Zbf	Zkb
+I	PACK	PACK	0000100----------100-----0110011	pack			Zbp	Zbe	Zbf	Zkb
 I	PACKU	PACKU	0100100----------100-----0110011	pack		Zbp				Zkb
 I	BMATOR	BMATOR	0000100----------011-----0110011	BMATOR
 I	BMATXOR	BMATXOR	0100100----------011-----0110011	BMATXOR
@@ -98,8 +111,8 @@ I	CLZ	CLZ	011000000000-----001-----0010011	countzeroes		Zbb
 I	CTZ	CTZ	011000000001-----001-----0010011	countzeroes		Zbb
 I	CPOP	CPOP	011000000010-----001-----0010011	countzeroes		Zbb
 I	BMATFLIP BMATFLIP	011000000011-----001-----0010011 BMATFLIP
-I	SEXTdotB SEXTdotB	011000000100-----001-----0010011 signextend	Zbe	Zbb
-I	SEXTdotH SEXTdotH	011000000101-----001-----0010011 signextend	Zbe	Zbb
+I	SEXTdotB SEXTdotB	011000000100-----001-----0010011 signextend		Zbb
+I	SEXTdotH SEXTdotH	011000000101-----001-----0010011 signextend		Zbb
 I	CRC32dotB CRC32dotB	011000010000-----001-----0010011 CRC32dotB
 I	CRC32dotH CRC32dotH	011000010001-----001-----0010011 CRC32dotH
 I	CRC32dotW CRC32dotW	011000010010-----001-----0010011 CRC32dotW
