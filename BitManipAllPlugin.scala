@@ -47,7 +47,7 @@ object BitManipAllPlugin {
 		 val CTRL_CMIX, CTRL_CMOV, CTRL_FSL, CTRL_FSR = newElement()
 	}
 	object BitManipAllCtrlEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_bitwise, CTRL_shift, CTRL_rotation, CTRL_sh_add, CTRL_singlebit, CTRL_grevroc, CTRL_minmax, CTRL_shuffle, CTRL_pack, CTRL_xperm, CTRL_grevorc, CTRL_countzeroes, CTRL_signextend, CTRL_ternary = newElement()
+		 val CTRL_bitwise, CTRL_shift, CTRL_rotation, CTRL_sh_add, CTRL_singlebit, CTRL_grevroc, CTRL_minmax, CTRL_shuffle, CTRL_pack, CTRL_BFP, CTRL_xperm, CTRL_grevorc, CTRL_countzeroes, CTRL_signextend, CTRL_ternary = newElement()
 	}
 	object BitManipAllCtrlbitwise extends Stageable(BitManipAllCtrlbitwiseEnum())
 	object BitManipAllCtrlshift extends Stageable(BitManipAllCtrlshiftEnum())
@@ -360,6 +360,23 @@ object BitManipAllPlugin {
        r // return value
    }
 
+   def fun_bfp(rs1:Bits, rs2:Bits) : Bits = {       
+       val off = rs2(20 downto 16).asUInt
+       val rawlen = rs2(27 downto 24).asUInt
+       val convlen = (rawlen === 0) ? (rawlen+16) | (rawlen)
+       val len = ((convlen + off) > 32) ? (32 - off) | (convlen)
+       val allones = B"16'xFFFF"
+       val lenones = (allones |>> (16-len))
+       //val one = B"17'x00001"
+       //val lenones = (((one |<< len).asUInt) - 1).asBits;
+       val mask = (lenones.resize(32) |<< off);
+       val data = (rs2 & lenones.resize(32)) |<< off;
+       
+       val r = (rs1 & ~mask) | data
+
+       r // return value
+   }
+
 // End prologue
 } // object Plugin
 class BitManipAllPlugin extends Plugin[VexRiscv] {
@@ -442,6 +459,7 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 		def PACK_KEY = M"0000100----------100-----0110011"
 		def PACKU_KEY = M"0100100----------100-----0110011"
 		def PACKH_KEY = M"0000100----------111-----0110011"
+		def BFP_KEY = M"0100100----------111-----0110011"
 		def XPERMdotN_KEY = M"0010100----------010-----0110011"
 		def XPERMdotB_KEY = M"0010100----------100-----0110011"
 		def XPERMdotH_KEY = M"0010100----------110-----0110011"
@@ -503,6 +521,7 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 			PACK_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_pack, BitManipAllCtrlpack -> BitManipAllCtrlpackEnum.CTRL_PACK)),
 			PACKU_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_pack, BitManipAllCtrlpack -> BitManipAllCtrlpackEnum.CTRL_PACKU)),
 			PACKH_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_pack, BitManipAllCtrlpack -> BitManipAllCtrlpackEnum.CTRL_PACKH)),
+			BFP_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_BFP)),
 			XPERMdotN_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_xperm, BitManipAllCtrlxperm -> BitManipAllCtrlxpermEnum.CTRL_XPERMdotN)),
 			XPERMdotB_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_xperm, BitManipAllCtrlxperm -> BitManipAllCtrlxpermEnum.CTRL_XPERMdotB)),
 			XPERMdotH_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_xperm, BitManipAllCtrlxperm -> BitManipAllCtrlxpermEnum.CTRL_XPERMdotH)),
@@ -603,6 +622,7 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 					BitManipAllCtrlEnum.CTRL_minmax -> val_minmax.asBits,
 					BitManipAllCtrlEnum.CTRL_shuffle -> val_shuffle.asBits,
 					BitManipAllCtrlEnum.CTRL_pack -> val_pack.asBits,
+					BitManipAllCtrlEnum.CTRL_BFP -> fun_bfp(input(SRC1), input(SRC2)).asBits,
 					BitManipAllCtrlEnum.CTRL_xperm -> val_xperm.asBits,
 					BitManipAllCtrlEnum.CTRL_grevorc -> val_grevorc.asBits,
 					BitManipAllCtrlEnum.CTRL_countzeroes -> val_countzeroes.asBits,

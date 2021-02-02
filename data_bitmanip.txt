@@ -17,7 +17,7 @@
 // Zbs: 
 // Zba: 
 // Zbe: bcompress/bdecompress currently unimplemented
-// Zbf: bfp currently unimplemented
+// Zbf: 
 // Zbc: in a dedicated file, 'data_clmul.txt'
 // Zbm: ignored, RV64-only
 // Zbr: ignored, crc32 unimplemented
@@ -57,7 +57,7 @@ I	PACKU	PACKU	0100100----------100-----0110011	pack		Zbp				Zkb
 I	BMATOR	BMATOR	0000100----------011-----0110011	BMATOR
 I	BMATXOR	BMATXOR	0100100----------011-----0110011	BMATXOR
 I	PACKH	PACKH	0000100----------111-----0110011	pack		Zbp	Zbe	Zbf		Zkb
-I	BFP	BFP	0100100----------111-----0110011	BFP
+I	BFP	BFP	0100100----------111-----0110011	BFP				Zbf
 I	ADDdotUW ADDdotUW 0000100----------000-----0111011	ADDdotUW
 I	SLOW	SLOW	0010000----------001-----0111011	SLOW
 I	SROW	SROW	0010000----------101-----0111011	SROW
@@ -174,6 +174,7 @@ S	CMIX	"((input(SRC1) & input(SRC2)) | (input(SRC3) & ~input(SRC2)))"
 S	CMOV	"((input(SRC2).asUInt =/= 0) ? input(SRC1) | input(SRC3))"
 S	FSL	"fun_fsl(input(SRC1), input(SRC3), input(SRC2))"
 S	FSR	"fun_fsr(input(SRC1), input(SRC3), input(SRC2))"
+S	BFP	"fun_bfp(input(SRC1), input(SRC2))"
 
 // PROLOGUE
 P	"""
@@ -467,6 +468,23 @@ P	"""
        val A = (shamt === rawshamt) ? (rs1) | (rs3)
        val B = (shamt === rawshamt) ? (rs3) | (rs1)
        val r = (shamt === 0) ? (A) | ((A |>> shamt) | (B |<< (32-shamt))) 
+
+       r // return value
+   }
+
+   def fun_bfp(rs1:Bits, rs2:Bits) : Bits = {       
+       val off = rs2(20 downto 16).asUInt
+       val rawlen = rs2(27 downto 24).asUInt
+       val convlen = (rawlen === 0) ? (rawlen+16) | (rawlen)
+       val len = ((convlen + off) > 32) ? (32 - off) | (convlen)
+       val allones = B"16'xFFFF"
+       val lenones = (allones |>> (16-len))
+       //val one = B"17'x00001"
+       //val lenones = (((one |<< len).asUInt) - 1).asBits;
+       val mask = (lenones.resize(32) |<< off);
+       val data = (rs2 & lenones.resize(32)) |<< off;
+       
+       val r = (rs1 & ~mask) | data
 
        r // return value
    }

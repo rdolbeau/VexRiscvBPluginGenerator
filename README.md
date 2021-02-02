@@ -10,9 +10,9 @@ The generated plugin is for RV32 only. It doesn't yet support all B instructions
 
 * all instructions ending in 'W', as they are RV64-only
 * BMAT*, as they are RV64-only
-* BDEP/BEXT/BFP
+* BDEP/BEXT
 * CRC32*
-* Three-operands instructions (CMIX, CMOV, FS[RL]*); the first two are available but need a VexRiscv patch to support the third input
+* Three-operands instructions (CMIX, CMOV, FS[RL]*); they are available but need a VexRiscv patch to support the third input
 
 There is no support for 'partial' instruction - implementing only a subset of the functionality of one instruction. So `grev` is supported, but `rev8` alone isn't. Subextension are defined without 'partial' instructions - so Zbb doesn't have `rev8` or `orc.B`.
 

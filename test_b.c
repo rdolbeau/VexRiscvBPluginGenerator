@@ -190,6 +190,7 @@ int main(int argc, char **argv) {
   unsigned int c;
   unsigned int d = 0xC0FFEE00;
   unsigned int index;
+  unsigned int index2;
 
   if (argc > 1)
     a = strtoul(argv[1], NULL, 16);
@@ -277,7 +278,29 @@ int main(int argc, char **argv) {
   T3(_rv32_fsl);
   T3(_rv32_fsr);
 
+  T2(_rv32_bfp);
+
   b = index;
+  }
+  for (index2 = 0 ; index2 < 16 ; index2++) {
+    for (index = 0 ; index < 32 ; index++){
+      {
+	unsigned int a2, b2, c2;
+	b2 = (index2<<24) | (index<<16) | 0;
+	a2 = 0xFFFFFFFF;
+	c2 = _rv32_bfp(a2,b2);printf("_rv32_bfp (0x%08x, 0x%08x) -> 0x%08x\n", a2, b2, c2);
+      }
+    }
+  }
+  for (index2 = 0 ; index2 < 16 ; index2++) {
+    for (index = 0 ; index < 32 ; index++){
+      {
+	unsigned int a2, b2, c2;
+	b2 = (index2<<24) | (index<<16) | (a&0xFFFF);
+	a2 = 0;
+	c2 = _rv32_bfp(a2,b2);printf("_rv32_bfp (0x%08x, 0x%08x) -> 0x%08x\n", a2, b2, c2);
+      }
+    }
   }
 
   return 0;

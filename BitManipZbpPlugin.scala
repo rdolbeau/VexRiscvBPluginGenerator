@@ -332,6 +332,23 @@ object BitManipZbpPlugin {
        r // return value
    }
 
+   def fun_bfp(rs1:Bits, rs2:Bits) : Bits = {       
+       val off = rs2(20 downto 16).asUInt
+       val rawlen = rs2(27 downto 24).asUInt
+       val convlen = (rawlen === 0) ? (rawlen+16) | (rawlen)
+       val len = ((convlen + off) > 32) ? (32 - off) | (convlen)
+       val allones = B"16'xFFFF"
+       val lenones = (allones |>> (16-len))
+       //val one = B"17'x00001"
+       //val lenones = (((one |<< len).asUInt) - 1).asBits;
+       val mask = (lenones.resize(32) |<< off);
+       val data = (rs2 & lenones.resize(32)) |<< off;
+       
+       val r = (rs1 & ~mask) | data
+
+       r // return value
+   }
+
 // End prologue
 } // object Plugin
 class BitManipZbpPlugin extends Plugin[VexRiscv] {
