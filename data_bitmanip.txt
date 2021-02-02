@@ -53,10 +53,10 @@ I	RORW	RORW	0110000----------101-----0111011	rotation	Zbb	Zbp
 I	SH1ADDdotUW SH1ADDdotUW	0010000----------010-----0111011 SH1ADDdotUW
 I	SH2ADDdotUW SH2ADDdotUW	0010000----------100-----0111011 SH2ADDdotUW
 I	SH3ADDdotUW SH3ADDdotUW	0010000----------110-----0111011 SH3ADDdotUW
-I	BCLRW	BCLRW	0100100----------001-----0111011	singlebit	Zbs
-I	BSETW	BSETW	0010100----------001-----0111011	singlebit	Zbs
-I	BINVW	BINVW	0110100----------001-----0111011	singlebit	Zbs
-I	BEXTW	BEXTW	0100100----------101-----0111011	singlebit	Zbs
+//I	BCLRW	BCLRW	0100100----------001-----0111011	singlebit	Zbs
+//I	BSETW	BSETW	0010100----------001-----0111011	singlebit	Zbs
+//I	BINVW	BINVW	0110100----------001-----0111011	singlebit	Zbs
+//I	BEXTW	BEXTW	0100100----------101-----0111011	singlebit	Zbs
 I	GORCW	GORCW	0010100----------101-----0111011	GORCW
 I	GREVW	GREVW	0110100----------101-----0111011	GREVW
 I	SHFLW	SHFLW	0000100----------001-----0111011	shuffle		Zbp
@@ -88,9 +88,9 @@ I	UNSHFLI	UNSHFL	000010-----------101-----0010011	shuffle		Zbp
 I	SLOIW	SLOW	0010000----------001-----0011011	shift
 I	SROIW	SROW	0010000----------101-----0011011	shift
 I	RORIW	RORW	0110000----------101-----0011011	rotation
-I	BCLRIW	BCLRW	0100100----------001-----0011011	singlebit
-I	BSETIW	BSETW	0010100----------001-----0011011	singlebit
-I	BINVIW	BINVW	0110100----------001-----0011011	singlebit
+//I	BCLRIW	BCLRW	0100100----------001-----0011011	singlebit
+//I	BSETIW	BSETW	0010100----------001-----0011011	singlebit
+//I	BINVIW	BINVW	0110100----------001-----0011011	singlebit
 I	GORCIW	GORCW	0010100----------101-----0011011	grevroc
 I	GREVIW	GREVW	0110100----------101-----0011011	grevroc
 // unary register
