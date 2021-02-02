@@ -17,7 +17,7 @@ object BitManipAllPlugin {
 		 val CTRL_SH1ADD, CTRL_SH2ADD, CTRL_SH3ADD = newElement()
 	}
 	object BitManipAllCtrlsinglebitEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_SBCLR, CTRL_SBEXT, CTRL_SBINV, CTRL_SBSET = newElement()
+		 val CTRL_BCLR, CTRL_BEXT, CTRL_BINV, CTRL_BSET = newElement()
 	}
 	object BitManipAllCtrlgrevrocEnum extends SpinalEnum(binarySequential) {
 		 val CTRL_GORC, CTRL_GREV = newElement()
@@ -38,7 +38,7 @@ object BitManipAllPlugin {
 		 val CTRL_GORC, CTRL_GREV = newElement()
 	}
 	object BitManipAllCtrlcountzeroesEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_CLZ, CTRL_CTZ, CTRL_PCNT = newElement()
+		 val CTRL_CLZ, CTRL_CPOP, CTRL_CTZ = newElement()
 	}
 	object BitManipAllCtrlsignextendEnum extends SpinalEnum(binarySequential) {
 		 val CTRL_SEXTdotB, CTRL_SEXTdotH = newElement()
@@ -427,10 +427,10 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 		def SH1ADD_KEY = M"0010000----------010-----0110011"
 		def SH2ADD_KEY = M"0010000----------100-----0110011"
 		def SH3ADD_KEY = M"0010000----------110-----0110011"
-		def SBCLR_KEY = M"0100100----------001-----0110011"
-		def SBSET_KEY = M"0010100----------001-----0110011"
-		def SBINV_KEY = M"0110100----------001-----0110011"
-		def SBEXT_KEY = M"0100100----------101-----0110011"
+		def BCLR_KEY = M"0100100----------001-----0110011"
+		def BSET_KEY = M"0010100----------001-----0110011"
+		def BINV_KEY = M"0110100----------001-----0110011"
+		def BEXT_KEY = M"0100100----------101-----0110011"
 		def GORC_KEY = M"0010100----------101-----0110011"
 		def GREV_KEY = M"0110100----------101-----0110011"
 		def MIN_KEY = M"0000101----------100-----0110011"
@@ -448,17 +448,17 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 		def SLOI_KEY = M"00100------------001-----0010011"
 		def SROI_KEY = M"00100------------101-----0010011"
 		def RORI_KEY = M"01100------------101-----0010011"
-		def SBCLRI_KEY = M"01001------------001-----0010011"
-		def SBSETI_KEY = M"00101------------001-----0010011"
-		def SBINVI_KEY = M"01101------------001-----0010011"
-		def SBEXTI_KEY = M"01001------------101-----0010011"
+		def BCLRI_KEY = M"01001------------001-----0010011"
+		def BSETI_KEY = M"00101------------001-----0010011"
+		def BINVI_KEY = M"01101------------001-----0010011"
+		def BEXTI_KEY = M"01001------------101-----0010011"
 		def GORCI_KEY = M"00101------------101-----0010011"
 		def GREVI_KEY = M"01101------------101-----0010011"
 		def SHFLI_KEY = M"000010-----------001-----0010011"
 		def UNSHFLI_KEY = M"000010-----------101-----0010011"
 		def CLZ_KEY = M"011000000000-----001-----0010011"
 		def CTZ_KEY = M"011000000001-----001-----0010011"
-		def PCNT_KEY = M"011000000010-----001-----0010011"
+		def CPOP_KEY = M"011000000010-----001-----0010011"
 		def SEXTdotB_KEY = M"011000000100-----001-----0010011"
 		def SEXTdotH_KEY = M"011000000101-----001-----0010011"
 		def CMIX_KEY = M"-----11----------001-----0110011"
@@ -482,14 +482,14 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 			SH1ADD_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_sh_add, BitManipAllCtrlsh_add -> BitManipAllCtrlsh_addEnum.CTRL_SH1ADD)),
 			SH2ADD_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_sh_add, BitManipAllCtrlsh_add -> BitManipAllCtrlsh_addEnum.CTRL_SH2ADD)),
 			SH3ADD_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_sh_add, BitManipAllCtrlsh_add -> BitManipAllCtrlsh_addEnum.CTRL_SH3ADD)),
-			SBCLR_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_SBCLR)),
-			SBSET_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_SBSET)),
-			SBINV_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_SBINV)),
-			SBEXT_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_SBEXT)),
-			SBCLRI_KEY	-> (immediateActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_SBCLR)),
-			SBSETI_KEY	-> (immediateActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_SBSET)),
-			SBINVI_KEY	-> (immediateActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_SBINV)),
-			SBEXTI_KEY	-> (immediateActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_SBEXT)),
+			BCLR_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_BCLR)),
+			BSET_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_BSET)),
+			BINV_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_BINV)),
+			BEXT_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_BEXT)),
+			BCLRI_KEY	-> (immediateActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_BCLR)),
+			BSETI_KEY	-> (immediateActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_BSET)),
+			BINVI_KEY	-> (immediateActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_BINV)),
+			BEXTI_KEY	-> (immediateActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_singlebit, BitManipAllCtrlsinglebit -> BitManipAllCtrlsinglebitEnum.CTRL_BEXT)),
 			GORC_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_grevroc, BitManipAllCtrlgrevroc -> BitManipAllCtrlgrevrocEnum.CTRL_GORC)),
 			GREV_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_grevroc, BitManipAllCtrlgrevroc -> BitManipAllCtrlgrevrocEnum.CTRL_GREV)),
 			MIN_KEY	-> (binaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_minmax, BitManipAllCtrlminmax -> BitManipAllCtrlminmaxEnum.CTRL_MIN)),
@@ -510,7 +510,7 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 			GREVI_KEY	-> (immediateActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_grevorc, BitManipAllCtrlgrevorc -> BitManipAllCtrlgrevorcEnum.CTRL_GREV)),
 			CLZ_KEY	-> (unaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_countzeroes, BitManipAllCtrlcountzeroes -> BitManipAllCtrlcountzeroesEnum.CTRL_CLZ)),
 			CTZ_KEY	-> (unaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_countzeroes, BitManipAllCtrlcountzeroes -> BitManipAllCtrlcountzeroesEnum.CTRL_CTZ)),
-			PCNT_KEY	-> (unaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_countzeroes, BitManipAllCtrlcountzeroes -> BitManipAllCtrlcountzeroesEnum.CTRL_PCNT)),
+			CPOP_KEY	-> (unaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_countzeroes, BitManipAllCtrlcountzeroes -> BitManipAllCtrlcountzeroesEnum.CTRL_CPOP)),
 			SEXTdotB_KEY	-> (unaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_signextend, BitManipAllCtrlsignextend -> BitManipAllCtrlsignextendEnum.CTRL_SEXTdotB)),
 			SEXTdotH_KEY	-> (unaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_signextend, BitManipAllCtrlsignextend -> BitManipAllCtrlsignextendEnum.CTRL_SEXTdotH)),
 			CMIX_KEY	-> (ternaryActions ++ List(BitManipAllCtrl -> BitManipAllCtrlEnum.CTRL_ternary, BitManipAllCtrlternary -> BitManipAllCtrlternaryEnum.CTRL_CMIX)),
@@ -544,10 +544,10 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 				BitManipAllCtrlsh_addEnum.CTRL_SH3ADD -> ((input(SRC1) |<< 3).asUInt + input(SRC2).asUInt)
 			) // mux sh_add
 			val val_singlebit = input(BitManipAllCtrlsinglebit).mux(
-				BitManipAllCtrlsinglebitEnum.CTRL_SBCLR -> (input(SRC1) & ~(B"32'x00000001"|<<((input(SRC2)&31).asUInt))),
-				BitManipAllCtrlsinglebitEnum.CTRL_SBEXT -> ((input(SRC1) |>> ((input(SRC2)&31).asUInt)) & B"32'x00000001"),
-				BitManipAllCtrlsinglebitEnum.CTRL_SBINV -> (input(SRC1) ^  (B"32'x00000001"|<<((input(SRC2)&31).asUInt))),
-				BitManipAllCtrlsinglebitEnum.CTRL_SBSET -> (input(SRC1) |  (B"32'x00000001"|<<((input(SRC2)&31).asUInt)))
+				BitManipAllCtrlsinglebitEnum.CTRL_BCLR -> (input(SRC1) & ~(B"32'x00000001"|<<((input(SRC2)&31).asUInt))),
+				BitManipAllCtrlsinglebitEnum.CTRL_BEXT -> ((input(SRC1) |>> ((input(SRC2)&31).asUInt)) & B"32'x00000001"),
+				BitManipAllCtrlsinglebitEnum.CTRL_BINV -> (input(SRC1) ^  (B"32'x00000001"|<<((input(SRC2)&31).asUInt))),
+				BitManipAllCtrlsinglebitEnum.CTRL_BSET -> (input(SRC1) |  (B"32'x00000001"|<<((input(SRC2)&31).asUInt)))
 			) // mux singlebit
 			val val_grevroc = input(BitManipAllCtrlgrevroc).mux(
 				BitManipAllCtrlgrevrocEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)),
@@ -579,8 +579,8 @@ class BitManipAllPlugin extends Plugin[VexRiscv] {
 			) // mux grevorc
 			val val_countzeroes = input(BitManipAllCtrlcountzeroes).mux(
 				BitManipAllCtrlcountzeroesEnum.CTRL_CLZ -> fun_clz(input(SRC1)),
-				BitManipAllCtrlcountzeroesEnum.CTRL_CTZ -> fun_ctz(input(SRC1)),
-				BitManipAllCtrlcountzeroesEnum.CTRL_PCNT -> fun_popcnt(input(SRC1))
+				BitManipAllCtrlcountzeroesEnum.CTRL_CPOP -> fun_popcnt(input(SRC1)),
+				BitManipAllCtrlcountzeroesEnum.CTRL_CTZ -> fun_ctz(input(SRC1))
 			) // mux countzeroes
 			val val_signextend = input(BitManipAllCtrlsignextend).mux(
 				BitManipAllCtrlsignextendEnum.CTRL_SEXTdotB -> (Bits(24 bits).setAllTo(input(SRC1)(7)) ## input(SRC1)(7 downto 0)),

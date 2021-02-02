@@ -1,6 +1,6 @@
 # B plugin generator for VexRiscv
 
-**beware** This is targeting B on an intermediate draft between 0.92 and 0.93, so opcodes and subsets might be not match the current version of B. Ditto for Z, this is targeting version 0.8.0.
+**beware** This is targeting B on an intermediate draft from January 20, 2021, so opcodes and subsets might be not match the current version of B. Ditto for Z, this is targeting version 0.8.0.
 
 ## This repository
 
