@@ -96,7 +96,7 @@ I	GREVIW	GREVW	0110100----------101-----0011011	grevroc
 // unary register
 I	CLZ	CLZ	011000000000-----001-----0010011	countzeroes		Zbb
 I	CTZ	CTZ	011000000001-----001-----0010011	countzeroes		Zbb
-I	PCNT	PCNT	011000000010-----001-----0010011	countzeroes		Zbb
+I	CPOP	CPOP	011000000010-----001-----0010011	countzeroes		Zbb
 I	BMATFLIP BMATFLIP	011000000011-----001-----0010011 BMATFLIP
 I	SEXTdotB SEXTdotB	011000000100-----001-----0010011 signextend	Zbe	Zbb
 I	SEXTdotH SEXTdotH	011000000101-----001-----0010011 signextend	Zbe	Zbb
@@ -110,7 +110,7 @@ I	CRC32CdotW CRC32CdotW	011000011010-----001-----0010011 CRC32CdotW
 I	CRC32CdotD CRC32CdotD	011000011011-----001-----0010011 CRC32CdotD
 I	CLZW	CLZW	011000000000-----001-----0011011	countzeroes
 I	CTZW	CTZW	011000000001-----001-----0011011	countzeroes
-I	PCNTW	PCNTW	011000000010-----001-----0011011	countzeroes
+I	CPOPW	CPOPW	011000000010-----001-----0011011	countzeroes
 // register-register-register
 I       CMIX    CMIX    -----11----------001-----0110011        ternary		Zbt
 I       CMOV    CMOV    -----11----------101-----0110011        ternary		Zbt
@@ -155,7 +155,7 @@ S	SEXTdotB	"(Bits(24 bits).setAllTo(input(SRC1)(7)) ## input(SRC1)(7 downto 0))"
 S	SEXTdotH	"(Bits(16 bits).setAllTo(input(SRC1)(15)) ## input(SRC1)(15 downto 0))"
 S	CLZ		"fun_clz(input(SRC1))"
 S	CTZ		"fun_ctz(input(SRC1))"
-S	PCNT		"fun_popcnt(input(SRC1))"
+S	CPOP		"fun_popcnt(input(SRC1))"
 // if 'SRC3' appear in the semantic, the code assume ternary
 S	CMIX	"((input(SRC1) & input(SRC2)) | (input(SRC3) & ~input(SRC2)))"
 S	CMOV	"((input(SRC2).asUInt =/= 0) ? input(SRC1) | input(SRC3))"
