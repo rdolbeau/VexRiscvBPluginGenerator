@@ -2,37 +2,37 @@ SRCs=riscv32.c try-anything.c
 OBJs=$(SRCs:.c=.o)
 SCLIBS=cpucycles.o kernelrandombytes.o
 
-COMPDIR=/home/dolbeau/LITEX/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14
+COMPDIR=~dolbeau2/LITEX/buildroot-rv32/output/host
 ALTCOMPDIR=/opt/riscv64b
 
-CC=$(COMPDIR)/bin/riscv64-unknown-elf-gcc
+CC=$(COMPDIR)/bin/riscv32-buildroot-linux-gnu-gcc
 ALTCC=$(ALTCOMPDIR)/bin/riscv64-unknown-elf-gcc
-CC=$(ALTCC)
-CXX=$(COMPDIR)/bin/riscv64-unknown-elf-g++
-STRIP=$(COMPDIR)/bin/riscv64-unknown-elf-strip
+CXX=$(COMPDIR)/bin/riscv32-buildroot-linux-gnu-g++
+STRIP=$(COMPDIR)/bin/riscv32-buildroot-linux-gnu-strip
 NEWOPT=-march=rv32imab -mabi=ilp32 -I. -O3 -DRV32B #-fno-vectorize #-DUSE_EPI_CUSTOM
 OPT=-march=rv32ima -mabi=ilp32 -I. -O3 #-fno-vectorize #-DUSE_EPI_CUSTOM
+#ALTCC=$(CC)
 #NEWOPT=$(OPT)
 
 all: aes256ctr aes256ctr_small
 
 clean:
-	rm -f $(OBJs) try.o try_small.o riscv32.o aes256ctr aes256ctr_small
+	rm -f $(OBJs) *.S try.o try_small.o riscv32.o aes256ctr aes256ctr_small
 
 %.o: %.c
-	$(CC) $(NEWOPT) $< -c -o $@
+	$(CC) $(OPT) $< -c -o $@
 
 try.o: try.c
-	$(CC) $(NEWOPT) $< -c -o $@
+	$(CC) $(OPT) $< -c -o $@
 
 try_small.o: try.c
-	$(CC) $(NEWOPT) $< -c -o $@ -DSMALL
+	$(CC) $(OPT) $< -c -o $@ -DSMALL
 
 riscv32.S: riscv32.c
-	$(CC) $(NEWOPT) $< -S -o $@
+	$(ALTCC) $(NEWOPT) $< -S -o $@
 
 riscv32.o: riscv32.S
-	$(CC) $(NEWOPT) $< -c -o $@
+	$(ALTCC) $(NEWOPT) $< -c -o $@
 
 aes256ctr: $(OBJs) riscv32.o try.o $(SCLIBS)
 	$(CXX) $(OPT) $^ -o $@

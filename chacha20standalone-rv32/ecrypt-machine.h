@@ -32,7 +32,7 @@
 
 #endif
 
-#ifdef __riscv
+#if 0 //def __riscv
 #warning "Hardwiring support for B"
 #include <rvintrin.h>
 #undef ROTL32
@@ -49,7 +49,7 @@
 
 #define ECRYPT_MACHINE_SWAP
 
-#ifdef __riscv
+#if 0 //def __riscv
 #warning "Hardwiring support for B"
 #include <rvintrin.h>
 #undef SWAP32

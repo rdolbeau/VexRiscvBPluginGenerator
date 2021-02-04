@@ -2,36 +2,37 @@ SRCs=api.c try-anything.c
 OBJs=$(SRCs:.c=.o)
 SCLIBS=cpucycles.o kernelrandombytes.o
 
-COMPDIR=/home/dolbeau/LITEX/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14
+COMPDIR=~dolbeau2/LITEX/buildroot-rv32/output/host
 ALTCOMPDIR=/opt/riscv64b
 
-CC=$(COMPDIR)/bin/riscv64-unknown-elf-gcc
+CC=$(COMPDIR)/bin/riscv32-buildroot-linux-gnu-gcc
 ALTCC=$(ALTCOMPDIR)/bin/riscv64-unknown-elf-gcc
-CC=$(ALTCC)
-CXX=$(COMPDIR)/bin/riscv64-unknown-elf-g++
-STRIP=$(COMPDIR)/bin/riscv64-unknown-elf-strip
-NEWOPT=-march=rv32imab -mabi=ilp32 -I. -O3 #-fno-vectorize #-DUSE_EPI_CUSTOM
+CXX=$(COMPDIR)/bin/riscv32-buildroot-linux-gnu-g++
+STRIP=$(COMPDIR)/bin/riscv32-buildroot-linux-gnu-strip
+NEWOPT=-march=rv32imab -mabi=ilp32 -I. -O3 -DRV32B #-fno-vectorize #-DUSE_EPI_CUSTOM
 OPT=-march=rv32ima -mabi=ilp32 -I. -O3 #-fno-vectorize #-DUSE_EPI_CUSTOM
+#ALTCC=$(CC)
+#NEWOPT=$(OPT)
 
 all: chacha20 chacha20_small
 
 clean:
-	rm -f $(OBJs) try.o try_small.o chacha.o chacha20 chacha20_small chacha20_small_var chacha.s chacha_var.s
+	rm -f $(OBJs) *.S try.o try_small.o chacha.o chacha20 chacha20_small chacha20_small_var chacha.s chacha_var.s
 
 %.o: %.c
-	$(CC) $(NEWOPT) $< -c -o $@
+	$(CC) $(OPT) $< -c -o $@
 
 try.o: try.c
-	$(CC) $(NEWOPT) $< -c -o $@
+	$(CC) $(OPT) $< -c -o $@
 
 try_small.o: try.c
-	$(CC) $(NEWOPT) $< -c -o $@ -DSMALL
+	$(CC) $(OPT) $< -c -o $@ -DSMALL
 
-chacha.s: chacha.c
-	$(CC) $(NEWOPT) $< -S -o $@
+chacha.S: chacha.c
+	$(ALTCC) $(NEWOPT) $< -S -o $@
 
-chacha.o: chacha.s
-	$(CC) $(NEWOPT) $< -c -o $@
+chacha.o: chacha.S
+	$(ALTCC) $(NEWOPT) $< -c -o $@
 
 chacha20: $(OBJs) chacha.o try.o $(SCLIBS)
 	$(CXX) $(OPT) $^ -o $@
