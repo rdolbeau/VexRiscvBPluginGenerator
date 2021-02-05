@@ -5,6 +5,9 @@
 			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15) | (\\rs2 << 20))\n"	\
 			   ".endm\n");
 asm("#define reg_zero 0\n");
+#define ASM2FMACRO(N, O) asm(".macro "#N" rt, rs2\n"		\
+			   ".word ("#O" | (\\rt << 15) | (\\rs2 << 20))\n"	\
+			   ".endm\n");
 asm("#define reg_ra 1\n");
 asm("#define reg_sp 2\n");
 asm("#define reg_gp 3\n");
@@ -45,23 +48,31 @@ asm("#define reg_t6 31\n");
 	 : "r" (rs1), "r" (rs2));					\
     return r;								\
   }
-
-ASM2MACRO(AES32ESMI0,0x36000033)
-ASM2MACRO(AES32ESMI1,0x76000033)
-ASM2MACRO(AES32ESMI2,0xb6000033)
-ASM2MACRO(AES32ESMI3,0xf6000033)
-ASM2MACRO(AES32ESI0,0x32000033)
-ASM2MACRO(AES32ESI1,0x72000033)
-ASM2MACRO(AES32ESI2,0xb2000033)
-ASM2MACRO(AES32ESI3,0xf2000033)
-FUN2(aes32esmi0,AES32ESMI0)
-FUN2(aes32esmi1,AES32ESMI1)
-FUN2(aes32esmi2,AES32ESMI2)
-FUN2(aes32esmi3,AES32ESMI3)
-FUN2(aes32esi0,AES32ESI0)
-FUN2(aes32esi1,AES32ESI1)
-FUN2(aes32esi2,AES32ESI2)
-FUN2(aes32esi3,AES32ESI3)
+#define FUN2F(NAME, ASNAME)						\
+  static inline uint32_t NAME(uint32_t rs1, uint32_t rs2) {		\
+    uint32_t r = rs1;							\
+    asm (#ASNAME " reg_%0, reg_%1\n"					\
+	 : "+&r" (r)							\
+	 : "r" (rs2));							\
+    return r;								\
+  }
+  
+ASM2FMACRO(AES32ESMI0,0x36000033)
+ASM2FMACRO(AES32ESMI1,0x76000033)
+ASM2FMACRO(AES32ESMI2,0xb6000033)
+ASM2FMACRO(AES32ESMI3,0xf6000033)
+ASM2FMACRO(AES32ESI0,0x32000033)
+ASM2FMACRO(AES32ESI1,0x72000033)
+ASM2FMACRO(AES32ESI2,0xb2000033)
+ASM2FMACRO(AES32ESI3,0xf2000033)
+FUN2F(aes32esmi0,AES32ESMI0)
+FUN2F(aes32esmi1,AES32ESMI1)
+FUN2F(aes32esmi2,AES32ESMI2)
+FUN2F(aes32esmi3,AES32ESMI3)
+FUN2F(aes32esi0,AES32ESI0)
+FUN2F(aes32esi1,AES32ESI1)
+FUN2F(aes32esi2,AES32ESI2)
+FUN2F(aes32esi3,AES32ESI3)
 
 /*
   ~/LITEX/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc -march=rv32ima -mabi=ilp32 -Os -S comp.c -o comp.S && ~/LITEX/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc -march=rv32ima -mabi=ilp32 -Os -c comp.S -o comp.o && ~/LITEX/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc -march=rv32ima -mabi=ilp32 -Os comp.o -o comp

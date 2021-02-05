@@ -7,14 +7,14 @@
 //bs 11001 rs2 rs1==rd 000 rd 0110011  aes32esi
 
 
-I	aes32esmi0 aes32esmi0	0011011----------000-----0110011	aes0	Zkne
-I	aes32esmi1 aes32esmi1	0111011----------000-----0110011	aes0	Zkne
-I	aes32esmi2 aes32esmi2	1011011----------000-----0110011	aes0	Zkne
-I	aes32esmi3 aes32esmi3	1111011----------000-----0110011	aes0	Zkne
-I	aes32esi0  aes32esi0	0011001----------000-----0110011	aes1	Zkne
-I	aes32esi1  aes32esi1	0111001----------000-----0110011	aes1	Zkne
-I	aes32esi2  aes32esi2	1011001----------000-----0110011	aes1	Zkne
-I	aes32esi3  aes32esi3	1111001----------000-----0110011	aes1	Zkne
+I	aes32esmi0 aes32esmi0	0011011----------000000000110011	aes0	Zkne
+I	aes32esmi1 aes32esmi1	0111011----------000000000110011	aes0	Zkne
+I	aes32esmi2 aes32esmi2	1011011----------000000000110011	aes0	Zkne
+I	aes32esmi3 aes32esmi3	1111011----------000000000110011	aes0	Zkne
+I	aes32esi0  aes32esi0	0011001----------000000000110011	aes1	Zkne
+I	aes32esi1  aes32esi1	0111001----------000000000110011	aes1	Zkne
+I	aes32esi2  aes32esi2	1011001----------000000000110011	aes1	Zkne
+I	aes32esi3  aes32esi3	1111001----------000000000110011	aes1	Zkne
 
 S	aes32esmi0 "fun_aesx_0(input(SRC2), input(SRC1))"
 S	aes32esmi1 "fun_aesx_1(input(SRC2), input(SRC1))"

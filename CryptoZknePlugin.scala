@@ -380,14 +380,14 @@ class CryptoZknePlugin extends Plugin[VexRiscv] {
 			RS3_USE -> True,
 			IS_CryptoZkne -> True
 			)
-		def aes32esmi0_KEY = M"0011011----------000-----0110011"
-		def aes32esmi1_KEY = M"0111011----------000-----0110011"
-		def aes32esmi2_KEY = M"1011011----------000-----0110011"
-		def aes32esmi3_KEY = M"1111011----------000-----0110011"
-		def aes32esi0_KEY = M"0011001----------000-----0110011"
-		def aes32esi1_KEY = M"0111001----------000-----0110011"
-		def aes32esi2_KEY = M"1011001----------000-----0110011"
-		def aes32esi3_KEY = M"1111001----------000-----0110011"
+		def aes32esmi0_KEY = M"0011011----------000000000110011"
+		def aes32esmi1_KEY = M"0111011----------000000000110011"
+		def aes32esmi2_KEY = M"1011011----------000000000110011"
+		def aes32esmi3_KEY = M"1111011----------000000000110011"
+		def aes32esi0_KEY = M"0011001----------000000000110011"
+		def aes32esi1_KEY = M"0111001----------000000000110011"
+		def aes32esi2_KEY = M"1011001----------000000000110011"
+		def aes32esi3_KEY = M"1111001----------000000000110011"
 		val decoderService = pipeline.service(classOf[DecoderService])
 		decoderService.addDefault(IS_CryptoZkne, False)
 		decoderService.add(List(

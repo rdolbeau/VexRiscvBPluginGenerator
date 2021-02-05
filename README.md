@@ -1,6 +1,6 @@
 # B plugin generator for VexRiscv
 
-**beware** This is targeting B on an intermediate draft from January 20, 2021, so opcodes and subsets might be not match the current version of B. Ditto for Z, this is targeting version 0.8.0.
+**beware** This is targeting the bitmanip extension (B) on an intermediate draft from January 20, 2021, so opcodes and subsets might be not match the current version of B. Ditto for Z, this is targeting version 0.8.1. Both may require feature patch to VexRiscv, see below.
 
 ## This repository
 
@@ -20,7 +20,7 @@ This has received limited testing in a [Linux-on-Litex-VexRiscv](https://github.
 
 Also, the implementations of the instructions in SpinalHDL are written for tuncitonality, and not tuned or optimized in any way for performance/area/... (file usage.txt has some numbers).
 
-A separate data file includes prototype support for RV32Zkne (AES encryption instructions) and RV32Zknh (SHA hash instructions) from the K extension draft 0.8
+A separate data file includes prototype support for RV32Zkne (AES encryption instructions) and RV32Zknh (SHA hash instructions) from the K extension draft 0.8.1. This requires another patch to VexRiscv, as Zkne uses field rs1 instead of rd for the output register.
 
 ## How to use
 
