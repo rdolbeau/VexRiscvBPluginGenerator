@@ -1,0 +1,172 @@
+//for vX.Y  of P
+
+
+// BPICK -> B CMIX
+// CLZ32 -> B CLZ
+// MAXW  -> B MAX
+// MINW  -> B MIN
+// PKBB16 -> B PACK
+// PKTT16 -> B PACKU
+// PKBB32 -> B PACK
+// PKTT32 -> B PACKU
+// so far instructions using OV flag unsupported
+I	ADD8    ADD8	0100100----------000-----1110111	pdpiadd	Zpn
+I	ADD16   ADD16	0100000----------000-----1110111	pdpiadd	Zpn
+I	AVE     AVE	1110000----------000-----1110111	pdpiadd	Zpn
+I	BITREV  BITREV	1110011----------000-----1110111	pdpibit	Zpn
+I	BITREVI BITREV	1110010----------000-----1110111	pdpibit	Zpn
+I	CLRS8	CLRS8	101011100000-----000-----1110111	pdpibit	Zpn
+//I	CLRS16	CLRS16	101011101000-----000-----1110111	pdpibit	Zpn
+//I	CLRS32	CLRS32	101011111000-----000-----1110111	pdpibit	Zpn
+I	CLO8	CLO8	101011100011-----000-----1110111	pdpibit	Zpn
+//I	CLO16	CLO16	101011101011-----000-----1110111	pdpibit	Zpn
+//I	CLO32	CLO32	101011111011-----000-----1110111	pdpibit	Zpn
+I	CLZ8	CLZ8	101011100001-----000-----1110111	pdpibit	Zpn
+I	CLZ16	CLZ16	101011101001-----000-----1110111	pdpibit	Zpn
+I	CLZ32	CLZ32	101011111001-----000-----1110111	pdpibit	Zpn
+I	CMPEQ8	CMPEQ8	0100111----------000-----1110111	pdpicmp	Zpn
+//I	CMPEQ16	CMPEQ8	0100110----------000-----1110111	pdpicmp	Zpn
+//I	CRAS16	CRAS16	0100010----------000-----1110111	pdpiadd	Zpn
+//I	CRSA16	CRSA16	0100011----------000-----1110111	pdpiadd	Zpn
+I	PKBB16	PKBB16	0000111----------001-----1110111	pdpicpct Zpn
+I	PKBT16	PKBT16	0001111----------001-----1110111	pdpicpct Zpn
+I	PKTB16	PKTB16	0010111----------001-----1110111	pdpicpct Zpn
+I	PKTT16	PKTT16	0011111----------001-----1110111	pdpicpct Zpn
+I	RADD8	RADD8	0000100----------000-----1110111	pdpiadd	Zpn
+
+
+// the following needs to read Rd
+//need the I in the name to get the immediate
+//I	INSBI	INSB	101011000--------000-----1110111	pdpibit	Zpn
+//I	MADDR32	MADDR32	1100010----------001-----1110111	pdpimac	Zpn
+//I	MSUBR32	MSUBR32	1100011----------001-----1110111	pdpimac	Zpn
+//I	PBSAD	PBSAD	1111110----------000-----1110111	pdpadd	Zpn
+//I	PBSADA	PBSADA	1110111----------000-----1110111	pdpadd	Zpn
+
+
+
+// binary
+S	ADD8	"fun_add8(input(SRC1), input(SRC2))"
+S	ADD16	"fun_add16(input(SRC1), input(SRC2))"
+S	AVE	"fun_ave(input(SRC1), input(SRC2))"
+S	BITREV	"fun_bitrev(input(SRC1), input(SRC2))"
+S	CMPEQ8	"fun_cmpeq8(input(SRC1), input(SRC2))"
+S	PKBB16  "fun_pkbbtt16(input(SRC1), input(SRC2), 0, 0)"
+S	PKBT16  "fun_pkbbtt16(input(SRC1), input(SRC2), 0, 1)"
+S	PKTB16  "fun_pkbbtt16(input(SRC1), input(SRC2), 1, 0)"
+S	PKTT16  "fun_pkbbtt16(input(SRC1), input(SRC2), 1, 1)"
+S	RADD8	"fun_radd8(input(SRC1), input(SRC2))"
+// unary
+S	CLRS8	"fun_clrs8(input(SRC1))"
+S	CLO8	"fun_clo8(input(SRC1))"
+S	CLZ8	"fun_clz8(input(SRC1))"
+
+P	"""
+	def fun_add8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asUInt + rs2( 7 downto  0).asUInt).asBits.resize(8)
+	    val b1 = (rs1(15 downto  8).asUInt + rs2(15 downto  8).asUInt).asBits.resize(8)
+	    val b2 = (rs1(23 downto 16).asUInt + rs2(23 downto 16).asUInt).asBits.resize(8)
+	    val b3 = (rs1(31 downto 24).asUInt + rs2(31 downto 24).asUInt).asBits.resize(8)
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_radd8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asSInt + rs2( 7 downto  0).asSInt).asBits.resize(9)
+	    val b1 = (rs1(15 downto  8).asSInt + rs2(15 downto  8).asSInt).asBits.resize(9)
+	    val b2 = (rs1(23 downto 16).asSInt + rs2(23 downto 16).asSInt).asBits.resize(9)
+	    val b3 = (rs1(31 downto 24).asSInt + rs2(31 downto 24).asSInt).asBits.resize(9)
+
+	    b3(8 downto 1) ## b2(8 downto 1) ## b1(8 downto 1) ## b0(8 downto 1) // return value
+	}
+	def fun_add16(rs1: Bits, rs2: Bits) : Bits = {
+	    val h0 = (rs1(15 downto  0).asUInt + rs2(15 downto  0).asUInt).asBits.resize(16)
+	    val h1 = (rs1(31 downto 16).asUInt + rs2(31 downto 16).asUInt).asBits.resize(16)
+
+	    h1 ## h0 // return value
+	}
+	def fun_ave(rs1: Bits, rs2: Bits) : Bits = {
+	    val inter = (1 + (rs1 ## B"1'b0").asUInt + (rs2 ## B"1'b0").asUInt).asBits.resize(33)
+
+	    inter(32 downto 1) // return value
+	}
+	def fun_bitrev(rs1: Bits, rs2: Bits) : Bits = {
+	    val msb = rs2(4 downto 0).asUInt
+       	    val rs1r = rs1(0) ## rs1(1) ## rs1(2) ## rs1(3) ## rs1(4) ## rs1(5) ## rs1(6) ## rs1(7) ## rs1(8) ## rs1(9) ## rs1(10) ## rs1(11) ## rs1(12) ## rs1(13) ## rs1(14) ## rs1(15) ## rs1(16) ## rs1(17) ## rs1(18) ## rs1(19) ## rs1(20) ## rs1(21) ## rs1(22) ## rs1(23) ## rs1(24) ## rs1(25) ## rs1(26) ## rs1(27) ## rs1(28) ## rs1(29) ## rs1(30) ## rs1(31)
+	    val rs1rs = rs1r |>> (31-msb)
+
+	    rs1rs // return value
+	}
+	// this is trying to look like DOI 10.2478/jee-2015-0054
+	def fun_clz_NLCi(x:Bits): Bits = {
+	    val r2 = (~(x(0) | x(1) | x(2) | x(3)))
+	    val r1 = (~(x(2) | x(3)))
+	    val r0 = (~(x(3) | (x(1) & ~x(2))))
+	    val r = r2 ## r1 ## r0
+	    r // return value
+        }
+	def fun_clz_byte(in: Bits): Bits = {
+	    val nlc1 = fun_clz_NLCi(in( 7 downto  4))
+ 	    val nlc0 = fun_clz_NLCi(in( 3 downto  0))
+	    val x = ((nlc1(2).asUInt === 1) ? (4 + nlc0(1 downto 0).asUInt) | (nlc1(1 downto 0).asUInt))
+	    val y = B"8'x08"
+	    ((nlc0(2).asUInt === 1) && (nlc1(2).asUInt === 1)) ? y | x.asBits.resize(8) // return value
+	}
+	def fun_clrs8(rs1: Bits) : Bits = {
+	    val b0 = rs1( 7 downto  0)
+	    val b1 = rs1(15 downto  8)
+	    val b2 = rs1(23 downto 16)
+	    val b3 = rs1(31 downto 24)
+
+	    val b0s = (b0(7).asUInt === 1) ? (~b0) | (b0)
+	    val b1s = (b1(7).asUInt === 1) ? (~b1) | (b1)
+	    val b2s = (b2(7).asUInt === 1) ? (~b2) | (b2)
+	    val b3s = (b3(7).asUInt === 1) ? (~b3) | (b3)
+
+	    val c0 = fun_clz_byte(b0s)
+	    val c1 = fun_clz_byte(b1s)
+	    val c2 = fun_clz_byte(b2s)
+	    val c3 = fun_clz_byte(b3s)
+
+	    c3 ## c2 ## c1 ## c0 // return value
+	}
+	def fun_clo8(rs1: Bits) : Bits = {
+	    val b0 = rs1( 7 downto  0)
+	    val b1 = rs1(15 downto  8)
+	    val b2 = rs1(23 downto 16)
+	    val b3 = rs1(31 downto 24)
+
+	    val c0 = fun_clz_byte(~b0)
+	    val c1 = fun_clz_byte(~b1)
+	    val c2 = fun_clz_byte(~b2)
+	    val c3 = fun_clz_byte(~b3)
+
+	    c3 ## c2 ## c1 ## c0 // return value
+	}
+	def fun_clz8(rs1: Bits) : Bits = {
+	    val b0 = rs1( 7 downto  0)
+	    val b1 = rs1(15 downto  8)
+	    val b2 = rs1(23 downto 16)
+	    val b3 = rs1(31 downto 24)
+
+	    val c0 = fun_clz_byte(b0)
+	    val c1 = fun_clz_byte(b1)
+	    val c2 = fun_clz_byte(b2)
+	    val c3 = fun_clz_byte(b3)
+
+	    c3 ## c2 ## c1 ## c0 // return value
+	}
+	def fun_cmpeq8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asUInt === rs2( 7 downto  0).asUInt) ? B"8'xFF" | B"8'x00"
+	    val b1 = (rs1(15 downto  8).asUInt === rs2(15 downto  8).asUInt) ? B"8'xFF" | B"8'x00"
+	    val b2 = (rs1(23 downto 16).asUInt === rs2(23 downto 16).asUInt) ? B"8'xFF" | B"8'x00"
+	    val b3 = (rs1(31 downto 24).asUInt === rs2(31 downto 24).asUInt) ? B"8'xFF" | B"8'x00"
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_pkbbtt16(rs1: Bits, rs2: Bits, h:UInt, l:UInt) : Bits = {
+	    val hr = (h === 0) ? rs1(15 downto 0) | rs1(31 downto 16)
+	    val hl = (l === 0) ? rs2(15 downto 0) | rs2(31 downto 16)
+	    
+	    hr ## hl // return value
+	}
+"""
