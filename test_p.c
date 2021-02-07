@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 //#include <rvintrin.h>
 
@@ -90,6 +91,7 @@ ASM2MACRO(RADD8,0x08000077)
 FUN2(__rv__radd8,RADD8)
 #else // !__riscv
 typedef uint8_t uint4x8_t[4]; 
+typedef int8_t int4x8_t[4];
 uint32_t __rv__add8(const uint32_t rs1, const uint32_t rs2) {
   uint4x8_t a, b, c;
   uint32_t r;
@@ -103,7 +105,7 @@ uint32_t __rv__add8(const uint32_t rs1, const uint32_t rs2) {
   return r;
 }
 uint32_t __rv__radd8(const uint32_t rs1, const uint32_t rs2) {
-  uint4x8_t a, b, c;
+  int4x8_t a, b, c;
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
