@@ -126,8 +126,8 @@ int main(int argc, char **argv) {
  	std::set<const instruction*> filtered_instructions;
 
 	for (const instruction* inst : instructions) {
-		if (inst->isWord())
-			continue;
+		// if (inst->isWord())
+		// 	continue;
 		if (semantics[inst->opname] == "")
 			continue;
 		bool addinst = false;
