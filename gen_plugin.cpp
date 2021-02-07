@@ -30,21 +30,25 @@ std::vector<std::string> prologues;
 std::vector<std::string> extras;
 
 void add_inst0(const char* name, const char* opname, const char* key, const char* group) {
+	if (strlen(key) != 32) { fprintf(stderr, "For %s / %s: %s isn't 32 characters long\n", name, opname, key); }
 	instruction* i = new instruction(name, opname, key, group);
 	instructions.insert(i);
 }
 void add_inst1(const char* name, const char* opname, const char* key, const char* group, const char* e1) {
+	if (strlen(key) != 32) { fprintf(stderr, "For %s / %s: %s isn't 32 characters long\n", name, opname, key); }
 	instruction* i = new instruction(name, opname, key, group);
 	i->addExt(e1);
 	instructions.insert(i);
 }
 void add_inst2(const char* name, const char* opname, const char* key, const char* group, const char* e1, const char* e2) {
+	if (strlen(key) != 32) { fprintf(stderr, "For %s / %s: %s isn't 32 characters long\n", name, opname, key); }
 	instruction* i = new instruction(name, opname, key, group);
 	i->addExt(e1);
 	i->addExt(e2);
 	instructions.insert(i);
 }
 void add_inst3(const char* name, const char* opname, const char* key, const char* group, const char* e1, const char* e2, const char *e3) {
+	if (strlen(key) != 32) { fprintf(stderr, "For %s / %s: %s isn't 32 characters long\n", name, opname, key); }
 	instruction* i = new instruction(name, opname, key, group);
 	i->addExt(e1);
 	i->addExt(e2);
@@ -52,6 +56,7 @@ void add_inst3(const char* name, const char* opname, const char* key, const char
 	instructions.insert(i);
 }
 void add_inst4(const char* name, const char* opname, const char* key, const char* group, const char* e1, const char* e2, const char *e3, const char *e4) {
+	if (strlen(key) != 32) { fprintf(stderr, "For %s / %s: %s isn't 32 characters long\n", name, opname, key); }
 	instruction* i = new instruction(name, opname, key, group);
 	i->addExt(e1);
 	i->addExt(e2);
@@ -60,6 +65,7 @@ void add_inst4(const char* name, const char* opname, const char* key, const char
 	instructions.insert(i);
 }
 void add_inst5(const char* name, const char* opname, const char* key, const char* group, const char* e1, const char* e2, const char *e3, const char *e4, const char *e5) {
+	if (strlen(key) != 32) { fprintf(stderr, "For %s / %s: %s isn't 32 characters long\n", name, opname, key); }
 	instruction* i = new instruction(name, opname, key, group);
 	i->addExt(e1);
 	i->addExt(e2);
