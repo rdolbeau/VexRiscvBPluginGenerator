@@ -42,10 +42,17 @@ I	RSUBW	RSUBW	0010001----------001-----1110111	pdpiadd32	Zpn
 //I	RCRSA16	RCRSA16	0000011----------000-----1110111	pdpisubadd	Zpn
 //I	RSTAS16	RCRAS16	1011010----------000-----1110111	pdpisubadd	Zpn
 //I	RSTSA16	RCRSA16	1011011----------000-----1110111	pdpisubadd	Zpn
-
+I	SCMPLE8	SCMPLE8	  0001111----------000-----1110111	pdpicmp	Zpn
+I	SCMPLE16 SCMPLE16 0001110----------000-----1110111	pdpicmp	Zpn
+I	SCMPLT8	SCMPLE8	  0000111----------000-----1110111	pdpicmp	Zpn
+I	SCMPLT16 SCMPLE16 0000110----------000-----1110111	pdpicmp	Zpn
+I	SLL8	 SLL8	0101110----------000-----1110111	pdpishift	Zpn
+I	SRL8	 SRL8	0101101----------000-----1110111	pdpishift	Zpn
+I	SLL16	 SLL16	0101010----------000-----1110111	pdpishift	Zpn
+I	SRL16	 SRL16	0101001----------000-----1110111	pdpishift	Zpn
 
 // the following needs to read Rd
-//need the I in the name to get the immediate
+//INSB need the I in the name to get the immediate from the tool
 //I	INSBI	INSB	101011000--------000-----1110111	pdpibit	Zpn
 //I	MADDR32	MADDR32	1100010----------001-----1110111	pdpimac	Zpn
 //I	MSUBR32	MSUBR32	1100011----------001-----1110111	pdpimac	Zpn
@@ -71,6 +78,14 @@ S	RADDW	"fun_radd32(input(SRC1), input(SRC2))"
 S	RSUB8	"fun_rsub8(input(SRC1), input(SRC2))"
 S	RSUB16	"fun_rsub16(input(SRC1), input(SRC2))"
 S	RSUBW	"fun_rsub32(input(SRC1), input(SRC2))"
+S	SCMPLE8	"fun_scmple8(input(SRC1), input(SRC2))"
+S	SCMPLE16	"fun_scmple16(input(SRC1), input(SRC2))"
+S	SCMPLT8	"fun_scmplt8(input(SRC1), input(SRC2))"
+S	SCMPLT16	"fun_scmplt16(input(SRC1), input(SRC2))"
+S	SLL8	"fun_sll8(input(SRC1), input(SRC2))"
+S	SRL8	"fun_srl8(input(SRC1), input(SRC2))"
+S	SLL16	"fun_sll16(input(SRC1), input(SRC2))"
+S	SRL16	"fun_srl16(input(SRC1), input(SRC2))"
 // unary
 S	CLRS8	"fun_clrs8(input(SRC1))"
 S	CLO8	"fun_clo8(input(SRC1))"
@@ -222,5 +237,67 @@ P	"""
 	    val hl = (l === 0) ? rs2(15 downto 0) | rs2(31 downto 16)
 	    
 	    hr ## hl // return value
+	}
+
+
+	def fun_scmple8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asSInt <= rs2( 7 downto  0).asSInt) ? B"8'xFF" | B"8'x00"
+	    val b1 = (rs1(15 downto  8).asSInt <= rs2(15 downto  8).asSInt) ? B"8'xFF" | B"8'x00"
+	    val b2 = (rs1(23 downto 16).asSInt <= rs2(23 downto 16).asSInt) ? B"8'xFF" | B"8'x00"
+	    val b3 = (rs1(31 downto 24).asSInt <= rs2(31 downto 24).asSInt) ? B"8'xFF" | B"8'x00"
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_scmple16(rs1: Bits, rs2: Bits) : Bits = {
+	    val h0 = (rs1(15 downto  0).asSInt <= rs2(15 downto  0).asSInt) ? B"16'xFFFF" | B"16'x0000"
+	    val h1 = (rs1(31 downto 16).asSInt <= rs2(31 downto 16).asSInt) ? B"16'xFFFF" | B"16'x0000"
+
+	    h1 ## h0 // return value
+	}
+	def fun_scmplt8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asSInt < rs2( 7 downto  0).asSInt) ? B"8'xFF" | B"8'x00"
+	    val b1 = (rs1(15 downto  8).asSInt < rs2(15 downto  8).asSInt) ? B"8'xFF" | B"8'x00"
+	    val b2 = (rs1(23 downto 16).asSInt < rs2(23 downto 16).asSInt) ? B"8'xFF" | B"8'x00"
+	    val b3 = (rs1(31 downto 24).asSInt < rs2(31 downto 24).asSInt) ? B"8'xFF" | B"8'x00"
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_scmplt16(rs1: Bits, rs2: Bits) : Bits = {
+	    val h0 = (rs1(15 downto  0).asSInt < rs2(15 downto  0).asSInt) ? B"16'xFFFF" | B"16'x0000"
+	    val h1 = (rs1(31 downto 16).asSInt < rs2(31 downto 16).asSInt) ? B"16'xFFFF" | B"16'x0000"
+
+	    h1 ## h0 // return value
+	}
+	def fun_sll8(rs1: Bits, rs2: Bits) : Bits = {
+	    val o = rs2(2 downto 0).asUInt
+	    val b0 = rs1( 7 downto  0).asUInt |<< o
+	    val b1 = rs1(15 downto  8).asUInt |<< o
+	    val b2 = rs1(23 downto 16).asUInt |<< o
+	    val b3 = rs1(31 downto 24).asUInt |<< o
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_srl8(rs1: Bits, rs2: Bits) : Bits = {
+	    val o = rs2(2 downto 0).asUInt
+	    val b0 = rs1( 7 downto  0).asUInt |>> o
+	    val b1 = rs1(15 downto  8).asUInt |>> o
+	    val b2 = rs1(23 downto 16).asUInt |>> o
+	    val b3 = rs1(31 downto 24).asUInt |>> o
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_sll16(rs1: Bits, rs2: Bits) : Bits = {
+	    val o = rs2(3 downto 0).asUInt
+	    val h0 = rs1(15 downto  0).asUInt |<< o
+	    val h1 = rs1(31 downto 16).asUInt |<< o
+
+	    h1 ## h0 // return value
+	}
+	def fun_srl16(rs1: Bits, rs2: Bits) : Bits = {
+	    val o = rs2(3 downto 0).asUInt
+	    val h0 = rs1(15 downto  0).asUInt |>> o
+	    val h1 = rs1(31 downto 16).asUInt |>> o
+
+	    h1 ## h0 // return value
 	}
 """

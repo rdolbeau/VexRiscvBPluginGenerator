@@ -99,6 +99,14 @@ ASM1MACRO(CLO8,0xae300077)
 FUN1(__rv__clo8,CLO8)
 ASM1MACRO(CLRS8,0xae000077)
 FUN1(__rv__clrs8,CLRS8)
+ASM2MACRO(SCMPLE8,0x1e000077)
+FUN2(__rv__scmple8,SCMPLE8)
+ASM2MACRO(SCMPLT8,0x0e000077)
+FUN2(__rv__scmplt8,SCMPLt8)
+ASM2MACRO(SLL8,0x5c000077)
+FUN2(__rv__sll8,SLL8)
+ASM2MACRO(SRL8,0x5a000077)
+FUN2(__rv__srl8,SRL8)
   
 ASM2MACRO(ADD16,0x40000077)
 FUN2(__rv__add16,ADD16)
@@ -114,6 +122,14 @@ ASM1MACRO(CLO16,0xaeb00077)
 FUN1(__rv__clo16,CLO16)
 ASM1MACRO(CLRS16,0xae800077)
 FUN1(__rv__clrs16,CLRS16)
+ASM2MACRO(SCMPLE16,0x1c000077)
+FUN2(__rv__scmple16,SCMPLE16)
+ASM2MACRO(SCMPLT16,0x0c000077)
+FUN2(__rv__scmplt16,SCMPLT16)
+ASM2MACRO(SLL16,0x54000077)
+FUN2(__rv__sll16,SLL16)
+ASM2MACRO(SRL16,0x52000077)
+FUN2(__rv__srl16,SRL16)
 
   
 ASM2MACRO(PKBB16,0x0e001077)
@@ -222,6 +238,54 @@ uint32_t __rv__clrs8(const uint32_t rs1) {
   memcpy(&r, c, 4);
   return r;
 }
+uint32_t __rv__scmple8(const uint32_t rs1, const uint32_t rs2) {
+  int4x8_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] <= b[0]) ? 0xFF : 0x00;
+  c[1] = (a[1] <= b[1]) ? 0xFF : 0x00;
+  c[2] = (a[2] <= b[2]) ? 0xFF : 0x00;
+  c[3] = (a[3] <= b[3]) ? 0xFF : 0x00;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__scmplt8(const uint32_t rs1, const uint32_t rs2) {
+  int4x8_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] <= b[0]) ? 0xFF : 0x00;
+  c[1] = (a[1] <= b[1]) ? 0xFF : 0x00;
+  c[2] = (a[2] <= b[2]) ? 0xFF : 0x00;
+  c[3] = (a[3] <= b[3]) ? 0xFF : 0x00;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__sll8(const uint32_t rs1, const uint32_t rs2) {
+  uint4x8_t a, c;
+  uint32_t o = rs2 & 0x7;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  c[0] = a[0] << o;
+  c[1] = a[1] << o;
+  c[2] = a[2] << o;
+  c[3] = a[3] << o;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__srl8(const uint32_t rs1, const uint32_t rs2) {
+  uint4x8_t a, c;
+  uint32_t o = rs2 & 0x7;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  c[0] = a[0] >> o;
+  c[1] = a[1] >> o;
+  c[2] = a[2] >> o;
+  c[3] = a[3] >> o;
+  memcpy(&r, c, 4);
+  return r;
+}
 
 
 
@@ -271,8 +335,6 @@ uint32_t __rv__clz16(const uint32_t rs1) {
   memcpy(a, &rs1, 4);
   c[0] = a[0] == 0 ? 16 : __builtin_clz((uint32_t)a[0]) - 16;
   c[1] = a[1] == 0 ? 16 : __builtin_clz((uint32_t)a[1]) - 16;
-  c[2] = a[2] == 0 ? 16 : __builtin_clz((uint32_t)a[2]) - 16;
-  c[3] = a[3] == 0 ? 16 : __builtin_clz((uint32_t)a[3]) - 16;
   memcpy(&r, c, 4);
   return r;
 }
@@ -282,8 +344,6 @@ uint32_t __rv__clo16(const uint32_t rs1) {
   memcpy(a, &rs1, 4);
   c[0] = a[0] == 0xff ? 16 : __builtin_clz((uint32_t)(uint8_t)(~a[0])) - 16;
   c[1] = a[1] == 0xff ? 16 : __builtin_clz((uint32_t)(uint8_t)(~a[1])) - 16;
-  c[2] = a[2] == 0xff ? 16 : __builtin_clz((uint32_t)(uint8_t)(~a[2])) - 16;
-  c[3] = a[3] == 0xff ? 16 : __builtin_clz((uint32_t)(uint8_t)(~a[3])) - 16;
   memcpy(&r, c, 4);
   return r;
 }
@@ -293,18 +353,58 @@ uint32_t __rv__clrs16(const uint32_t rs1) {
   memcpy(a, &rs1, 4);
   c[0] = __builtin_clrsb((int32_t)a[0]) - 16;
   c[1] = __builtin_clrsb((int32_t)a[1]) - 16;
-  c[2] = __builtin_clrsb((int32_t)a[2]) - 16;
-  c[3] = __builtin_clrsb((int32_t)a[3]) - 16;
   memcpy(&r, c, 4);
   return r;
 }
+uint32_t __rv__scmple16(const uint32_t rs1, const uint32_t rs2) {
+  int2x16_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] <= b[0]) ? 0xFFFF : 0x0000;
+  c[1] = (a[1] <= b[1]) ? 0xFFFF : 0x0000;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__scmplt16(const uint32_t rs1, const uint32_t rs2) {
+  int2x16_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] <= b[0]) ? 0xFFFF : 0x0000;
+  c[1] = (a[1] <= b[1]) ? 0xFFFF : 0x0000;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__sll16(const uint32_t rs1, const uint32_t rs2) {
+  uint2x16_t a, c;
+  uint32_t o = rs2 & 0xF;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  c[0] = a[0] << o;
+  c[1] = a[1] << o;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__srl16(const uint32_t rs1, const uint32_t rs2) {
+  uint2x16_t a, c;
+  uint32_t o = rs2 & 0xF;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  c[0] = a[0] >> o;
+  c[1] = a[1] >> o;
+  memcpy(&r, c, 4);
+  return r;
+}
+
+
 uint32_t __rv__pkbb16(const uint32_t rs1, const uint32_t rs2) {
   uint2x16_t a, b, c;
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
-  c[0] = a[0];
-  c[1] = b[0];
+  c[1] = a[0];
+  c[0] = b[0];
   memcpy(&r, c, 4);
   return r;
 }
@@ -313,8 +413,8 @@ uint32_t __rv__pkbt16(const uint32_t rs1, const uint32_t rs2) {
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
-  c[0] = a[0];
-  c[1] = b[1];
+  c[1] = a[0];
+  c[0] = b[1];
   memcpy(&r, c, 4);
   return r;
 }
@@ -323,8 +423,8 @@ uint32_t __rv__pktb16(const uint32_t rs1, const uint32_t rs2) {
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
-  c[0] = a[1];
-  c[1] = b[0];
+  c[1] = a[1];
+  c[0] = b[0];
   memcpy(&r, c, 4);
   return r;
 }
@@ -333,8 +433,8 @@ uint32_t __rv__pktt16(const uint32_t rs1, const uint32_t rs2) {
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
-  c[0] = a[1];
-  c[1] = b[1];
+  c[1] = a[1];
+  c[0] = b[1];
   memcpy(&r, c, 4);
   return r;
 }
@@ -366,12 +466,30 @@ uint32_t __rv__bitrev(const uint32_t rs1, const uint32_t rs2) {
   
   unsigned int a = 0x01234567;
 
+//#define CHECK_SIGILL
+
+#if defined(CHECK_SIGILL)
+#include <signal.h>
+#include <setjmp.h>
+
+static jmp_buf jb;
+
+static void sighandler(int x)
+{
+     longjmp(jb, 1);
+}
+#endif // CHECK_SIGILL
+
 int main(int argc, char **argv) {
   unsigned int b = 0xdeadbeef;
   unsigned int c;
   unsigned int d = 0xC0FFEE00;
   unsigned int index;
   unsigned int index2;
+#if defined(CHECK_SIGILL)
+  void (*oldsig)(int);
+  oldsig = signal(SIGILL, sighandler);
+#endif // CHECK_SIGILL
 
   if (argc > 1)
     a = strtoul(argv[1], NULL, 16);
@@ -380,12 +498,39 @@ int main(int argc, char **argv) {
   if (argc > 3)
     d = strtoul(argv[2], NULL, 16);
 
-#define T2(X) \
+#if !defined(CHECK_SIGILL)
+#define T2(X)							\
   c = X(a,b);printf(#X "(0x%08x, 0x%08x) -> 0x%08x\n", a, b, c)
 #define T1(X) \
   c = X(a);printf(#X "(0x%08x) -> 0x%08x\n", a, c)
 #define T3(X) \
   c = X(a,d,b);printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, d, b, c)
+#else
+#define T2(X) do {							\
+    if (setjmp(jb)) {							\
+      printf(#X "(0x%08x, 0x%08x) -> *SIGILL*\n", a, b);		\
+    } else {								\
+      c = X(a,b);							\
+      printf(#X "(0x%08x, 0x%08x) -> 0x%08x\n", a, b, c);		\
+    }									\
+  } while (0)
+#define T1(X) do {							\
+    if (setjmp(jb)) {							\
+      printf(#X "(0x%08x) -> *SIGILL*\n", a);				\
+    } else {								\
+      c = X(a);								\
+      printf(#X "(0x%08x) -> 0x%08x\n", a, c);				\
+    }									\
+  } while (0)
+#define T3(X) do {							\
+    if (setjmp(jb)) {							\
+      printf(#X "(0x%08x, 0x%08x, 0x%08x) -> *SIGILL*\n", a, d, b);	\
+    } else {								\
+      c = X(a,d,b);							\
+      printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, d, b, c);	\
+    }									\
+  } while (0)
+#endif // CHECK_SIGILL
 
   for (index = 0 ; index < 32 ; index++) {
   
@@ -396,14 +541,22 @@ int main(int argc, char **argv) {
   T1(__rv__clz8);
   T1(__rv__clo8);
   T1(__rv__clrs8);
+  T2(__rv__scmple8);
+  T2(__rv__scmplt8);
+  T2(__rv__sll8);
+  T2(__rv__srl8);
 
   T2(__rv__add16);
   T2(__rv__radd16);
   T2(__rv__rsub16);
   T2(__rv__cmpeq16);
-  /* T1(__rv__clz16); */
-  /* T1(__rv__clo16); */
-  /* T1(__rv__clrs16); */
+  //T1(__rv__clz16); /* unimplemented */
+  //T1(__rv__clo16); /* unimplemented */
+  //T1(__rv__clrs16); /* unimplemented */
+  T2(__rv__scmple16);
+  T2(__rv__scmplt16);
+  T2(__rv__sll16);
+  T2(__rv__srl16);
   
   T2(__rv__pkbb16);
   T2(__rv__pkbt16);
