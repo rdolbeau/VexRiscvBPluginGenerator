@@ -99,6 +99,8 @@ ASM1MACRO(CLO8,0xae300077)
 FUN1(__rv__clo8,CLO8)
 ASM1MACRO(CLRS8,0xae000077)
 FUN1(__rv__clrs8,CLRS8)
+ASM1MACRO(SWAP8,0xad800077)
+FUN1(__rv__swap8,swap8)
 ASM2MACRO(SCMPLE8,0x1e000077)
 FUN2(__rv__scmple8,SCMPLE8)
 ASM2MACRO(SCMPLT8,0x0e000077)
@@ -107,10 +109,22 @@ ASM2MACRO(SLL8,0x5c000077)
 FUN2(__rv__sll8,SLL8)
 ASM2MACRO(SRL8,0x5a000077)
 FUN2(__rv__srl8,SRL8)
-ASM2MACRO(MAX8,0x8a000077)
-FUN2(__rv__max8,MAX8)
-ASM2MACRO(MIN8,0x88000077)
-FUN2(__rv__min8,MIN8)
+ASM2MACRO(SRA8,0x58000077)
+FUN2(__rv__sra8,SRA8)
+ASM2MACRO(SMAX8,0x8a000077)
+FUN2(__rv__smax8,SMAX8)
+ASM2MACRO(SMIN8,0x88000077)
+FUN2(__rv__smin8,SMIN8)
+ASM2MACRO(SUB8,0x4a000077)
+FUN2(__rv__sub8,SUB8)
+ASM2MACRO(UCMPLE8,0x3e000077)
+FUN2(__rv__ucmple8,UCMPLE8)
+ASM2MACRO(UCMPLT8,0x2e000077)
+FUN2(__rv__ucmplt8,UCMPLt8)
+ASM2MACRO(UMAX8,0x9a000077)
+FUN2(__rv__umax8,UMAX8)
+ASM2MACRO(UMIN8,0x98000077)
+FUN2(__rv__umin8,UMIN8)
   
 ASM2MACRO(ADD16,0x40000077)
 FUN2(__rv__add16,ADD16)
@@ -126,6 +140,8 @@ ASM1MACRO(CLO16,0xaeb00077)
 FUN1(__rv__clo16,CLO16)
 ASM1MACRO(CLRS16,0xae800077)
 FUN1(__rv__clrs16,CLRS16)
+ASM1MACRO(SWAP16,0xad900077)
+FUN1(__rv__swap16,swap16)
 ASM2MACRO(SCMPLE16,0x1c000077)
 FUN2(__rv__scmple16,SCMPLE16)
 ASM2MACRO(SCMPLT16,0x0c000077)
@@ -134,12 +150,23 @@ ASM2MACRO(SLL16,0x54000077)
 FUN2(__rv__sll16,SLL16)
 ASM2MACRO(SRL16,0x52000077)
 FUN2(__rv__srl16,SRL16)
-ASM2MACRO(MAX16,0x82000077)
-FUN2(__rv__max16,MAX16)
-ASM2MACRO(MIN16,0x80000077)
-FUN2(__rv__min16,MIN16)
+ASM2MACRO(SRA16,0x50000077)
+FUN2(__rv__sra16,SRA16)
+ASM2MACRO(SMAX16,0x82000077)
+FUN2(__rv__smax16,SMAX16)
+ASM2MACRO(SMIN16,0x80000077)
+FUN2(__rv__smin16,SMIN16)
+ASM2MACRO(SUB16,0x42000077)
+FUN2(__rv__sub16,SUB16)
+ASM2MACRO(UCMPLE16,0x3c000077)
+FUN2(__rv__ucmple16,UCMPLE16)
+ASM2MACRO(UCMPLT16,0x2c000077)
+FUN2(__rv__ucmplt16,UCMPLT16)
+ASM2MACRO(UMAX16,0x92000077)
+FUN2(__rv__umax16,UMAX16)
+ASM2MACRO(UMIN16,0x90000077)
+FUN2(__rv__umin16,UMIN16)
 
-  
 ASM2MACRO(PKBB16,0x0e001077)
 FUN2(__rv__pkbb16,PKBB16)
 ASM2MACRO(PKBT16,0x1e001077)
@@ -246,6 +273,17 @@ uint32_t __rv__clrs8(const uint32_t rs1) {
   memcpy(&r, c, 4);
   return r;
 }
+uint32_t __rv__swap8(const uint32_t rs1) {
+  uint4x8_t a, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  c[0] = a[1];
+  c[1] = a[0];
+  c[2] = a[3];
+  c[3] = a[2];
+  memcpy(&r, c, 4);
+  return r;
+}
 uint32_t __rv__scmple8(const uint32_t rs1, const uint32_t rs2) {
   int4x8_t a, b, c;
   uint32_t r;
@@ -263,10 +301,10 @@ uint32_t __rv__scmplt8(const uint32_t rs1, const uint32_t rs2) {
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
-  c[0] = (a[0] <= b[0]) ? 0xFF : 0x00;
-  c[1] = (a[1] <= b[1]) ? 0xFF : 0x00;
-  c[2] = (a[2] <= b[2]) ? 0xFF : 0x00;
-  c[3] = (a[3] <= b[3]) ? 0xFF : 0x00;
+  c[0] = (a[0] < b[0]) ? 0xFF : 0x00;
+  c[1] = (a[1] < b[1]) ? 0xFF : 0x00;
+  c[2] = (a[2] < b[2]) ? 0xFF : 0x00;
+  c[3] = (a[3] < b[3]) ? 0xFF : 0x00;
   memcpy(&r, c, 4);
   return r;
 }
@@ -294,7 +332,19 @@ uint32_t __rv__srl8(const uint32_t rs1, const uint32_t rs2) {
   memcpy(&r, c, 4);
   return r;
 }
-uint32_t __rv__max8(const uint32_t rs1, const uint32_t rs2) {
+uint32_t __rv__sra8(const uint32_t rs1, const uint32_t rs2) {
+  int4x8_t a, c;
+  uint32_t o = rs2 & 0x7;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  c[0] = a[0] >> o;
+  c[1] = a[1] >> o;
+  c[2] = a[2] >> o;
+  c[3] = a[3] >> o;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__smax8(const uint32_t rs1, const uint32_t rs2) {
   int4x8_t a, b, c;
   uint32_t r;
   memcpy(a, &rs1, 4);
@@ -306,8 +356,56 @@ uint32_t __rv__max8(const uint32_t rs1, const uint32_t rs2) {
   memcpy(&r, c, 4);
   return r;
 }
-uint32_t __rv__min8(const uint32_t rs1, const uint32_t rs2) {
+uint32_t __rv__smin8(const uint32_t rs1, const uint32_t rs2) {
   int4x8_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] <= b[0]) ? a[0] : b[0];
+  c[1] = (a[1] <= b[1]) ? a[1] : b[1];
+  c[2] = (a[2] <= b[2]) ? a[2] : b[2];
+  c[3] = (a[3] <= b[3]) ? a[3] : b[3];
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__ucmple8(const uint32_t rs1, const uint32_t rs2) {
+  uint4x8_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] <= b[0]) ? 0xFF : 0x00;
+  c[1] = (a[1] <= b[1]) ? 0xFF : 0x00;
+  c[2] = (a[2] <= b[2]) ? 0xFF : 0x00;
+  c[3] = (a[3] <= b[3]) ? 0xFF : 0x00;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__ucmplt8(const uint32_t rs1, const uint32_t rs2) {
+  uint4x8_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] < b[0]) ? 0xFF : 0x00;
+  c[1] = (a[1] < b[1]) ? 0xFF : 0x00;
+  c[2] = (a[2] < b[2]) ? 0xFF : 0x00;
+  c[3] = (a[3] < b[3]) ? 0xFF : 0x00;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__umax8(const uint32_t rs1, const uint32_t rs2) {
+  uint4x8_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] >= b[0]) ? a[0] : b[0];
+  c[1] = (a[1] >= b[1]) ? a[1] : b[1];
+  c[2] = (a[2] >= b[2]) ? a[2] : b[2];
+  c[3] = (a[3] >= b[3]) ? a[3] : b[3];
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__umin8(const uint32_t rs1, const uint32_t rs2) {
+  uint4x8_t a, b, c;
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
@@ -388,6 +486,15 @@ uint32_t __rv__clrs16(const uint32_t rs1) {
   memcpy(&r, c, 4);
   return r;
 }
+uint32_t __rv__swap16(const uint32_t rs1) {
+  uint2x16_t a, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  c[0] = a[1];
+  c[1] = a[0];
+  memcpy(&r, c, 4);
+  return r;
+}
 uint32_t __rv__scmple16(const uint32_t rs1, const uint32_t rs2) {
   int2x16_t a, b, c;
   uint32_t r;
@@ -403,8 +510,8 @@ uint32_t __rv__scmplt16(const uint32_t rs1, const uint32_t rs2) {
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
-  c[0] = (a[0] <= b[0]) ? 0xFFFF : 0x0000;
-  c[1] = (a[1] <= b[1]) ? 0xFFFF : 0x0000;
+  c[0] = (a[0] < b[0]) ? 0xFFFF : 0x0000;
+  c[1] = (a[1] < b[1]) ? 0xFFFF : 0x0000;
   memcpy(&r, c, 4);
   return r;
 }
@@ -428,7 +535,17 @@ uint32_t __rv__srl16(const uint32_t rs1, const uint32_t rs2) {
   memcpy(&r, c, 4);
   return r;
 }
-uint32_t __rv__max16(const uint32_t rs1, const uint32_t rs2) {
+uint32_t __rv__sra16(const uint32_t rs1, const uint32_t rs2) {
+  int2x16_t a, c;
+  uint32_t o = rs2 & 0xF;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  c[0] = a[0] >> o;
+  c[1] = a[1] >> o;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__smax16(const uint32_t rs1, const uint32_t rs2) {
   int2x16_t a, b, c;
   uint32_t r;
   memcpy(a, &rs1, 4);
@@ -438,8 +555,48 @@ uint32_t __rv__max16(const uint32_t rs1, const uint32_t rs2) {
   memcpy(&r, c, 4);
   return r;
 }
-uint32_t __rv__min16(const uint32_t rs1, const uint32_t rs2) {
+uint32_t __rv__smin16(const uint32_t rs1, const uint32_t rs2) {
   int2x16_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] <= b[0]) ? a[0] : b[0];
+  c[1] = (a[1] <= b[1]) ? a[1] : b[1];
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__ucmple16(const uint32_t rs1, const uint32_t rs2) {
+  uint2x16_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] <= b[0]) ? 0xFFFF : 0x0000;
+  c[1] = (a[1] <= b[1]) ? 0xFFFF : 0x0000;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__ucmplt16(const uint32_t rs1, const uint32_t rs2) {
+  uint2x16_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] < b[0]) ? 0xFFFF : 0x0000;
+  c[1] = (a[1] < b[1]) ? 0xFFFF : 0x0000;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__umax16(const uint32_t rs1, const uint32_t rs2) {
+  uint2x16_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] >= b[0]) ? a[0] : b[0];
+  c[1] = (a[1] >= b[1]) ? a[1] : b[1];
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__umin16(const uint32_t rs1, const uint32_t rs2) {
+  uint2x16_t a, b, c;
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
@@ -593,12 +750,18 @@ int main(int argc, char **argv) {
   T1(__rv__clz8);
   T1(__rv__clo8);
   T1(__rv__clrs8);
+  T1(__rv__swap8);
   T2(__rv__scmple8);
   T2(__rv__scmplt8);
   T2(__rv__sll8);
   T2(__rv__srl8);
-  T2(__rv__max8);
-  T2(__rv__min8);
+  T2(__rv__sra8);
+  T2(__rv__smax8);
+  T2(__rv__smin8);
+  T2(__rv__ucmple8);
+  T2(__rv__ucmplt8);
+  T2(__rv__umax8);
+  T2(__rv__umin8);
 
   T2(__rv__add16);
   T2(__rv__radd16);
@@ -607,12 +770,18 @@ int main(int argc, char **argv) {
   //T1(__rv__clz16); /* unimplemented */
   //T1(__rv__clo16); /* unimplemented */
   //T1(__rv__clrs16); /* unimplemented */
+  T1(__rv__swap16);
   T2(__rv__scmple16);
   T2(__rv__scmplt16);
   T2(__rv__sll16);
   T2(__rv__srl16);
-  T2(__rv__max16);
-  T2(__rv__min16);
+  T2(__rv__sra16);
+  T2(__rv__smax16);
+  T2(__rv__smin16);
+  T2(__rv__ucmple16);
+  T2(__rv__ucmplt16);
+  T2(__rv__umax16);
+  T2(__rv__umin16);
   
   T2(__rv__pkbb16);
   T2(__rv__pkbt16);

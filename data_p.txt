@@ -46,20 +46,42 @@ I	RSUBW	RSUBW	0010001----------001-----1110111	pdpiadd32	Zpn
 //I	STSA16	STSA16	1111011----------010-----1110111	pdpisubadd	Zpn
 I	SCMPLE8	SCMPLE8	  0001111----------000-----1110111	pdpicmp	Zpn
 I	SCMPLE16 SCMPLE16 0001110----------000-----1110111	pdpicmp	Zpn
-I	SCMPLT8	SCMPLE8	  0000111----------000-----1110111	pdpicmp	Zpn
-I	SCMPLT16 SCMPLE16 0000110----------000-----1110111	pdpicmp	Zpn
+I	SCMPLT8	SCMPLT8	  0000111----------000-----1110111	pdpicmp	Zpn
+I	SCMPLT16 SCMPLT16 0000110----------000-----1110111	pdpicmp	Zpn
 I	SLL8	 SLL8	0101110----------000-----1110111	pdpishift	Zpn
 I	SLLI8	 SLL8	011111000--------000-----1110111	pdpishift	Zpn
 I	SRL8	 SRL8	0101101----------000-----1110111	pdpishift	Zpn
 I	SRLI8	 SRL8	011110100--------000-----1110111	pdpishift	Zpn
+I	SRA8	 SRA8	0101100----------000-----1110111	pdpishift	Zpn
+I	SRAI8	 SRA8	011110000--------000-----1110111	pdpishift	Zpn
 I	SLL16	 SLL16	0101010----------000-----1110111	pdpishift	Zpn
 I	SLLI16	 SLL16	01110100---------000-----1110111	pdpishift	Zpn
 I	SRL16	 SRL16	0101001----------000-----1110111	pdpishift	Zpn
 I	SRLI16	 SRL16	01110010---------000-----1110111	pdpishift	Zpn
+I	SRA16	 SRA16	0101000----------000-----1110111	pdpishift	Zpn
+I	SRAI16	 SRA16	01110000---------000-----1110111	pdpishift	Zpn
 I	SMAX8	 SMAX8	1000101----------000-----1110111	pdpicmp	Zpn
 I	SMAX16	 SMAX16	1000001----------000-----1110111	pdpicmp	Zpn
 I	SMIN8	 SMIN8	1000100----------000-----1110111	pdpicmp	Zpn
 I	SMIN16	 SMIN16	1000000----------000-----1110111	pdpicmp	Zpn
+I	SUB8     SUB8	0100101----------000-----1110111	pdpiadd8	Zpn
+I	SUB16    SUB16	0100001----------000-----1110111	pdpiadd16	Zpn
+//I	SUNPKD810 SUNPKD810 101011001000-----000-----1110111	pdpicpct	Zpn
+//I	SUNPKD820 SUNPKD820 101011001001-----000-----1110111	pdpicpct	Zpn
+//I	SUNPKD830 SUNPKD830 101011001010-----000-----1110111	pdpicpct	Zpn
+//I	SUNPKD831 SUNPKD831 101011001011-----000-----1110111	pdpicpct	Zpn
+//I	SUNPKD832 SUNPKD832 101011010011-----000-----1110111	pdpicpct	Zpn
+I	SWAP8	 SWAP8	101011011000-----000-----1110111	pdpibit	Zpn
+I	SWAP16	 SWAP16 101011011001-----000-----1110111	pdpibit	Zpn
+I	UCMPLE8	 UCMPLE8  0011111----------000-----1110111	pdpicmp	Zpn
+I	UCMPLE16 UCMPLE16 0011110----------000-----1110111	pdpicmp	Zpn
+I	UCMPLT8	 UCMPLT8  0010111----------000-----1110111	pdpicmp	Zpn
+I	UCMPLT16 UCMPLT16 0010110----------000-----1110111	pdpicmp	Zpn
+I	UMAX8	 UMAX8	1001101----------000-----1110111	pdpicmp	Zpn
+I	UMAX16	 UMAX16	1001001----------000-----1110111	pdpicmp	Zpn
+I	UMIN8	 UMIN8	1001100----------000-----1110111	pdpicmp	Zpn
+I	UMIN16	 UMIN16	1001000----------000-----1110111	pdpicmp	Zpn
+
 
 // the following needs to read Rd
 //INSB need the I in the name to get the immediate from the tool
@@ -94,16 +116,30 @@ S	SCMPLT8	"fun_scmplt8(input(SRC1), input(SRC2))"
 S	SCMPLT16	"fun_scmplt16(input(SRC1), input(SRC2))"
 S	SLL8	"fun_sll8(input(SRC1), input(SRC2))"
 S	SRL8	"fun_srl8(input(SRC1), input(SRC2))"
+S	SRA8	"fun_sra8(input(SRC1), input(SRC2))"
 S	SLL16	"fun_sll16(input(SRC1), input(SRC2))"
 S	SRL16	"fun_srl16(input(SRC1), input(SRC2))"
+S	SRA16	"fun_sra16(input(SRC1), input(SRC2))"
 S	SMAX8	"fun_smax8(input(SRC1), input(SRC2))"
 S	SMAX16	"fun_smax16(input(SRC1), input(SRC2))"
 S	SMIN8	"fun_smin8(input(SRC1), input(SRC2))"
 S	SMIN16	"fun_smin16(input(SRC1), input(SRC2))"
+S	SUB8	"fun_sub8(input(SRC1), input(SRC2))"
+S	SUB16	"fun_sub16(input(SRC1), input(SRC2))"
+S	UCMPLE8	"fun_ucmple8(input(SRC1), input(SRC2))"
+S	UCMPLE16	"fun_ucmple16(input(SRC1), input(SRC2))"
+S	UCMPLT8	"fun_ucmplt8(input(SRC1), input(SRC2))"
+S	UCMPLT16	"fun_ucmplt16(input(SRC1), input(SRC2))"
+S	UMAX8	"fun_umax8(input(SRC1), input(SRC2))"
+S	UMAX16	"fun_umax16(input(SRC1), input(SRC2))"
+S	UMIN8	"fun_umin8(input(SRC1), input(SRC2))"
+S	UMIN16	"fun_umin16(input(SRC1), input(SRC2))"
 // unary
 S	CLRS8	"fun_clrs8(input(SRC1))"
 S	CLO8	"fun_clo8(input(SRC1))"
 S	CLZ8	"fun_clz8(input(SRC1))"
+S	SWAP8	"fun_swap8(input(SRC1))"
+S	SWAP16	"fun_swap16(input(SRC1))"
 
 P	"""
 	def fun_add8(rs1: Bits, rs2: Bits) : Bits = {
@@ -160,12 +196,12 @@ P	"""
 
 	    s(32 downto 1) // return value
 	}
-	
 	def fun_ave(rs1: Bits, rs2: Bits) : Bits = {
 	    val inter = (1 + (rs1 ## B"1'b0").asUInt + (rs2 ## B"1'b0").asUInt).asBits.resize(33)
 
 	    inter(32 downto 1) // return value
 	}
+	
 	def fun_bitrev(rs1: Bits, rs2: Bits) : Bits = {
 	    val msb = rs2(4 downto 0).asUInt
        	    val rs1r = rs1(0) ## rs1(1) ## rs1(2) ## rs1(3) ## rs1(4) ## rs1(5) ## rs1(6) ## rs1(7) ## rs1(8) ## rs1(9) ## rs1(10) ## rs1(11) ## rs1(12) ## rs1(13) ## rs1(14) ## rs1(15) ## rs1(16) ## rs1(17) ## rs1(18) ## rs1(19) ## rs1(20) ## rs1(21) ## rs1(22) ## rs1(23) ## rs1(24) ## rs1(25) ## rs1(26) ## rs1(27) ## rs1(28) ## rs1(29) ## rs1(30) ## rs1(31)
@@ -173,6 +209,7 @@ P	"""
 
 	    rs1rs // return value
 	}
+	
 	// this is trying to look like DOI 10.2478/jee-2015-0054
 	def fun_clz_NLCi(x:Bits): Bits = {
 	    val r2 = (~(x(0) | x(1) | x(2) | x(3)))
@@ -232,6 +269,23 @@ P	"""
 
 	    c3 ## c2 ## c1 ## c0 // return value
 	}
+	
+	def fun_swap8(rs1: Bits) : Bits = {
+	    val b0 = rs1( 7 downto  0)
+	    val b1 = rs1(15 downto  8)
+	    val b2 = rs1(23 downto 16)
+	    val b3 = rs1(31 downto 24)
+	    
+	    b2 ## b3 ## b0 ## b1 // return value
+	}
+	def fun_swap16(rs1: Bits) : Bits = {
+	    val h0 = rs1(15 downto  0)
+	    val h1 = rs1(31 downto 16)
+
+	    h0 ## h1 // return value
+	}
+	
+
 	def fun_cmpeq8(rs1: Bits, rs2: Bits) : Bits = {
 	    val b0 = (rs1( 7 downto  0).asUInt === rs2( 7 downto  0).asUInt) ? B"8'xFF" | B"8'x00"
 	    val b1 = (rs1(15 downto  8).asUInt === rs2(15 downto  8).asUInt) ? B"8'xFF" | B"8'x00"
@@ -282,6 +336,35 @@ P	"""
 
 	    h1 ## h0 // return value
 	}
+	def fun_ucmple8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asUInt <= rs2( 7 downto  0).asUInt) ? B"8'xFF" | B"8'x00"
+	    val b1 = (rs1(15 downto  8).asUInt <= rs2(15 downto  8).asUInt) ? B"8'xFF" | B"8'x00"
+	    val b2 = (rs1(23 downto 16).asUInt <= rs2(23 downto 16).asUInt) ? B"8'xFF" | B"8'x00"
+	    val b3 = (rs1(31 downto 24).asUInt <= rs2(31 downto 24).asUInt) ? B"8'xFF" | B"8'x00"
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_ucmple16(rs1: Bits, rs2: Bits) : Bits = {
+	    val h0 = (rs1(15 downto  0).asUInt <= rs2(15 downto  0).asUInt) ? B"16'xFFFF" | B"16'x0000"
+	    val h1 = (rs1(31 downto 16).asUInt <= rs2(31 downto 16).asUInt) ? B"16'xFFFF" | B"16'x0000"
+
+	    h1 ## h0 // return value
+	}
+	def fun_ucmplt8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asUInt < rs2( 7 downto  0).asUInt) ? B"8'xFF" | B"8'x00"
+	    val b1 = (rs1(15 downto  8).asUInt < rs2(15 downto  8).asUInt) ? B"8'xFF" | B"8'x00"
+	    val b2 = (rs1(23 downto 16).asUInt < rs2(23 downto 16).asUInt) ? B"8'xFF" | B"8'x00"
+	    val b3 = (rs1(31 downto 24).asUInt < rs2(31 downto 24).asUInt) ? B"8'xFF" | B"8'x00"
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_ucmplt16(rs1: Bits, rs2: Bits) : Bits = {
+	    val h0 = (rs1(15 downto  0).asUInt < rs2(15 downto  0).asUInt) ? B"16'xFFFF" | B"16'x0000"
+	    val h1 = (rs1(31 downto 16).asUInt < rs2(31 downto 16).asUInt) ? B"16'xFFFF" | B"16'x0000"
+
+	    h1 ## h0 // return value
+	}
+	
 	def fun_sll8(rs1: Bits, rs2: Bits) : Bits = {
 	    val o = rs2(2 downto 0).asUInt
 	    val b0 = rs1( 7 downto  0).asUInt |<< o
@@ -300,6 +383,15 @@ P	"""
 
 	    b3 ## b2 ## b1 ## b0 // return value
 	}
+	def fun_sra8(rs1: Bits, rs2: Bits) : Bits = {
+	    val o = rs2(2 downto 0).asUInt
+	    val b0 = rs1( 7 downto  0).asSInt |>> o
+	    val b1 = rs1(15 downto  8).asSInt |>> o
+	    val b2 = rs1(23 downto 16).asSInt |>> o
+	    val b3 = rs1(31 downto 24).asSInt |>> o
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
 	def fun_sll16(rs1: Bits, rs2: Bits) : Bits = {
 	    val o = rs2(3 downto 0).asUInt
 	    val h0 = rs1(15 downto  0).asUInt |<< o
@@ -311,6 +403,13 @@ P	"""
 	    val o = rs2(3 downto 0).asUInt
 	    val h0 = rs1(15 downto  0).asUInt |>> o
 	    val h1 = rs1(31 downto 16).asUInt |>> o
+
+	    h1 ## h0 // return value
+	}
+	def fun_sra16(rs1: Bits, rs2: Bits) : Bits = {
+	    val o = rs2(3 downto 0).asUInt
+	    val h0 = rs1(15 downto  0).asSInt |>> o
+	    val h1 = rs1(31 downto 16).asSInt |>> o
 
 	    h1 ## h0 // return value
 	}
@@ -340,6 +439,49 @@ P	"""
 	def fun_smin16(rs1: Bits, rs2: Bits) : Bits = {
 	    val h0 = (rs1(15 downto  0).asSInt <= rs2(15 downto  0).asSInt) ? rs1(15 downto  0) | rs2(15 downto  0)
 	    val h1 = (rs1(31 downto 16).asSInt <= rs2(31 downto 16).asSInt) ? rs1(31 downto 16) | rs2(31 downto 16)
+
+	    h1 ## h0 // return value
+	}
+	def fun_umax8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asUInt >= rs2( 7 downto  0).asUInt) ? rs1( 7 downto  0) | rs2( 7 downto  0)
+	    val b1 = (rs1(15 downto  8).asUInt >= rs2(15 downto  8).asUInt) ? rs1(15 downto  8) | rs2(15 downto  8)
+	    val b2 = (rs1(23 downto 16).asUInt >= rs2(23 downto 16).asUInt) ? rs1(23 downto 16) | rs2(23 downto 16)
+	    val b3 = (rs1(31 downto 24).asUInt >= rs2(31 downto 24).asUInt) ? rs1(31 downto 24) | rs2(31 downto 24)
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_umax16(rs1: Bits, rs2: Bits) : Bits = {
+	    val h0 = (rs1(15 downto  0).asUInt >= rs2(15 downto  0).asUInt) ? rs1(15 downto  0) | rs2(15 downto  0)
+	    val h1 = (rs1(31 downto 16).asUInt >= rs2(31 downto 16).asUInt) ? rs1(31 downto 16) | rs2(31 downto 16)
+
+	    h1 ## h0 // return value
+	}
+	def fun_umin8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asUInt <= rs2( 7 downto  0).asUInt) ? rs1( 7 downto  0) | rs2( 7 downto  0)
+	    val b1 = (rs1(15 downto  8).asUInt <= rs2(15 downto  8).asUInt) ? rs1(15 downto  8) | rs2(15 downto  8)
+	    val b2 = (rs1(23 downto 16).asUInt <= rs2(23 downto 16).asUInt) ? rs1(23 downto 16) | rs2(23 downto 16)
+	    val b3 = (rs1(31 downto 24).asUInt <= rs2(31 downto 24).asUInt) ? rs1(31 downto 24) | rs2(31 downto 24)
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_umin16(rs1: Bits, rs2: Bits) : Bits = {
+	    val h0 = (rs1(15 downto  0).asUInt <= rs2(15 downto  0).asUInt) ? rs1(15 downto  0) | rs2(15 downto  0)
+	    val h1 = (rs1(31 downto 16).asUInt <= rs2(31 downto 16).asUInt) ? rs1(31 downto 16) | rs2(31 downto 16)
+
+	    h1 ## h0 // return value
+	}
+
+	def fun_sub8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asUInt - rs2( 7 downto  0).asUInt).asBits.resize(8)
+	    val b1 = (rs1(15 downto  8).asUInt - rs2(15 downto  8).asUInt).asBits.resize(8)
+	    val b2 = (rs1(23 downto 16).asUInt - rs2(23 downto 16).asUInt).asBits.resize(8)
+	    val b3 = (rs1(31 downto 24).asUInt - rs2(31 downto 24).asUInt).asBits.resize(8)
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_sub16(rs1: Bits, rs2: Bits) : Bits = {
+	    val h0 = (rs1(15 downto  0).asUInt - rs2(15 downto  0).asUInt).asBits.resize(16)
+	    val h1 = (rs1(31 downto 16).asUInt - rs2(31 downto 16).asUInt).asBits.resize(16)
 
 	    h1 ## h0 // return value
 	}
