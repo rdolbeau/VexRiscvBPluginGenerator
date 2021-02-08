@@ -50,10 +50,12 @@ public:
 	}
 	
 	bool isImm(void) const {
+		int indice = name.length()-1;
 		if (isWord())
-			return name[name.length()-2] == 'I';
-		else
-			return name[name.length()-1] == 'I';
+			indice --;
+		while ((indice > 0) && (name[indice] >= '0') && (name[indice] <= '9'))
+			indice --;
+		return name[indice] == 'I';
 	}
 	
 	std::string ctrlName() const {
