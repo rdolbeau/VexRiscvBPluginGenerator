@@ -107,6 +107,8 @@ ASM2MACRO(SLL8,0x5c000077)
 FUN2(__rv__sll8,SLL8)
 ASM2MACRO(SRL8,0x5a000077)
 FUN2(__rv__srl8,SRL8)
+ASM2MACRO(MAX8,0x8a000077)
+FUN2(__rv__max8,MAX8)
   
 ASM2MACRO(ADD16,0x40000077)
 FUN2(__rv__add16,ADD16)
@@ -130,6 +132,8 @@ ASM2MACRO(SLL16,0x54000077)
 FUN2(__rv__sll16,SLL16)
 ASM2MACRO(SRL16,0x52000077)
 FUN2(__rv__srl16,SRL16)
+ASM2MACRO(MAX16,0x82000077)
+FUN2(__rv__max16,MAX16)
 
   
 ASM2MACRO(PKBB16,0x0e001077)
@@ -286,6 +290,18 @@ uint32_t __rv__srl8(const uint32_t rs1, const uint32_t rs2) {
   memcpy(&r, c, 4);
   return r;
 }
+uint32_t __rv__max8(const uint32_t rs1, const uint32_t rs2) {
+  int4x8_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] >= b[0]) ? a[0] : b[0];
+  c[1] = (a[1] >= b[1]) ? a[1] : b[1];
+  c[2] = (a[2] >= b[2]) ? a[2] : b[2];
+  c[3] = (a[3] >= b[3]) ? a[3] : b[3];
+  memcpy(&r, c, 4);
+  return r;
+}
 
 
 
@@ -393,6 +409,16 @@ uint32_t __rv__srl16(const uint32_t rs1, const uint32_t rs2) {
   memcpy(a, &rs1, 4);
   c[0] = a[0] >> o;
   c[1] = a[1] >> o;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__max16(const uint32_t rs1, const uint32_t rs2) {
+  int2x16_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = (a[0] >= b[0]) ? a[0] : b[0];
+  c[1] = (a[1] >= b[1]) ? a[1] : b[1];
   memcpy(&r, c, 4);
   return r;
 }
@@ -545,6 +571,7 @@ int main(int argc, char **argv) {
   T2(__rv__scmplt8);
   T2(__rv__sll8);
   T2(__rv__srl8);
+  T2(__rv__max8);
 
   T2(__rv__add16);
   T2(__rv__radd16);
@@ -557,6 +584,7 @@ int main(int argc, char **argv) {
   T2(__rv__scmplt16);
   T2(__rv__sll16);
   T2(__rv__srl16);
+  T2(__rv__max16);
   
   T2(__rv__pkbb16);
   T2(__rv__pkbt16);
