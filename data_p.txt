@@ -87,15 +87,15 @@ I	URADDW	URADDW	0011000----------001-----1110111	pdpiadd32	Zpn
 I	URSUB8	URSUB8	0010101----------000-----1110111	pdpiadd8	Zpn
 I	URSUB16	URSUB16	0010001----------000-----1110111	pdpiadd16	Zpn
 I	URSUBW	URSUBW	0011001----------001-----1110111	pdpiadd32	Zpn
+I	PBSAD	PBSAD	1111110----------000-----1110111	pdpiadd8	Zpn
 
 
-// the following needs to read Rd
+// the following needs to read Rd, so need a patch to VexRiscv
 //INSB need the I in the name to get the immediate from the tool
 //I	INSBI	INSB	101011000--------000-----1110111	pdpibit	Zpn
 //I	MADDR32	MADDR32	1100010----------001-----1110111	pdpimac	Zpn
 //I	MSUBR32	MSUBR32	1100011----------001-----1110111	pdpimac	Zpn
-//I	PBSAD	PBSAD	1111110----------000-----1110111	pdpadd	Zpn
-//I	PBSADA	PBSADA	1110111----------000-----1110111	pdpadd	Zpn
+I	PBSADA	PBSADA	1111111----------000-----1110111	pdpiadd8	Zpn
 
 
 
@@ -146,12 +146,15 @@ S	URADDW	"fun_uradd32(input(SRC1), input(SRC2))"
 S	URSUB8	"fun_ursub8(input(SRC1), input(SRC2))"
 S	URSUB16	"fun_ursub16(input(SRC1), input(SRC2))"
 S	URSUBW	"fun_ursub32(input(SRC1), input(SRC2))"
+S	PBSAD	"fun_pbsad(input(SRC1), input(SRC2))"
 // unary
 S	CLRS8	"fun_clrs8(input(SRC1))"
 S	CLO8	"fun_clo8(input(SRC1))"
 S	CLZ8	"fun_clz8(input(SRC1))"
 S	SWAP8	"fun_swap8(input(SRC1))"
 S	SWAP16	"fun_swap16(input(SRC1))"
+// ternary
+S	PBSADA	"fun_pbsada(input(SRC1), input(SRC2), input(SRC3))"
 
 P	"""
 	def fun_add8(rs1: Bits, rs2: Bits) : Bits = {
@@ -535,5 +538,23 @@ P	"""
 	    val s = ((B"1'b0" ## rs1).asUInt - (B"1'b0" ## rs2).asUInt).asBits.resize(33)
 
 	    s(32 downto 1) // return value
+	}
+
+	def fun_pbsada(rs1: Bits, rs2: Bits, rs3: Bits) : Bits = {
+	    // zero-extend to handle as unsigned
+	    val b0 = ((B"1'b0" ## rs1( 7 downto  0)).asSInt - (B"1'b0" ## rs2( 7 downto  0)).asSInt)
+	    val b1 = ((B"1'b0" ## rs1(15 downto  8)).asSInt - (B"1'b0" ## rs2(15 downto  8)).asSInt)
+	    val b2 = ((B"1'b0" ## rs1(23 downto 16)).asSInt - (B"1'b0" ## rs2(23 downto 16)).asSInt)
+	    val b3 = ((B"1'b0" ## rs1(31 downto 24)).asSInt - (B"1'b0" ## rs2(31 downto 24)).asSInt)
+
+	    val sum = rs3.asUInt + b0.abs + b1.abs + b2.abs + b3.abs
+
+	    sum.asBits.resize(32) // return value
+	}
+
+	def fun_pbsad(rs1: Bits, rs2: Bits) : Bits = {
+	    val r = fun_pbsada(rs1, rs2, B"32'x00000000")
+
+	    r // return value
 	}
 """

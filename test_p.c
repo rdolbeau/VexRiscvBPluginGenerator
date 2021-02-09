@@ -43,6 +43,14 @@ typedef uint32_t uint_xlen_t;
 	 : "r" (rs1), "r" (rs2), "r" (rs3));				\
     return r;								\
   }
+#define FUN3R(NAME, ASNAME)						\
+  static inline uint_xlen_t NAME(uint_xlen_t rs1, uint_xlen_t rs2, uint_xlen_t rs3) {	\
+    uint32_t r = rs3;								\
+    asm (#ASNAME " reg_%0, reg_%1, reg_%2\n"			\
+	       : "+&r" (r)						\
+	 : "r" (rs1), "r" (rs2));				\
+    return r;								\
+  }
 
 #define ASM1MACRO(N, O) asm(".macro "#N" rd, rs1\n"		\
 			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15))\n"	\
@@ -53,6 +61,8 @@ typedef uint32_t uint_xlen_t;
 #define ASM3MACRO(N, O) asm(".macro "#N" rd, rs1, rs2, rs3\n"		\
 			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15) | (\\rs2 << 20) | (\\rs3 << 27) )\n"	\
 			   ".endm\n");
+#define ASM3RMACRO(N, O) ASM2MACRO(N, O)
+
 asm("#define reg_zero 0\n");
 asm("#define reg_ra 1\n");
 asm("#define reg_sp 2\n");
@@ -195,6 +205,11 @@ ASM2MACRO(URSUBW,0x32001077)
 FUN2(__rv__ursubw,URSUBW)
 ASM2MACRO(AVE,0xe0000077)
 FUN2(__rv__ave,AVE)
+
+ASM2MACRO(PBSAD, 0xfd000077)
+FUN2(__rv__pbsad, PBSAD)
+ASM3RMACRO(PBSADA, 0xfe000077)
+FUN3R(__rv__pbsada, PBSADA)
 
 ASM2MACRO(BITREV,0xe6000077)
 FUN2(__rv__bitrev,BITREV)
@@ -735,6 +750,23 @@ uint32_t __rv__bitrev(const uint32_t rs1, const uint32_t rs2) {
   x = (x & 0x0000FFFF)<<16 | (x & 0xFFFF0000)>>16;
   return x >> (31-n);
 }
+
+
+
+uint32_t __rv__pbsada(const uint32_t rs1, const uint32_t rs2, const uint32_t rs3) {
+  uint4x8_t a, b;
+  uint32_t r = rs3;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  r += abs((int32_t)a[0] - (int32_t)b[0]);
+  r += abs((int32_t)a[1] - (int32_t)b[1]);
+  r += abs((int32_t)a[2] - (int32_t)b[2]);
+  r += abs((int32_t)a[3] - (int32_t)b[3]);
+  return r;
+}
+uint32_t __rv__pbsad(const uint32_t rs1, const uint32_t rs2) {
+  return __rv__pbsada(rs1, rs2, 0);
+}
 #endif // __riscv
   
   unsigned int a = 0x01234567;
@@ -755,7 +787,7 @@ static void sighandler(int x)
 
 int main(int argc, char **argv) {
   unsigned int b = 0xdeadbeef;
-  unsigned int c;
+  unsigned int c = 0;
   unsigned int d = 0xC0FFEE00;
   unsigned int index;
   unsigned int index2;
@@ -769,7 +801,7 @@ int main(int argc, char **argv) {
   if (argc > 2)
     b = strtoul(argv[2], NULL, 16);
   if (argc > 3)
-    d = strtoul(argv[2], NULL, 16);
+    d = strtoul(argv[3], NULL, 16);
 
 #if !defined(CHECK_SIGILL)
 #define T2(X)							\
@@ -777,7 +809,7 @@ int main(int argc, char **argv) {
 #define T1(X) \
   c = X(a);printf(#X "(0x%08x) -> 0x%08x\n", a, c)
 #define T3(X) \
-  c = X(a,d,b);printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, d, b, c)
+  c = X(a,b,d);printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, b, d, c)
 #else
 #define T2(X) do {							\
     if (setjmp(jb)) {							\
@@ -797,10 +829,10 @@ int main(int argc, char **argv) {
   } while (0)
 #define T3(X) do {							\
     if (setjmp(jb)) {							\
-      printf(#X "(0x%08x, 0x%08x, 0x%08x) -> *SIGILL*\n", a, d, b);	\
+      printf(#X "(0x%08x, 0x%08x, 0x%08x) -> *SIGILL*\n", a, b, d);	\
     } else {								\
-      c = X(a,d,b);							\
-      printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, d, b, c);	\
+      c = X(a,b,d);							\
+      printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, b, d, c);	\
     }									\
   } while (0)
 #endif // CHECK_SIGILL
@@ -862,6 +894,9 @@ int main(int argc, char **argv) {
   T2(__rv__ursubw);
   T2(__rv__ave);
   T2(__rv__bitrev);
+  
+  T2(__rv__pbsad);
+  T3(__rv__pbsada);
   
   b = 0x0100F004 + index;
   }
