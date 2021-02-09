@@ -125,6 +125,10 @@ ASM2MACRO(UMAX8,0x9a000077)
 FUN2(__rv__umax8,UMAX8)
 ASM2MACRO(UMIN8,0x98000077)
 FUN2(__rv__umin8,UMIN8)
+ASM2MACRO(URADD8,0x28000077)
+FUN2(__rv__uradd8,URADD8)
+ASM2MACRO(URSUB8,0x2a000077)
+FUN2(__rv__ursub8,URSUB8)
   
 ASM2MACRO(ADD16,0x40000077)
 FUN2(__rv__add16,ADD16)
@@ -175,12 +179,20 @@ ASM2MACRO(PKTB16,0x2e001077)
 FUN2(__rv__pktb16,PKTB16)
 ASM2MACRO(PKTT16,0x3e001077)
 FUN2(__rv__pktt16,PKTT16)
+ASM2MACRO(URADD16,0x20000077)
+FUN2(__rv__uradd16,URADD16)
+ASM2MACRO(URSUB16,0x22000077)
+FUN2(__rv__ursub16,URSUB16)
 
 
 ASM2MACRO(RADDW,0x20001077)
 FUN2(__rv__raddw,RADDW)
 ASM2MACRO(RSUBW,0x22001077)
 FUN2(__rv__rsubw,RSUBW)
+ASM2MACRO(URADDW,0x30001077)
+FUN2(__rv__uraddw,URADDW)
+ASM2MACRO(URSUBW,0x32001077)
+FUN2(__rv__ursubw,URSUBW)
 ASM2MACRO(AVE,0xe0000077)
 FUN2(__rv__ave,AVE)
 
@@ -209,10 +221,10 @@ uint32_t __rv__radd8(const uint32_t rs1, const uint32_t rs2) {
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
-  c[0] = (((int)a[0] + (int)b[0]) & 0x000001FE)>>1;
-  c[1] = (((int)a[1] + (int)b[1]) & 0x000001FE)>>1;
-  c[2] = (((int)a[2] + (int)b[2]) & 0x000001FE)>>1;
-  c[3] = (((int)a[3] + (int)b[3]) & 0x000001FE)>>1;
+  c[0] = (((int32_t)a[0] + (int32_t)b[0]) & 0x000001FE)>>1;
+  c[1] = (((int32_t)a[1] + (int32_t)b[1]) & 0x000001FE)>>1;
+  c[2] = (((int32_t)a[2] + (int32_t)b[2]) & 0x000001FE)>>1;
+  c[3] = (((int32_t)a[3] + (int32_t)b[3]) & 0x000001FE)>>1;
   memcpy(&r, c, 4);
   return r;
 }
@@ -221,10 +233,10 @@ uint32_t __rv__rsub8(const uint32_t rs1, const uint32_t rs2) {
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
-  c[0] = (((int)a[0] - (int)b[0]) & 0x000001FE)>>1;
-  c[1] = (((int)a[1] - (int)b[1]) & 0x000001FE)>>1;
-  c[2] = (((int)a[2] - (int)b[2]) & 0x000001FE)>>1;
-  c[3] = (((int)a[3] - (int)b[3]) & 0x000001FE)>>1;
+  c[0] = (((int32_t)a[0] - (int32_t)b[0]) & 0x000001FE)>>1;
+  c[1] = (((int32_t)a[1] - (int32_t)b[1]) & 0x000001FE)>>1;
+  c[2] = (((int32_t)a[2] - (int32_t)b[2]) & 0x000001FE)>>1;
+  c[3] = (((int32_t)a[3] - (int32_t)b[3]) & 0x000001FE)>>1;
   memcpy(&r, c, 4);
   return r;
 }
@@ -416,6 +428,30 @@ uint32_t __rv__umin8(const uint32_t rs1, const uint32_t rs2) {
   memcpy(&r, c, 4);
   return r;
 }
+uint32_t __rv__uradd8(const uint32_t rs1, const uint32_t rs2) {
+  uint4x8_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = ((a[0] + b[0]) & 0x000001FE)>>1;
+  c[1] = ((a[1] + b[1]) & 0x000001FE)>>1;
+  c[2] = ((a[2] + b[2]) & 0x000001FE)>>1;
+  c[3] = ((a[3] + b[3]) & 0x000001FE)>>1;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__ursub8(const uint32_t rs1, const uint32_t rs2) {
+  uint4x8_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = ((a[0] - b[0]) & 0x000001FE)>>1;
+  c[1] = ((a[1] - b[1]) & 0x000001FE)>>1;
+  c[2] = ((a[2] - b[2]) & 0x000001FE)>>1;
+  c[3] = ((a[3] - b[3]) & 0x000001FE)>>1;
+  memcpy(&r, c, 4);
+  return r;
+}
 
 
 
@@ -434,8 +470,8 @@ uint32_t __rv__radd16(const uint32_t rs1, const uint32_t rs2) {
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
-  c[0] = (((int)a[0] + (int)b[0]) & 0x0001FFFE)>>1;
-  c[1] = (((int)a[1] + (int)b[1]) & 0x0001FFFE)>>1;
+  c[0] = (((int32_t)a[0] + (int32_t)b[0]) & 0x0001FFFE)>>1;
+  c[1] = (((int32_t)a[1] + (int32_t)b[1]) & 0x0001FFFE)>>1;
   memcpy(&r, c, 4);
   return r;
 }
@@ -444,8 +480,8 @@ uint32_t __rv__rsub16(const uint32_t rs1, const uint32_t rs2) {
   uint32_t r;
   memcpy(a, &rs1, 4);
   memcpy(b, &rs2, 4);
-  c[0] = (((int)a[0] - (int)b[0]) & 0x0001FFFE)>>1;
-  c[1] = (((int)a[1] - (int)b[1]) & 0x0001FFFE)>>1;
+  c[0] = (((int32_t)a[0] - (int32_t)b[0]) & 0x0001FFFE)>>1;
+  c[1] = (((int32_t)a[1] - (int32_t)b[1]) & 0x0001FFFE)>>1;
   memcpy(&r, c, 4);
   return r;
 }
@@ -605,6 +641,26 @@ uint32_t __rv__umin16(const uint32_t rs1, const uint32_t rs2) {
   memcpy(&r, c, 4);
   return r;
 }
+uint32_t __rv__uradd16(const uint32_t rs1, const uint32_t rs2) {
+  uint2x16_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = ((a[0] + b[0]) & 0x0001FFFE)>>1;
+  c[1] = ((a[1] + b[1]) & 0x0001FFFE)>>1;
+  memcpy(&r, c, 4);
+  return r;
+}
+uint32_t __rv__ursub16(const uint32_t rs1, const uint32_t rs2) {
+  uint2x16_t a, b, c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = ((a[0] - b[0]) & 0x0001FFFE)>>1;
+  c[1] = ((a[1] - b[1]) & 0x0001FFFE)>>1;
+  memcpy(&r, c, 4);
+  return r;
+}
 
 
 uint32_t __rv__pkbb16(const uint32_t rs1, const uint32_t rs2) {
@@ -655,6 +711,14 @@ int32_t __rv__raddw(const int32_t rs1, const int32_t rs2) {
 int32_t __rv__rsubw(const int32_t rs1, const int32_t rs2) {
   int64_t s = (int64_t)rs1 - (int64_t)rs2;
   return (int32_t)((s>>1)&0xFFFFFFFF);
+}
+uint32_t __rv__uraddw(const uint32_t rs1, const uint32_t rs2) {
+  uint64_t s = (uint64_t)rs1 + (uint64_t)rs2;
+  return (int32_t)((s>>1)&0xFFFFFFFF);
+}
+uint32_t __rv__ursubw(const uint32_t rs1, const uint32_t rs2) {
+  uint64_t s = (uint64_t)rs1 - (uint64_t)rs2;
+  return (uint32_t)((s>>1)&0xFFFFFFFF);
 }
 int32_t __rv__ave(const int32_t rs1, const int32_t rs2) {
   int64_t s = 1 + ((int64_t)rs1<<1) + ((int64_t)rs2<<1);
@@ -762,6 +826,8 @@ int main(int argc, char **argv) {
   T2(__rv__ucmplt8);
   T2(__rv__umax8);
   T2(__rv__umin8);
+  T2(__rv__uradd8);
+  T2(__rv__ursub8);
 
   T2(__rv__add16);
   T2(__rv__radd16);
@@ -782,6 +848,8 @@ int main(int argc, char **argv) {
   T2(__rv__ucmplt16);
   T2(__rv__umax16);
   T2(__rv__umin16);
+  T2(__rv__uradd16);
+  T2(__rv__ursub16);
   
   T2(__rv__pkbb16);
   T2(__rv__pkbt16);
@@ -790,6 +858,8 @@ int main(int argc, char **argv) {
   
   T2(__rv__raddw);
   T2(__rv__rsubw);
+  T2(__rv__uraddw);
+  T2(__rv__ursubw);
   T2(__rv__ave);
   T2(__rv__bitrev);
   
