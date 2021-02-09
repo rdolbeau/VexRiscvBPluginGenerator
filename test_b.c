@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
   if (argc > 2)
     b = strtoul(argv[2], NULL, 16);
   if (argc > 3)
-    d = strtoul(argv[2], NULL, 16);
+    d = strtoul(argv[3], NULL, 16);
 
 #define T2(X) \
   c = X(a,b);printf(#X "(0x%08x, 0x%08x) -> 0x%08x\n", a, b, c)
