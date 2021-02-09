@@ -360,7 +360,7 @@ class CryptoZknePlugin extends Plugin[VexRiscv] {
 		val ternaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
 			SRC2_CTRL                -> Src2CtrlEnum.RS,
-			SRC3_CTRL                -> Src2CtrlEnum.RS,
+			SRC3_CTRL                -> Src3CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
 			BYPASSABLE_EXECUTE_STAGE -> True,
 			BYPASSABLE_MEMORY_STAGE  -> True,
@@ -372,7 +372,7 @@ class CryptoZknePlugin extends Plugin[VexRiscv] {
 		val immTernaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
 			SRC2_CTRL                -> Src2CtrlEnum.IMI,
-			SRC3_CTRL                -> Src2CtrlEnum.RS,
+			SRC3_CTRL                -> Src3CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
 			BYPASSABLE_EXECUTE_STAGE -> True,
 			BYPASSABLE_MEMORY_STAGE  -> True,

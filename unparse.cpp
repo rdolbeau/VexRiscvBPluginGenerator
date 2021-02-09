@@ -138,7 +138,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "val ternaryActions = List[(Stageable[_ <: BaseType],Any)](" << std::endl;
 	output << '\t' << '\t' << "\tSRC1_CTRL                -> Src1CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tSRC2_CTRL                -> Src2CtrlEnum.RS," << std::endl;
-	output << '\t' << '\t' << "\tSRC3_CTRL                -> Src2CtrlEnum.RS," << std::endl;
+	output << '\t' << '\t' << "\tSRC3_CTRL                -> Src3CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
@@ -151,7 +151,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "val immTernaryActions = List[(Stageable[_ <: BaseType],Any)](" << std::endl;
 	output << '\t' << '\t' << "\tSRC1_CTRL                -> Src1CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tSRC2_CTRL                -> Src2CtrlEnum.IMI," << std::endl;
-	output << '\t' << '\t' << "\tSRC3_CTRL                -> Src2CtrlEnum.RS," << std::endl;
+	output << '\t' << '\t' << "\tSRC3_CTRL                -> Src3CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
