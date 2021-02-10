@@ -51,6 +51,14 @@ typedef uint32_t uint_xlen_t;
 	 : "r" (rs1), "r" (rs2));				\
     return r;								\
   }
+#define FUN3RI(NAME, ASNAME, IMM)						\
+  static inline uint_xlen_t NAME##IMM(uint_xlen_t rs1, uint_xlen_t rs3) {	\
+    uint32_t r = rs3;								\
+    asm (#ASNAME " reg_%0, reg_%1, " #IMM "\n"			\
+	       : "+&r" (r)						\
+	 : "r" (rs1));				\
+    return r;								\
+  }
 
 #define ASM1MACRO(N, O) asm(".macro "#N" rd, rs1\n"		\
 			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15))\n"	\
@@ -62,6 +70,9 @@ typedef uint32_t uint_xlen_t;
 			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15) | (\\rs2 << 20) | (\\rs3 << 27) )\n"	\
 			   ".endm\n");
 #define ASM3RMACRO(N, O) ASM2MACRO(N, O)
+#define ASM3RIMACRO(N, O) asm(".macro "#N" rd, rs1, imm\n"		\
+			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15) | (\\imm << 20))\n"	\
+			   ".endm\n");
 
 asm("#define reg_zero 0\n");
 asm("#define reg_ra 1\n");
@@ -213,7 +224,13 @@ FUN3R(__rv__pbsada, PBSADA)
 
 ASM2MACRO(BITREV,0xe6000077)
 FUN2(__rv__bitrev,BITREV)
-  
+
+ASM3RIMACRO(INSB, 0xac000077)
+FUN3RI(__rv__insb, INSB, 0)
+FUN3RI(__rv__insb, INSB, 1)
+FUN3RI(__rv__insb, INSB, 2)
+FUN3RI(__rv__insb, INSB, 3)
+
 #else // !__riscv
 typedef uint8_t uint4x8_t[4];
 typedef int8_t int4x8_t[4];
@@ -767,6 +784,40 @@ uint32_t __rv__pbsada(const uint32_t rs1, const uint32_t rs2, const uint32_t rs3
 uint32_t __rv__pbsad(const uint32_t rs1, const uint32_t rs2) {
   return __rv__pbsada(rs1, rs2, 0);
 }
+
+uint32_t __rv__insb0(const uint32_t rs1, const uint32_t rs2) {
+  uint32_t r;
+
+  r = rs2 & 0xFFFFFF00;
+  r |= ((rs1 & 0xFF) << 0);
+
+  return r;
+}
+uint32_t __rv__insb1(const uint32_t rs1, const uint32_t rs2) {
+  uint32_t r;
+
+  r = rs2 & 0xFFFF00FF;
+  r |= ((rs1 & 0xFF) << 8);
+
+  return r;
+}
+uint32_t __rv__insb2(const uint32_t rs1, const uint32_t rs2) {
+  uint32_t r;
+
+  r = rs2 & 0xFF00FFFF;
+  r |= ((rs1 & 0xFF) << 16);
+
+  return r;
+}
+uint32_t __rv__insb3(const uint32_t rs1, const uint32_t rs2) {
+  uint32_t r;
+
+  r = rs2 & 0x00FFFFFF;
+  r |= ((rs1 & 0xFF) << 24);
+
+  return r;
+}
+
 #endif // __riscv
   
   unsigned int a = 0x01234567;
@@ -897,6 +948,11 @@ int main(int argc, char **argv) {
  #endif
   T2(__rv__pbsad);
   T3(__rv__pbsada);
+
+  T2(__rv__insb0);
+  T2(__rv__insb1);
+  T2(__rv__insb2);
+  T2(__rv__insb3);
   
   b = 0x0100F004 + index;
   }

@@ -87,7 +87,7 @@ I	URSUBW	URSUBW	0011001----------001-----1110111	pdpiadd32	Zpn
 
 // the following needs to read Rd, so need a patch to VexRiscv
 //INSB need the I in the name to get the immediate from the tool
-//I	INSBI	INSB	101011000--------000-----1110111	pdpibit	Zpn
+I	INSBI	INSBI	101011000--------000-----1110111	pdpibit	Zpn
 //I	MADDR32	MADDR32	1100010----------001-----1110111	pdpimac	Zpn
 //I	MSUBR32	MSUBR32	1100011----------001-----1110111	pdpimac	Zpn
 // ternary + binary (bit 25)
@@ -147,6 +147,7 @@ S	SWAP8	"fun_swap8(input(SRC1))"
 S	SWAP16	"fun_swap16(input(SRC1))"
 // ternary
 S	PBSADx	"fun_pbsada(input(SRC1), input(SRC2), (input(INSTRUCTION)(25).asUInt === 0) ? U(0, 32 bits).asBits | input(SRC3))"
+S	INSBI	"fun_insb(input(SRC1), input(SRC2), input(SRC3))"
 
 P	"""
 	def fun_add8(rs1: Bits, rs2: Bits) : Bits = {
@@ -542,5 +543,17 @@ P	"""
 	    val sum = rs3.asUInt + b0.abs + b1.abs + b2.abs + b3.abs
 
 	    sum.asBits.resize(32) // return value
+	}
+	
+	def fun_insb(rs1: Bits, rs2: Bits, rs3: Bits) : Bits = {
+	    val idx = rs2(1 downto 0).asUInt
+	    val b = rs1(7 downto 0)
+	    val r = (idx).mux(
+		0 -> rs3(31 downto  8) ## b,
+		1 -> rs3(31 downto 16) ## b ## rs3( 7 downto  0),
+		2 -> rs3(31 downto 24) ## b ## rs3(15 downto  0),
+		3 ->                      b ## rs3(23 downto  0)
+	    )
+	    r // return value
 	}
 """
