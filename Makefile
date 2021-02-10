@@ -56,8 +56,8 @@ BitManipZclmul.scala: gen_plugin data_clmul.txt
 CryptoZknh.scala: gen_plugin data_sha.txt
 	./gen_plugin CryptoZknh data_sha.txt '*' >| $@
 
-PDataProcess.scala: gen_plugin data_p.txt
-	./gen_plugin PDataProcess data_p.txt '*' >| $@
+PDataProcess.scala: gen_plugin data_Zpn.txt
+	./gen_plugin PDataProcess data_Zpn.txt '*' >| $@
 
 scala: BitManipZbpPlugin.scala BitManipAllPlugin.scala CryptoZknePlugin.scala BitManipZclmul.scala CryptoZknh.scala
 
