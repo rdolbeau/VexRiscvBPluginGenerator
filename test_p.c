@@ -206,7 +206,7 @@ FUN2(__rv__ursubw,URSUBW)
 ASM2MACRO(AVE,0xe0000077)
 FUN2(__rv__ave,AVE)
 
-ASM2MACRO(PBSAD, 0xfd000077)
+ASM2MACRO(PBSAD, 0xfc000077)
 FUN2(__rv__pbsad, PBSAD)
 ASM3RMACRO(PBSADA, 0xfe000077)
 FUN3R(__rv__pbsada, PBSADA)
@@ -838,7 +838,7 @@ int main(int argc, char **argv) {
 #endif // CHECK_SIGILL
 
   for (index = 0 ; index < 32 ; index++) {
-  
+ #if 1
   T2(__rv__add8);
   T2(__rv__radd8);
   T2(__rv__rsub8);
@@ -894,7 +894,7 @@ int main(int argc, char **argv) {
   T2(__rv__ursubw);
   T2(__rv__ave);
   T2(__rv__bitrev);
-  
+ #endif
   T2(__rv__pbsad);
   T3(__rv__pbsada);
   
