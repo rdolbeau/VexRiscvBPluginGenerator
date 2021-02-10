@@ -26,10 +26,7 @@ I	CLZ8	CLZ8	101011100001-----000-----1110111	pdpibit	Zpn
 //I	CLZ32	CLZ32	101011111001-----000-----1110111	pdpibit	Zpn
 I	CMPEQ8	CMPEQ8	0100111----------000-----1110111	pdpicmp	Zpn
 I	CMPEQ16	CMPEQ16	0100110----------000-----1110111	pdpicmp	Zpn
-I	PKBB16	PKBB16	0000111----------001-----1110111	pdpicpct Zpn
-I	PKBT16	PKBT16	0001111----------001-----1110111	pdpicpct Zpn
-I	PKTB16	PKTB16	0010111----------001-----1110111	pdpicpct Zpn
-I	PKTT16	PKTT16	0011111----------001-----1110111	pdpicpct Zpn
+I	PKxx16	PKxx16	00--111----------001-----1110111	pdpicpct Zpn
 I	RADD8	RADD8	0000100----------000-----1110111	pdpiadd8	Zpn
 I	RADD16	RADD16	0000000----------000-----1110111	pdpiadd16	Zpn
 I	RADDW	RADDW	0010000----------001-----1110111	pdpiadd32	Zpn
@@ -105,10 +102,7 @@ S	AVE	"fun_ave(input(SRC1), input(SRC2))"
 S	BITREV	"fun_bitrev(input(SRC1), input(SRC2))"
 S	CMPEQ8	"fun_cmpeq8(input(SRC1), input(SRC2))"
 S	CMPEQ16	"fun_cmpeq16(input(SRC1), input(SRC2))"
-S	PKBB16  "fun_pkbbtt16(input(SRC1), input(SRC2), 0, 0)"
-S	PKBT16  "fun_pkbbtt16(input(SRC1), input(SRC2), 0, 1)"
-S	PKTB16  "fun_pkbbtt16(input(SRC1), input(SRC2), 1, 0)"
-S	PKTT16  "fun_pkbbtt16(input(SRC1), input(SRC2), 1, 1)"
+S	PKxx16  "fun_pkbbtt16(input(SRC1), input(SRC2), input(INSTRUCTION)(29).asUInt, input(INSTRUCTION)(28).asUInt)"
 S	RADD8	"fun_radd8(input(SRC1), input(SRC2))"
 S	RADD16	"fun_radd16(input(SRC1), input(SRC2))"
 S	RADDW	"fun_radd32(input(SRC1), input(SRC2))"
