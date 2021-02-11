@@ -70,16 +70,17 @@ object CryptoZknhPlugin {
 
 // End prologue
 } // object Plugin
-class CryptoZknhPlugin extends Plugin[VexRiscv] {
+class CryptoZknhPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {
 	import CryptoZknhPlugin._
 	object IS_CryptoZknh extends Stageable(Bool)
+	object CryptoZknh_FINAL_OUTPUT extends Stageable(Bits(32 bits))
 	override def setup(pipeline: VexRiscv): Unit = {
 		import pipeline.config._
 		val immediateActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
 			SRC2_CTRL                -> Src2CtrlEnum.IMI,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			IS_CryptoZknh -> True
@@ -88,7 +89,7 @@ class CryptoZknhPlugin extends Plugin[VexRiscv] {
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
 			SRC2_CTRL                -> Src2CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS2_USE -> True,
@@ -97,7 +98,7 @@ class CryptoZknhPlugin extends Plugin[VexRiscv] {
 		val unaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			IS_CryptoZknh -> True
@@ -107,7 +108,7 @@ class CryptoZknhPlugin extends Plugin[VexRiscv] {
 			SRC2_CTRL                -> Src2CtrlEnum.RS,
 			SRC3_CTRL                -> Src3CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS2_USE -> True,
@@ -119,7 +120,7 @@ class CryptoZknhPlugin extends Plugin[VexRiscv] {
 			SRC2_CTRL                -> Src2CtrlEnum.IMI,
 			SRC3_CTRL                -> Src3CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS3_USE -> True,
@@ -173,14 +174,19 @@ class CryptoZknhPlugin extends Plugin[VexRiscv] {
 				CryptoZknhCtrlsha512sumEnum.CTRL_sha512sum0r -> fun_sha512sum0r(input(SRC1),input(SRC2)),
 				CryptoZknhCtrlsha512sumEnum.CTRL_sha512sum1r -> fun_sha512sum1r(input(SRC1),input(SRC2))
 			) // mux sha512sum
-			when (input(IS_CryptoZknh)) {
-				execute.output(REGFILE_WRITE_DATA) := input(CryptoZknhCtrl).mux(
-					CryptoZknhCtrlEnum.CTRL_sha256sig -> val_sha256sig.asBits,
-					CryptoZknhCtrlEnum.CTRL_sha256sum -> val_sha256sum.asBits,
-					CryptoZknhCtrlEnum.CTRL_sha512sig -> val_sha512sig.asBits,
-					CryptoZknhCtrlEnum.CTRL_sha512sum -> val_sha512sum.asBits
-				) // primary mux 
-			} // when input is 
+			insert(CryptoZknh_FINAL_OUTPUT) := input(CryptoZknhCtrl).mux(
+				CryptoZknhCtrlEnum.CTRL_sha256sig -> val_sha256sig.asBits,
+				CryptoZknhCtrlEnum.CTRL_sha256sum -> val_sha256sum.asBits,
+				CryptoZknhCtrlEnum.CTRL_sha512sig -> val_sha512sig.asBits,
+				CryptoZknhCtrlEnum.CTRL_sha512sum -> val_sha512sum.asBits
+			) // primary mux
 		} // execute plug newArea
+		val injectionStage = if(earlyInjection) execute else memory
+		injectionStage plug new Area {
+			import injectionStage._
+			when (arbitration.isValid && input(IS_CryptoZknh)) {
+				output(REGFILE_WRITE_DATA) := input(CryptoZknh_FINAL_OUTPUT)
+			} // when input is
+		} // injectionStage plug newArea
 	} // override def build
 } // class Plugin

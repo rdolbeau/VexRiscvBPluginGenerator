@@ -351,16 +351,17 @@ object BitManipZbpPlugin {
 
 // End prologue
 } // object Plugin
-class BitManipZbpPlugin extends Plugin[VexRiscv] {
+class BitManipZbpPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {
 	import BitManipZbpPlugin._
 	object IS_BitManipZbp extends Stageable(Bool)
+	object BitManipZbp_FINAL_OUTPUT extends Stageable(Bits(32 bits))
 	override def setup(pipeline: VexRiscv): Unit = {
 		import pipeline.config._
 		val immediateActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
 			SRC2_CTRL                -> Src2CtrlEnum.IMI,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			IS_BitManipZbp -> True
@@ -369,7 +370,7 @@ class BitManipZbpPlugin extends Plugin[VexRiscv] {
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
 			SRC2_CTRL                -> Src2CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS2_USE -> True,
@@ -378,7 +379,7 @@ class BitManipZbpPlugin extends Plugin[VexRiscv] {
 		val unaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			IS_BitManipZbp -> True
@@ -388,7 +389,7 @@ class BitManipZbpPlugin extends Plugin[VexRiscv] {
 			SRC2_CTRL                -> Src2CtrlEnum.RS,
 			SRC3_CTRL                -> Src3CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS2_USE -> True,
@@ -400,7 +401,7 @@ class BitManipZbpPlugin extends Plugin[VexRiscv] {
 			SRC2_CTRL                -> Src2CtrlEnum.IMI,
 			SRC3_CTRL                -> Src3CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS3_USE -> True,
@@ -487,17 +488,22 @@ class BitManipZbpPlugin extends Plugin[VexRiscv] {
 				BitManipZbpCtrlgrevorcEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)),
 				BitManipZbpCtrlgrevorcEnum.CTRL_GREV -> fun_grev(input(SRC1), input(SRC2))
 			) // mux grevorc
-			when (input(IS_BitManipZbp)) {
-				execute.output(REGFILE_WRITE_DATA) := input(BitManipZbpCtrl).mux(
-					BitManipZbpCtrlEnum.CTRL_bitwise -> val_bitwise.asBits,
-					BitManipZbpCtrlEnum.CTRL_rotation -> val_rotation.asBits,
-					BitManipZbpCtrlEnum.CTRL_grevroc -> val_grevroc.asBits,
-					BitManipZbpCtrlEnum.CTRL_shuffle -> val_shuffle.asBits,
-					BitManipZbpCtrlEnum.CTRL_pack -> val_pack.asBits,
-					BitManipZbpCtrlEnum.CTRL_xperm -> val_xperm.asBits,
-					BitManipZbpCtrlEnum.CTRL_grevorc -> val_grevorc.asBits
-				) // primary mux 
-			} // when input is 
+			insert(BitManipZbp_FINAL_OUTPUT) := input(BitManipZbpCtrl).mux(
+				BitManipZbpCtrlEnum.CTRL_bitwise -> val_bitwise.asBits,
+				BitManipZbpCtrlEnum.CTRL_rotation -> val_rotation.asBits,
+				BitManipZbpCtrlEnum.CTRL_grevroc -> val_grevroc.asBits,
+				BitManipZbpCtrlEnum.CTRL_shuffle -> val_shuffle.asBits,
+				BitManipZbpCtrlEnum.CTRL_pack -> val_pack.asBits,
+				BitManipZbpCtrlEnum.CTRL_xperm -> val_xperm.asBits,
+				BitManipZbpCtrlEnum.CTRL_grevorc -> val_grevorc.asBits
+			) // primary mux
 		} // execute plug newArea
+		val injectionStage = if(earlyInjection) execute else memory
+		injectionStage plug new Area {
+			import injectionStage._
+			when (arbitration.isValid && input(IS_BitManipZbp)) {
+				output(REGFILE_WRITE_DATA) := input(BitManipZbp_FINAL_OUTPUT)
+			} // when input is
+		} // injectionStage plug newArea
 	} // override def build
 } // class Plugin

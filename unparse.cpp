@@ -97,9 +97,11 @@ void unparse(std::ostream& output,
 
 	output << "} // object Plugin" << std::endl;
 
-	output << "class " << prefix << "Plugin extends Plugin[VexRiscv] {" << std::endl;
+	// Plugin class
+	output << "class " << prefix << "Plugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {" << std::endl;
 	output << '\t' << "import " << prefix << "Plugin._" << std::endl;
 	output << '\t' << "object IS_" << prefix << " extends Stageable(Bool)" << std::endl;
+	output << '\t' << "object " << prefix <<  "_FINAL_OUTPUT extends Stageable(Bits(32 bits))" << std::endl;
 	
 	output << '\t' << "override def setup(pipeline: VexRiscv): Unit = {" << std::endl;
 	output << '\t' << '\t' << "import pipeline.config._" << std::endl;
@@ -109,7 +111,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tSRC1_CTRL                -> Src1CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tSRC2_CTRL                -> Src2CtrlEnum.IMI," << std::endl;
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
-	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> True," << std::endl;
+	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection)," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tIS_" << prefix << " -> True" << std::endl;
@@ -119,7 +121,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tSRC1_CTRL                -> Src1CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tSRC2_CTRL                -> Src2CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
-	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> True," << std::endl;
+	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection)," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS2_USE -> True," << std::endl;
@@ -129,7 +131,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "val unaryActions = List[(Stageable[_ <: BaseType],Any)](" << std::endl;
 	output << '\t' << '\t' << "\tSRC1_CTRL                -> Src1CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
-	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> True," << std::endl;
+	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection)," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tIS_" << prefix << " -> True" << std::endl;
@@ -140,7 +142,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tSRC2_CTRL                -> Src2CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tSRC3_CTRL                -> Src3CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
-	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> True," << std::endl;
+	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection)," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS2_USE -> True," << std::endl;
@@ -153,7 +155,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tSRC2_CTRL                -> Src2CtrlEnum.IMI," << std::endl;
 	output << '\t' << '\t' << "\tSRC3_CTRL                -> Src3CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
-	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> True," << std::endl;
+	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection)," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS3_USE -> True," << std::endl;
@@ -234,24 +236,30 @@ void unparse(std::ostream& output,
 	}
 
 	// conditional last level mux
-	output << '\t' << '\t' << '\t' << "when (input(IS_" << prefix << ")) {" << std::endl;
-	output << '\t' << '\t' << '\t' << '\t' << "execute.output(REGFILE_WRITE_DATA) := input(" << prefix << "Ctrl" << ").mux(" << std::endl;
+	output << '\t' << '\t' << '\t' << "insert(" << prefix << "_FINAL_OUTPUT) := input(" << prefix << "Ctrl" << ").mux(" << std::endl;
 	for (auto it = groups->begin() ; it != groups->end() ; it++) {
 		group* g = *it;
 		if (g->opnames.size() > 1) {
-			output << '\t' << '\t' << '\t' << '\t' << '\t' << prefix << "CtrlEnum." << g->ctrlName() << " -> val_" << g->name << ".asBits";
+			output << '\t' << '\t' << '\t' << '\t' << prefix << "CtrlEnum." << g->ctrlName() << " -> val_" << g->name << ".asBits";
 		} else {
-			output << '\t' << '\t' << '\t' << '\t' << '\t' << prefix << "CtrlEnum.CTRL_" << (*g->opnames.begin()) << " -> " << semantics[*g->opnames.begin()] << ".asBits";
+			output << '\t' << '\t' << '\t' << '\t' << prefix << "CtrlEnum.CTRL_" << (*g->opnames.begin()) << " -> " << semantics[*g->opnames.begin()] << ".asBits";
 		}
 		if (std::next(it, 1) == groups->end())
 			output << std::endl;
 		else
 			output << "," << std::endl;
 	}
-	output << '\t' << '\t' << '\t' << '\t' << ") // primary mux " << std::endl;
-	output << '\t' << '\t' << '\t' << "} // when input is " << std::endl;
-	
+	output << '\t' << '\t' << '\t' << ") // primary mux" << std::endl;
 	output << '\t' << '\t' << "} // execute plug newArea" << std::endl;
+
+	output << '\t' << '\t' << "val injectionStage = if(earlyInjection) execute else memory" << std::endl;
+	output << '\t' << '\t' << "injectionStage plug new Area {" << std::endl;
+	output << '\t' << '\t' << '\t' << "import injectionStage._" << std::endl;
+	output << '\t' << '\t' << '\t' << "when (arbitration.isValid && input(IS_" << prefix << ")) {" << std::endl;
+	output << '\t' << '\t' << '\t' << '\t' << "output(REGFILE_WRITE_DATA) := input(" << prefix << "_FINAL_OUTPUT)" << std::endl;
+	output << '\t' << '\t' << '\t' << "} // when input is" << std::endl;
+	
+	output << '\t' << '\t' << "} // injectionStage plug newArea" << std::endl;
 	output << '\t' << "} // override def build" << std::endl;
 	output << "} // class Plugin" << std::endl;
 }

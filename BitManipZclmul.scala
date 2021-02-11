@@ -88,16 +88,17 @@ object BitManipZclmulPlugin {
 
 // End prologue
 } // object Plugin
-class BitManipZclmulPlugin extends Plugin[VexRiscv] {
+class BitManipZclmulPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {
 	import BitManipZclmulPlugin._
 	object IS_BitManipZclmul extends Stageable(Bool)
+	object BitManipZclmul_FINAL_OUTPUT extends Stageable(Bits(32 bits))
 	override def setup(pipeline: VexRiscv): Unit = {
 		import pipeline.config._
 		val immediateActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
 			SRC2_CTRL                -> Src2CtrlEnum.IMI,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			IS_BitManipZclmul -> True
@@ -106,7 +107,7 @@ class BitManipZclmulPlugin extends Plugin[VexRiscv] {
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
 			SRC2_CTRL                -> Src2CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS2_USE -> True,
@@ -115,7 +116,7 @@ class BitManipZclmulPlugin extends Plugin[VexRiscv] {
 		val unaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			IS_BitManipZclmul -> True
@@ -125,7 +126,7 @@ class BitManipZclmulPlugin extends Plugin[VexRiscv] {
 			SRC2_CTRL                -> Src2CtrlEnum.RS,
 			SRC3_CTRL                -> Src3CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS2_USE -> True,
@@ -137,7 +138,7 @@ class BitManipZclmulPlugin extends Plugin[VexRiscv] {
 			SRC2_CTRL                -> Src2CtrlEnum.IMI,
 			SRC3_CTRL                -> Src3CtrlEnum.RS,
 			REGFILE_WRITE_VALID      -> True,
-			BYPASSABLE_EXECUTE_STAGE -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS3_USE -> True,
@@ -159,13 +160,18 @@ class BitManipZclmulPlugin extends Plugin[VexRiscv] {
 		import pipeline.config._
 		execute plug new Area{
 			import execute._
-			when (input(IS_BitManipZclmul)) {
-				execute.output(REGFILE_WRITE_DATA) := input(BitManipZclmulCtrl).mux(
-					BitManipZclmulCtrlEnum.CTRL_CLMUL -> fun_clmul(input(SRC1),input(SRC2)).asBits,
-					BitManipZclmulCtrlEnum.CTRL_CLMULR -> fun_clmulr(input(SRC1),input(SRC2)).asBits,
-					BitManipZclmulCtrlEnum.CTRL_CLMULH -> fun_clmulh(input(SRC1),input(SRC2)).asBits
-				) // primary mux 
-			} // when input is 
+			insert(BitManipZclmul_FINAL_OUTPUT) := input(BitManipZclmulCtrl).mux(
+				BitManipZclmulCtrlEnum.CTRL_CLMUL -> fun_clmul(input(SRC1),input(SRC2)).asBits,
+				BitManipZclmulCtrlEnum.CTRL_CLMULR -> fun_clmulr(input(SRC1),input(SRC2)).asBits,
+				BitManipZclmulCtrlEnum.CTRL_CLMULH -> fun_clmulh(input(SRC1),input(SRC2)).asBits
+			) // primary mux
 		} // execute plug newArea
+		val injectionStage = if(earlyInjection) execute else memory
+		injectionStage plug new Area {
+			import injectionStage._
+			when (arbitration.isValid && input(IS_BitManipZclmul)) {
+				output(REGFILE_WRITE_DATA) := input(BitManipZclmul_FINAL_OUTPUT)
+			} // when input is
+		} // injectionStage plug newArea
 	} // override def build
 } // class Plugin
