@@ -59,6 +59,10 @@ CryptoZknh.scala: gen_plugin data_sha.txt
 PDataProcess.scala: gen_plugin data_Zpn.txt
 	./gen_plugin -n PDataProcess -i data_Zpn.txt -I '*' >| $@
 
+P64DataProcess.scala: gen_plugin data_Zp64.txt
+	./gen_plugin -w -n P64DataProcess -i data_Zp64.txt -I '*' >| $@
+
+
 scala: BitManipZbpPlugin.scala BitManipAllPlugin.scala CryptoZknePlugin.scala BitManipZclmul.scala CryptoZknh.scala
 
 include $(DEPXX)

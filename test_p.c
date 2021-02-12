@@ -59,6 +59,17 @@ typedef uint32_t uint_xlen_t;
 	 : "r" (rs1));				\
     return r;								\
   }
+#define FUN2W(NAME, ASNAME)						\
+  static inline uint64_t NAME(uint_xlen_t rs1, uint_xlen_t rs2) {	\
+    uint32_t r0, r1;							\
+    asm (#ASNAME " reg_t5, reg_%2, reg_%3\n"				\
+	 "mv %0, t5\n"							\
+	 "mv %1, t6\n"							\
+	 : "=r" (r0), "=r" (r1)						\
+	 : "r" (rs1), "r" (rs2)						\
+	 : "t5", "t6");							\
+    return ((uint64_t)r0 | (((uint64_t)r1)<<32));			\
+  }
 
 #define ASM1MACRO(N, O) asm(".macro "#N" rd, rs1\n"		\
 			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15))\n"	\
@@ -230,12 +241,28 @@ FUN3RI(__rv__insb, INSB, 0)
 FUN3RI(__rv__insb, INSB, 1)
 FUN3RI(__rv__insb, INSB, 2)
 FUN3RI(__rv__insb, INSB, 3)
+  
+ASM2MACRO(SMUL8,0xa8000077)
+FUN2W(__rv__smul8,SMUL8)
+ASM2MACRO(UMUL8,0xb8000077)
+FUN2W(__rv__umul8,UMUL8)
+ASM2MACRO(SMUL16,0xa0000077)
+FUN2W(__rv__smul16,SMUL16)
+ASM2MACRO(UMUL16,0xb0000077)
+FUN2W(__rv__umul16,UMUL16)
 
 #else // !__riscv
 typedef uint8_t uint4x8_t[4];
 typedef int8_t int4x8_t[4];
+
 typedef uint16_t uint2x16_t[2];
 typedef int16_t int2x16_t[2];
+
+typedef uint16_t uint4x16_t[4]; // for 2W
+typedef int16_t int4x16_t[4]; // for 2W
+typedef uint32_t uint2x32_t[2]; // for 2W
+typedef int32_t int2x32_t[2];  // for 2W
+
 uint32_t __rv__add8(const uint32_t rs1, const uint32_t rs2) {
   uint4x8_t a, b, c;
   uint32_t r;
@@ -818,11 +845,61 @@ uint32_t __rv__insb3(const uint32_t rs1, const uint32_t rs2) {
   return r;
 }
 
+
+
+uint64_t __rv__smul8(const uint32_t rs1, const uint32_t rs2) {
+  int4x8_t a, b;
+  int4x16_t c;
+  uint64_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = a[0] * b[0];
+  c[1] = a[1] * b[1];
+  c[2] = a[2] * b[2];
+  c[3] = a[3] * b[3];
+  memcpy(&r, c, 8);
+  return r;
+}
+uint64_t __rv__umul8(const uint32_t rs1, const uint32_t rs2) {
+  uint4x8_t a, b;
+  uint4x16_t c;
+  uint64_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = a[0] * b[0];
+  c[1] = a[1] * b[1];
+  c[2] = a[2] * b[2];
+  c[3] = a[3] * b[3];
+  memcpy(&r, c, 8);
+  return r;
+}
+uint64_t __rv__smul16(const uint32_t rs1, const uint32_t rs2) {
+  int2x16_t a, b;
+  int2x32_t c;
+  uint64_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = a[0] * b[0];
+  c[1] = a[1] * b[1];
+  memcpy(&r, c, 8);
+  return r;
+}
+uint64_t __rv__umul16(const uint32_t rs1, const uint32_t rs2) {
+  uint2x16_t a, b;
+  uint2x32_t c;
+  uint64_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = a[0] * b[0];
+  c[1] = a[1] * b[1];
+  memcpy(&r, c, 8);
+  return r;
+}
 #endif // __riscv
   
   unsigned int a = 0x01234567;
 
-//#define CHECK_SIGILL
+#define CHECK_SIGILL
 
 #if defined(CHECK_SIGILL)
 #include <signal.h>
@@ -842,6 +919,7 @@ int main(int argc, char **argv) {
   unsigned int d = 0xC0FFEE00;
   unsigned int index;
   unsigned int index2;
+  unsigned long long cq = 0;
 #if defined(CHECK_SIGILL)
   void (*oldsig)(int);
   oldsig = signal(SIGILL, sighandler);
@@ -861,6 +939,8 @@ int main(int argc, char **argv) {
   c = X(a);printf(#X "(0x%08x) -> 0x%08x\n", a, c)
 #define T3(X) \
   c = X(a,b,d);printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, b, d, c)
+#define T2W(X)							\
+  cq = X(a,b);printf(#X "(0x%08x, 0x%08x) -> 0x%016llx\n", a, b, cq)
 #else
 #define T2(X) do {							\
     if (setjmp(jb)) {							\
@@ -884,6 +964,14 @@ int main(int argc, char **argv) {
     } else {								\
       c = X(a,b,d);							\
       printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, b, d, c);	\
+    }									\
+  } while (0)
+#define T2W(X) do {							\
+    if (setjmp(jb)) {							\
+      printf(#X "(0x%08x, 0x%08x) -> *SIGILL*\n", a, b);		\
+    } else {								\
+      cq = X(a,b);							\
+      printf(#X "(0x%08x, 0x%08x) -> 0x%016llx\n", a, b, cq);		\
     }									\
   } while (0)
 #endif // CHECK_SIGILL
@@ -953,6 +1041,11 @@ int main(int argc, char **argv) {
   T2(__rv__insb1);
   T2(__rv__insb2);
   T2(__rv__insb3);
+
+  T2W(__rv__smul8);
+  T2W(__rv__umul8);
+  T2W(__rv__smul16);
+  T2W(__rv__umul16);
   
   b = 0x0100F004 + index;
   }
