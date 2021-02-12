@@ -107,7 +107,7 @@ void unparse(std::ostream& output,
 	output << "class " << prefix << "Plugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {" << std::endl;
 	output << '\t' << "import " << prefix << "Plugin._" << std::endl;
 	output << '\t' << "object " << isString << " extends Stageable(Bool)" << std::endl;
-	output << '\t' << "object " << outputString << " extends Stageable(Bits(32 bits))" << std::endl;
+	output << '\t' << "object " << outputString << " extends Stageable(Bits(" << (wide ? 64 : 32) << " bits))" << std::endl;
 	
 	output << '\t' << "override def setup(pipeline: VexRiscv): Unit = {" << std::endl;
 	output << '\t' << '\t' << "import pipeline.config._" << std::endl;
@@ -117,6 +117,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tSRC1_CTRL                -> Src1CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tSRC2_CTRL                -> Src2CtrlEnum.IMI," << std::endl;
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
+	if (wide) output << '\t' << '\t' << "\tREGFILE_WRITE_VALID_ODD  -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection)," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
@@ -127,6 +128,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tSRC1_CTRL                -> Src1CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tSRC2_CTRL                -> Src2CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
+	if (wide) output << '\t' << '\t' << "\tREGFILE_WRITE_VALID_ODD  -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection)," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
@@ -137,6 +139,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "val unaryActions = List[(Stageable[_ <: BaseType],Any)](" << std::endl;
 	output << '\t' << '\t' << "\tSRC1_CTRL                -> Src1CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
+	if (wide) output << '\t' << '\t' << "\tREGFILE_WRITE_VALID_ODD  -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection)," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
@@ -148,6 +151,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tSRC2_CTRL                -> Src2CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tSRC3_CTRL                -> Src3CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
+	if (wide) output << '\t' << '\t' << "\tREGFILE_WRITE_VALID_ODD  -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection)," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
@@ -161,6 +165,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tSRC2_CTRL                -> Src2CtrlEnum.IMI," << std::endl;
 	output << '\t' << '\t' << "\tSRC3_CTRL                -> Src3CtrlEnum.RS," << std::endl;
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
+	if (wide) output << '\t' << '\t' << "\tREGFILE_WRITE_VALID_ODD  -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection)," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
@@ -264,7 +269,12 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "injectionStage plug new Area {" << std::endl;
 	output << '\t' << '\t' << '\t' << "import injectionStage._" << std::endl;
 	output << '\t' << '\t' << '\t' << "when (arbitration.isValid && input(" << isString << ")) {" << std::endl;
-	output << '\t' << '\t' << '\t' << '\t' << "output(REGFILE_WRITE_DATA) := input(" << outputString << ")" << std::endl;
+	if (wide) {
+		output << '\t' << '\t' << '\t' << '\t' << "output(REGFILE_WRITE_DATA) := input(" << outputString << ")(31 downto 0)" << std::endl;
+		output << '\t' << '\t' << '\t' << '\t' << "output(REGFILE_WRITE_DATA_ODD) := input(" << outputString << ")(63 downto 32)" << std::endl;
+	} else {
+		output << '\t' << '\t' << '\t' << '\t' << "output(REGFILE_WRITE_DATA) := input(" << outputString << ")" << std::endl;
+	}
 	output << '\t' << '\t' << '\t' << "} // when input is" << std::endl;
 	
 	output << '\t' << '\t' << "} // injectionStage plug newArea" << std::endl;
