@@ -1,43 +1,48 @@
 //for vX.Y  of P
 
 // low-order bit of Rd (7) is 0 to ensure even-numbered Rd
-I	SMUL8    SMUL8	1010100----------000----01110111	pdpismul8	Zpn
-I	UMUL8    UMUL8	1011100----------000----01110111	pdpiumul8	Zpn
-I	SMUL16   SMUL16	1010000----------000----01110111	pdpismul16	Zpn
-I	UMUL16   UMUL16	1011000----------000----01110111	pdpiumul16	Zpn
+// bit 25 is used for crossing so -
+I	SMULx8    SMULx8	101010-----------000----01110111	pdpismul8	Zpn
+I	UMULx8    UMULx8	101110-----------000----01110111	pdpiumul8	Zpn
+I	SMULx16   SMULx16	101000-----------000----01110111	pdpismul16	Zpn
+I	UMULx16   UMULx16	101100-----------000----01110111	pdpiumul16	Zpn
 
 // binary
-S	SMUL8	"fun_smul8(input(SRC1), input(SRC2))"
-S	UMUL8	"fun_umul8(input(SRC1), input(SRC2))"
-S	SMUL16	"fun_smul16(input(SRC1), input(SRC2))"
-S	UMUL16	"fun_umul16(input(SRC1), input(SRC2))"
+S	SMULx8	"fun_smulx8(input(SRC1), input(SRC2), input(INSTRUCTION)(25).asUInt)"
+S	UMULx8	"fun_umulx8(input(SRC1), input(SRC2), input(INSTRUCTION)(25).asUInt)"
+S	SMULx16	"fun_smulx16(input(SRC1), input(SRC2), input(INSTRUCTION)(25).asUInt)"
+S	UMULx16	"fun_umulx16(input(SRC1), input(SRC2), input(INSTRUCTION)(25).asUInt)"
 
 P	"""
-	def fun_smul8(rs1: Bits, rs2: Bits) : Bits = {
-	    val h0 = (rs1( 7 downto  0).asSInt * rs2( 7 downto  0).asSInt).asBits.resize(16)
-	    val h1 = (rs1(15 downto  8).asSInt * rs2(15 downto  8).asSInt).asBits.resize(16)
-	    val h2 = (rs1(23 downto 16).asSInt * rs2(23 downto 16).asSInt).asBits.resize(16)
-	    val h3 = (rs1(31 downto 24).asSInt * rs2(31 downto 24).asSInt).asBits.resize(16)
+	def fun_smulx8(rs1: Bits, rs2: Bits, cross: UInt) : Bits = {
+	    val rs2x = ((cross === 0) ? (rs2) | (rs2(23 downto 16) ## rs2(31 downto 24) ## rs2(7 downto 0) ## rs2(15 downto 8)))
+	    val h0 = (rs1( 7 downto  0).asSInt * rs2x( 7 downto  0).asSInt).asBits.resize(16)
+	    val h1 = (rs1(15 downto  8).asSInt * rs2x(15 downto  8).asSInt).asBits.resize(16)
+	    val h2 = (rs1(23 downto 16).asSInt * rs2x(23 downto 16).asSInt).asBits.resize(16)
+	    val h3 = (rs1(31 downto 24).asSInt * rs2x(31 downto 24).asSInt).asBits.resize(16)
 
 	    h3 ## h2 ## h1 ## h0 // return value
 	}
-	def fun_umul8(rs1: Bits, rs2: Bits) : Bits = {
-	    val h0 = (rs1( 7 downto  0).asUInt * rs2( 7 downto  0).asUInt).asBits.resize(16)
-	    val h1 = (rs1(15 downto  8).asUInt * rs2(15 downto  8).asUInt).asBits.resize(16)
-	    val h2 = (rs1(23 downto 16).asUInt * rs2(23 downto 16).asUInt).asBits.resize(16)
-	    val h3 = (rs1(31 downto 24).asUInt * rs2(31 downto 24).asUInt).asBits.resize(16)
+	def fun_umulx8(rs1: Bits, rs2: Bits, cross: UInt) : Bits = {
+	    val rs2x = ((cross === 0) ? (rs2) | (rs2(23 downto 16) ## rs2(31 downto 24) ## rs2(7 downto 0) ## rs2(15 downto 8)))
+	    val h0 = (rs1( 7 downto  0).asUInt * rs2x( 7 downto  0).asUInt).asBits.resize(16)
+	    val h1 = (rs1(15 downto  8).asUInt * rs2x(15 downto  8).asUInt).asBits.resize(16)
+	    val h2 = (rs1(23 downto 16).asUInt * rs2x(23 downto 16).asUInt).asBits.resize(16)
+	    val h3 = (rs1(31 downto 24).asUInt * rs2x(31 downto 24).asUInt).asBits.resize(16)
 
 	    h3 ## h2 ## h1 ## h0 // return value
 	}
-	def fun_smul16(rs1: Bits, rs2: Bits) : Bits = {
-	    val w0 = (rs1(15 downto  0).asSInt * rs2(15 downto  0).asSInt).asBits.resize(32)
-	    val w1 = (rs1(31 downto 16).asSInt * rs2(31 downto 16).asSInt).asBits.resize(32)
+	def fun_smulx16(rs1: Bits, rs2: Bits, cross: UInt) : Bits = {
+	    val rs2x = ((cross === 0) ? (rs2) | (rs2(15 downto 0) ## rs2(31 downto 16)))
+	    val w0 = (rs1(15 downto  0).asSInt * rs2x(15 downto  0).asSInt).asBits.resize(32)
+	    val w1 = (rs1(31 downto 16).asSInt * rs2x(31 downto 16).asSInt).asBits.resize(32)
 
 	    w1 ## w0 // return value
 	}
-	def fun_umul16(rs1: Bits, rs2: Bits) : Bits = {
-	    val w0 = (rs1(15 downto  0).asUInt * rs2(15 downto  0).asUInt).asBits.resize(32)
-	    val w1 = (rs1(31 downto 16).asUInt * rs2(31 downto 16).asUInt).asBits.resize(32)
+	def fun_umulx16(rs1: Bits, rs2: Bits, cross: UInt) : Bits = {
+	    val rs2x = ((cross === 0) ? (rs2) | (rs2(15 downto 0) ## rs2(31 downto 16)))
+	    val w0 = (rs1(15 downto  0).asUInt * rs2x(15 downto  0).asUInt).asBits.resize(32)
+	    val w1 = (rs1(31 downto 16).asUInt * rs2x(31 downto 16).asUInt).asBits.resize(32)
 
 	    w1 ## w0 // return value
 	}

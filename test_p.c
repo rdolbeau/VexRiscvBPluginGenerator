@@ -250,6 +250,15 @@ ASM2MACRO(SMUL16,0xa0000077)
 FUN2W(__rv__smul16,SMUL16)
 ASM2MACRO(UMUL16,0xb0000077)
 FUN2W(__rv__umul16,UMUL16)
+  
+ASM2MACRO(SMULx8,0xaa000077)
+FUN2W(__rv__smulx8,SMULx8)
+ASM2MACRO(UMULx8,0xba000077)
+FUN2W(__rv__umulx8,UMULx8)
+ASM2MACRO(SMULx16,0xa2000077)
+FUN2W(__rv__smulx16,SMULx16)
+ASM2MACRO(UMULx16,0xb2000077)
+FUN2W(__rv__umulx16,UMULx16)
 
 #else // !__riscv
 typedef uint8_t uint4x8_t[4];
@@ -895,6 +904,55 @@ uint64_t __rv__umul16(const uint32_t rs1, const uint32_t rs2) {
   memcpy(&r, c, 8);
   return r;
 }
+
+uint64_t __rv__smulx8(const uint32_t rs1, const uint32_t rs2) {
+  int4x8_t a, b;
+  int4x16_t c;
+  uint64_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = a[0] * b[1];
+  c[1] = a[1] * b[0];
+  c[2] = a[2] * b[3];
+  c[3] = a[3] * b[2];
+  memcpy(&r, c, 8);
+  return r;
+}
+uint64_t __rv__umulx8(const uint32_t rs1, const uint32_t rs2) {
+  uint4x8_t a, b;
+  uint4x16_t c;
+  uint64_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = a[0] * b[1];
+  c[1] = a[1] * b[0];
+  c[2] = a[2] * b[3];
+  c[3] = a[3] * b[2];
+  memcpy(&r, c, 8);
+  return r;
+}
+uint64_t __rv__smulx16(const uint32_t rs1, const uint32_t rs2) {
+  int2x16_t a, b;
+  int2x32_t c;
+  uint64_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = a[0] * b[1];
+  c[1] = a[1] * b[0];
+  memcpy(&r, c, 8);
+  return r;
+}
+uint64_t __rv__umulx16(const uint32_t rs1, const uint32_t rs2) {
+  uint2x16_t a, b;
+  uint2x32_t c;
+  uint64_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = a[0] * b[1];
+  c[1] = a[1] * b[0];
+  memcpy(&r, c, 8);
+  return r;
+}
 #endif // __riscv
   
   unsigned int a = 0x01234567;
@@ -1046,6 +1104,10 @@ int main(int argc, char **argv) {
   T2W(__rv__umul8);
   T2W(__rv__smul16);
   T2W(__rv__umul16);
+  T2W(__rv__smulx8);
+  T2W(__rv__umulx8);
+  T2W(__rv__smulx16);
+  T2W(__rv__umulx16);
   
   b = 0x0100F004 + index;
   }
