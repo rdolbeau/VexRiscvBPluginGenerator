@@ -29,13 +29,13 @@ There shouldn't be any dependency beyond gcc,  g++, flex and bison. Instructions
 The tool need an extension name, the data  file and the list of instructions and/or sub-extension to support in the plugin:
 
 ```
-./gen_plugin BitManipZbpZba data_bitmanip.txt Zba Zbb GORC GREV > BitManipZbbZba.scala
+./gen_plugin -n BitManipZbpZba -i data_bitmanip.txt -I Zba -I Zbb -I GORC -I GREV > BitManipZbbZba.scala
 ```
 
 Will generate a plugin supporting Zbb (using the full version of `grev` and `gorc`) and Zba. You can use a star to say 'all supported instructions':
 
 ```
-./gen_plugin BitManipAll data_bitmanip.txt '*' > BitManipAllPlugin.scala
+./gen_plugin -n BitManipAll -i data_bitmanip.txt -I '*' > BitManipAllPlugin.scala
 ```
 
 ## Test codes
