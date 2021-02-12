@@ -40,8 +40,14 @@ void unparse(std::ostream& output,
 	     const std::set<const instruction*> instructions,
 	     std::map<std::string,std::string> semantics,
 	     std::vector<std::string> prologues,
-	     std::vector<std::string> extras) {
+	     std::vector<std::string> extras,
+	     bool wide) {
 	std::set<group*>* groups = createGroups(instructions);
+
+	const std::string ctrlString = prefix + "Ctrl";
+	const std::string ctrlEnumString = prefix + "CtrlEnum";
+	const std::string outputString = prefix + "_FINAL_OUTPUT";
+	const std::string isString = "IS_" + prefix;
 
 	output << "// WARNING: this is auto-generated code!" << std::endl;
 	output << "// See https://github.com/rdolbeau/VexRiscvBPluginGenerator/" << std::endl;
@@ -54,7 +60,7 @@ void unparse(std::ostream& output,
 	// objects for second-level MUXes
 	for (group* g : *groups) {
 		if (g->opnames.size() > 1) {
-		output << '\t' << "object " << prefix << "Ctrl" << g->name << "Enum extends SpinalEnum(binarySequential) {" << std::endl;
+		output << '\t' << "object " << ctrlString << g->name << "Enum extends SpinalEnum(binarySequential) {" << std::endl;
 		output << '\t' << '\t' << " val ";
 		bool comma = false;
 		for (std::string opname : g->opnames) {
@@ -68,7 +74,7 @@ void unparse(std::ostream& output,
 	}
 
 	// object for first-level MUX
-	output << '\t' << "object " << prefix << "Ctrl"  << "Enum extends SpinalEnum(binarySequential) {" << std::endl;
+	output << '\t' << "object " << ctrlEnumString << " extends SpinalEnum(binarySequential) {" << std::endl;
 	output << '\t' << '\t' << " val ";
 	bool comma = false;
 	for (group* g : *groups) {
@@ -86,9 +92,9 @@ void unparse(std::ostream& output,
 	
 	for (group* g : *groups) {
 		if (g->opnames.size() > 1)
-			output << '\t' << "object " << prefix << "Ctrl" << g->name << " extends Stageable(" << prefix << "Ctrl" << g->name << "Enum())" << std::endl;
+			output << '\t' << "object " << ctrlString << g->name << " extends Stageable(" << ctrlString << g->name << "Enum())" << std::endl;
 	}
-	output << '\t' << "object " << prefix << "Ctrl" << " extends Stageable(" << prefix << "Ctrl" << "Enum())" << std::endl;
+	output << '\t' << "object " << ctrlString << " extends Stageable(" << ctrlString << "Enum())" << std::endl;
 
 	output << "// Prologue" << std::endl;
 	for (std::string prologue : prologues)
@@ -100,8 +106,8 @@ void unparse(std::ostream& output,
 	// Plugin class
 	output << "class " << prefix << "Plugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {" << std::endl;
 	output << '\t' << "import " << prefix << "Plugin._" << std::endl;
-	output << '\t' << "object IS_" << prefix << " extends Stageable(Bool)" << std::endl;
-	output << '\t' << "object " << prefix <<  "_FINAL_OUTPUT extends Stageable(Bits(32 bits))" << std::endl;
+	output << '\t' << "object " << isString << " extends Stageable(Bool)" << std::endl;
+	output << '\t' << "object " << outputString << " extends Stageable(Bits(32 bits))" << std::endl;
 	
 	output << '\t' << "override def setup(pipeline: VexRiscv): Unit = {" << std::endl;
 	output << '\t' << '\t' << "import pipeline.config._" << std::endl;
@@ -114,7 +120,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection)," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
-	output << '\t' << '\t' << "\tIS_" << prefix << " -> True" << std::endl;
+	output << '\t' << '\t' << "\t" << isString << " -> True" << std::endl;
 	output << '\t' << '\t' << "\t)" << std::endl;
 	
 	output << '\t' << '\t' << "val binaryActions = List[(Stageable[_ <: BaseType],Any)](" << std::endl;
@@ -125,7 +131,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS2_USE -> True," << std::endl;
-	output << '\t' << '\t' << "\tIS_" << prefix << " -> True" << std::endl;
+	output << '\t' << '\t' << "\t" << isString << " -> True" << std::endl;
 	output << '\t' << '\t' << "\t)" << std::endl;
 	
 	output << '\t' << '\t' << "val unaryActions = List[(Stageable[_ <: BaseType],Any)](" << std::endl;
@@ -134,7 +140,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection)," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
-	output << '\t' << '\t' << "\tIS_" << prefix << " -> True" << std::endl;
+	output << '\t' << '\t' << "\t" << isString << " -> True" << std::endl;
 	output << '\t' << '\t' << "\t)" << std::endl;
  
 	output << '\t' << '\t' << "val ternaryActions = List[(Stageable[_ <: BaseType],Any)](" << std::endl;
@@ -147,7 +153,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS2_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS3_USE -> True," << std::endl;
-	output << '\t' << '\t' << "\tIS_" << prefix << " -> True" << std::endl;
+	output << '\t' << '\t' << "\t" << isString << " -> True" << std::endl;
 	output << '\t' << '\t' << "\t)" << std::endl;
  
 	output << '\t' << '\t' << "val immTernaryActions = List[(Stageable[_ <: BaseType],Any)](" << std::endl;
@@ -159,7 +165,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS3_USE -> True," << std::endl;
-	output << '\t' << '\t' << "\tIS_" << prefix << " -> True" << std::endl;
+	output << '\t' << '\t' << "\t" << isString << " -> True" << std::endl;
 	output << '\t' << '\t' << "\t)" << std::endl;
 
 	// inst keys
@@ -168,7 +174,7 @@ void unparse(std::ostream& output,
 	}
 	
 	output << '\t' << '\t' << "val decoderService = pipeline.service(classOf[DecoderService])" << std::endl;
-	output << '\t' << '\t' << "decoderService.addDefault(IS_" << prefix << ", False)" << std::endl;
+	output << '\t' << '\t' << "decoderService.addDefault(" << isString << ", False)" << std::endl;
 
 	// add actions
 	output << '\t' << '\t' << "decoderService.add(List(" << std::endl;
@@ -177,11 +183,13 @@ void unparse(std::ostream& output,
 		group* g = *it;
 		for (auto it2 = g->instructions.begin() ; it2 != g->instructions.end() ; it2++) {
 			const instruction* inst = *it2;
+			const std::string nameCtrlString = ctrlString + g->name;
+			const std::string nameCtrlEnumString = ctrlString + g->name + "Enum";
 			std::string control;
 			if (g->opnames.size() > 1)
-				control = prefix + "Ctrl -> " + prefix + "CtrlEnum." + g->ctrlName() +  ", " + prefix + "Ctrl" + g->name + " -> " + prefix + "Ctrl" + g->name + "Enum.CTRL_" + inst->opname;
+				control = ctrlString + " -> " + ctrlEnumString + "." + g->ctrlName() +  ", " + nameCtrlString + " -> " + nameCtrlEnumString + ".CTRL_" + inst->opname;
 			else
-				control = prefix + "Ctrl -> " + prefix + "CtrlEnum.CTRL_" + inst->opname;
+				control = ctrlString + " -> " + ctrlEnumString + ".CTRL_" + inst->opname;
 			if (!inst->isImm()) {
 				if (semantics[inst->opname].find("SRC2") != std::string::npos)
 				  if (semantics[inst->opname].find("SRC3") != std::string::npos)
@@ -222,10 +230,10 @@ void unparse(std::ostream& output,
 	// 2nd level MUXes
 	for (const group* g : *groups) {
 		if (g->opnames.size() > 1) {
-		output << '\t' << '\t' << '\t' << "val val_" << g->name << " = input("<< prefix << "Ctrl" << g->name << ").mux(" << std::endl;
+		output << '\t' << '\t' << '\t' << "val val_" << g->name << " = input("<< ctrlString << g->name << ").mux(" << std::endl;
 		for (auto it = g->opnames.begin() ; it != g->opnames.end() ; it++) {
 			std::string opname = *it;
-			output << '\t' << '\t' << '\t' << '\t' << prefix << "Ctrl" << g->name << "Enum.CTRL_" << opname << " -> " << semantics[opname];
+			output << '\t' << '\t' << '\t' << '\t' << ctrlString << g->name << "Enum.CTRL_" << opname << " -> " << semantics[opname];
 			if (std::next(it, 1) == g->opnames.end())
 				output << std::endl;
 			else
@@ -236,13 +244,13 @@ void unparse(std::ostream& output,
 	}
 
 	// conditional last level mux
-	output << '\t' << '\t' << '\t' << "insert(" << prefix << "_FINAL_OUTPUT) := input(" << prefix << "Ctrl" << ").mux(" << std::endl;
+	output << '\t' << '\t' << '\t' << "insert(" << outputString << ") := input(" << ctrlString << ").mux(" << std::endl;
 	for (auto it = groups->begin() ; it != groups->end() ; it++) {
 		group* g = *it;
 		if (g->opnames.size() > 1) {
-			output << '\t' << '\t' << '\t' << '\t' << prefix << "CtrlEnum." << g->ctrlName() << " -> val_" << g->name << ".asBits";
+			output << '\t' << '\t' << '\t' << '\t' << ctrlEnumString << "." << g->ctrlName() << " -> val_" << g->name << ".asBits";
 		} else {
-			output << '\t' << '\t' << '\t' << '\t' << prefix << "CtrlEnum.CTRL_" << (*g->opnames.begin()) << " -> " << semantics[*g->opnames.begin()] << ".asBits";
+			output << '\t' << '\t' << '\t' << '\t' << ctrlEnumString << ".CTRL_" << (*g->opnames.begin()) << " -> " << semantics[*g->opnames.begin()] << ".asBits";
 		}
 		if (std::next(it, 1) == groups->end())
 			output << std::endl;
@@ -255,8 +263,8 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "val injectionStage = if(earlyInjection) execute else memory" << std::endl;
 	output << '\t' << '\t' << "injectionStage plug new Area {" << std::endl;
 	output << '\t' << '\t' << '\t' << "import injectionStage._" << std::endl;
-	output << '\t' << '\t' << '\t' << "when (arbitration.isValid && input(IS_" << prefix << ")) {" << std::endl;
-	output << '\t' << '\t' << '\t' << '\t' << "output(REGFILE_WRITE_DATA) := input(" << prefix << "_FINAL_OUTPUT)" << std::endl;
+	output << '\t' << '\t' << '\t' << "when (arbitration.isValid && input(" << isString << ")) {" << std::endl;
+	output << '\t' << '\t' << '\t' << '\t' << "output(REGFILE_WRITE_DATA) := input(" << outputString << ")" << std::endl;
 	output << '\t' << '\t' << '\t' << "} // when input is" << std::endl;
 	
 	output << '\t' << '\t' << "} // injectionStage plug newArea" << std::endl;

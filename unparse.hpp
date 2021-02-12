@@ -14,6 +14,7 @@ void unparse(std::ostream& output,
 	     const std::set<const instruction*> instructions,
 	     std::map<std::string,std::string> semantics,
 	     std::vector<std::string> prologues,
-	     std::vector<std::string> extras);
+	     std::vector<std::string> extras,
+	     bool wide);
 
 #endif // __UNPARSE_HPP__

@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
 		//printf("adding %s\n", inst->name.c_str());
 	}
 
-	unparse(std::cout, pluginName, filtered_instructions, semantics, prologues, extras);
+	unparse(std::cout, pluginName, filtered_instructions, semantics, prologues, extras, wide == 1);
 
 	return 0;
 }
