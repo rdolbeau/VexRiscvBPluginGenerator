@@ -42,22 +42,22 @@ ultraclean:
 	rm -f $(OBJXX) $(OBJ) gen_plugin *~ inst_lex.c inst_par.c *.d *.scala
 
 BitManipZbpPlugin.scala: gen_plugin data_bitmanip.txt
-	./gen_plugin BitManipZbp data_bitmanip.txt Zbp >| $@
+	./gen_plugin -n BitManipZbp -i data_bitmanip.txt -I Zbp >| $@
 
 BitManipAllPlugin.scala: gen_plugin data_bitmanip.txt
-	./gen_plugin BitManipAll data_bitmanip.txt '*' >| $@
+	./gen_plugin -n BitManipAll -i data_bitmanip.txt -I '*' >| $@
 
 CryptoZknePlugin.scala: gen_plugin data_aes.txt
-	./gen_plugin CryptoZkne data_aes.txt '*' >| $@
+	./gen_plugin -n CryptoZkne -i data_aes.txt -I '*' >| $@
 
 BitManipZclmul.scala: gen_plugin data_clmul.txt
-	./gen_plugin BitManipZclmul data_clmul.txt '*' >| $@
+	./gen_plugin -n BitManipZclmul -i data_clmul.txt -I '*' >| $@
 
 CryptoZknh.scala: gen_plugin data_sha.txt
-	./gen_plugin CryptoZknh data_sha.txt '*' >| $@
+	./gen_plugin -n CryptoZknh -i data_sha.txt -I '*' >| $@
 
 PDataProcess.scala: gen_plugin data_Zpn.txt
-	./gen_plugin PDataProcess data_Zpn.txt '*' >| $@
+	./gen_plugin -n PDataProcess -i data_Zpn.txt -I '*' >| $@
 
 scala: BitManipZbpPlugin.scala BitManipAllPlugin.scala CryptoZknePlugin.scala BitManipZclmul.scala CryptoZknh.scala
 

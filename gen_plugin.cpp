@@ -17,6 +17,8 @@
 
 #include <cstring>
 
+#include <unistd.h>
+
 // yucc
 extern "C" {
 #include "inst_par.h"
@@ -86,42 +88,51 @@ void add_extra(const char *extra) {
 
 
 int main(int argc, char **argv) {
+	int c, done = 0, wide = 0;
+	extern char *optarg;
+	extern int optind, optopt;
+	FILE *myfile;
+	char *pluginName = NULL;
+#define MAX_INSTS 1024
+	char* insts[MAX_INSTS];
+	int instidx = 0;
 
-// 	std::set<const instruction*> instructions;
-// 	std::map<std::string, std::string> semantics;
-
-// 	instruction* andn = new instruction("andn", "andn", "0100000----------111-----0110011", "bitwise", false);
-// 	instruction* xnor = new instruction("xnor", "xnor", "0100000----------100-----0110011", "bitwise", false);
-
-// 	instruction* ror  = new instruction("ror" , "ror" , "0110000----------101-----0110011", "rotation", false);
-// 	instruction* rori = new instruction("rori", "ror" , "01100------------101-----0010011", "rotation", true);
-
-// 	semantics["andn"] = "(input(SRC1) & ~input(SRC2)";
-// 	semantics["xnor"] = "(input(SRC1) ^ ~input(SRC2)";
-// 	semantics["ror"] = "input(SRC1).rotateRight((input(SRC2)&31)(4 downto 0).asUInt)";
-
-// 	instructions.insert(andn);
-// 	instructions.insert(xnor);
-// 	instructions.insert(ror);
-// 	instructions.insert(rori);
-
-	if (argc > 2) {
-		FILE *myfile;
-		myfile = fopen(argv[2], "r");
-		if (!myfile) {
-			fprintf(stderr, "no file\n");
-			return -1;
+	while ((c = getopt(argc, argv, "n:i:I:w")) != -1) {
+		switch(c) {
+		default:
+			fprintf(stderr, "usage: %s [-w] -n <plugin_name> -i <input_file> -I <instructions> \n", argv[0]);
+			break;
+		case 'i':
+			myfile = fopen(optarg, "r");
+			if (!myfile) {
+				fprintf(stderr, "no file\n");
+				return -1;
+			}
+			yyin = myfile;
+			do {
+			  yyparse();
+			} while (!feof(yyin));
+			fclose(myfile);
+			done = 1;
+			break;
+		case 'n':
+			pluginName = strndup(optarg, 512);
+			break;
+		case 'I':
+			if (instidx < MAX_INSTS) {
+				insts[instidx] = strndup(optarg, 512);
+				instidx ++;
+			}
+			break;
+		case 'w':
+			wide = 1;
+			break;
 		}
-		yyin = myfile;
-		do {
-			yyparse();
-		} while (!feof(yyin));
-		fclose(myfile);
-	} else {
-		std::cerr << "Should have a datafile as second argument" << std::endl;
+	}
+	if (!done || !pluginName || (instidx == 0)) {
+		std::cerr << "Should have at least a plugin name & a datafile & some instructions enabled" << std::endl;
 		exit(-1);
 	}
-	
 	
  	std::set<const instruction*> filtered_instructions;
 
@@ -131,12 +142,12 @@ int main(int argc, char **argv) {
 		if (semantics[inst->opname] == "")
 			continue;
 		bool addinst = false;
-		for (int i = 3 ; i < argc; i++) {
-			if (inst->match(argv[i]) || (strncmp(argv[i], "*", 1)==0)) {
-// 				printf("%s is in %s\n", inst->name.c_str(), argv[i]);
+		for (int i = 0 ; i < instidx; i++) {
+			if (inst->match(insts[i]) || (strncmp(insts[i], "*", 1)==0)) {
+// 				printf("%s is in %s\n", inst->name.c_str(), insts[i]);
 				addinst = true;
 			} else {
-// 				printf("%s is NOT in %s\n", inst->name.c_str(), argv[i]);
+// 				printf("%s is NOT in %s\n", inst->name.c_str(), insts[i]);
 			}
 		}
 		if (addinst)
@@ -144,7 +155,7 @@ int main(int argc, char **argv) {
 		//printf("adding %s\n", inst->name.c_str());
 	}
 
-	unparse(std::cout, argv[1], filtered_instructions, semantics, prologues, extras);
+	unparse(std::cout, pluginName, filtered_instructions, semantics, prologues, extras);
 
 	return 0;
 }
