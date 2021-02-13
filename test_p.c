@@ -710,6 +710,35 @@ uint64_t __rv__umulx16(const uint32_t rs1, const uint32_t rs2) {
   memcpy(&r, c, 8);
   return r;
 }
+
+
+
+uint64_t __rv__smaqa(const uint32_t rs1, const uint32_t rs2, const uint32_t rs3) {
+  int4x8_t a, b;
+  int4x16_t c;
+  int32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = a[0] * b[0];
+  c[1] = a[1] * b[1];
+  c[2] = a[2] * b[2];
+  c[3] = a[3] * b[3];
+  r = ((int32_t)rs3) + c[0] + c[1] + c[2] + c[3];
+  return r;
+}
+uint64_t __rv__umaqa(const uint32_t rs1, const uint32_t rs2, const uint32_t rs3) {
+  uint4x8_t a, b;
+  uint4x16_t c;
+  uint32_t r;
+  memcpy(a, &rs1, 4);
+  memcpy(b, &rs2, 4);
+  c[0] = a[0] * b[0];
+  c[1] = a[1] * b[1];
+  c[2] = a[2] * b[2];
+  c[3] = a[3] * b[3];
+  r = rs3 + c[0] + c[1] + c[2] + c[3];
+  return r;
+}
 #endif // __riscv
   
   unsigned int a = 0x01234567;
@@ -865,6 +894,9 @@ int main(int argc, char **argv) {
   T2W(__rv__umulx8);
   T2W(__rv__smulx16);
   T2W(__rv__umulx16);
+  
+  T3(__rv__smaqa);
+  T3(__rv__umaqa);
   
   b = 0x0100F004 + index;
   }

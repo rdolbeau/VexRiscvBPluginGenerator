@@ -90,10 +90,11 @@ I	URSUBW	URSUBW	0011001----------001-----1110111	pdpiadd32	Zpn
 I	INSBI	INSBI	101011000--------000-----1110111	pdpibit	Zpn
 //I	MADDR32	MADDR32	1100010----------001-----1110111	pdpimac	Zpn
 //I	MSUBR32	MSUBR32	1100011----------001-----1110111	pdpimac	Zpn
+// ternary
+I	SMAQA   SMAQA	1100100----------000----01110111	pdpiumul8	Zpnslow
+I	UMAQA   UMAQA	1100110----------000----01110111	pdpismul8	Zpnslow
 // ternary + binary (bit 25)
 I	PBSADx	PBSADx	111111-----------000-----1110111	pdpipsad	Zpn
-
-
 
 // binary
 S	ADD8	"fun_add8(input(SRC1), input(SRC2))"
@@ -148,6 +149,8 @@ S	SWAP16	"fun_swap16(input(SRC1))"
 // ternary
 S	PBSADx	"fun_pbsada(input(SRC1), input(SRC2), (input(INSTRUCTION)(25).asUInt === 0) ? U(0, 32 bits).asBits | input(SRC3))"
 S	INSBI	"fun_insb(input(SRC1), input(SRC2), input(SRC3))"
+S	SMAQA	"fun_smaqa(input(SRC1), input(SRC2), input(SRC3))"
+S	UMAQA	"fun_umaqa(input(SRC1), input(SRC2), input(SRC3))"
 
 P	"""
 	def fun_add8(rs1: Bits, rs2: Bits) : Bits = {
@@ -555,5 +558,26 @@ P	"""
 		3 ->                      b ## rs3(23 downto  0)
 	    )
 	    r // return value
+	}
+
+	def fun_smaqa(rs1: Bits, rs2: Bits, rs3: Bits) : Bits = {
+	// 18 bits needed so that intermediate sums don't overflow
+	    val h0 = (rs1( 7 downto  0).asSInt * rs2( 7 downto  0).asSInt).asBits.resize(18)
+	    val h1 = (rs1(15 downto  8).asSInt * rs2(15 downto  8).asSInt).asBits.resize(18)
+	    val h2 = (rs1(23 downto 16).asSInt * rs2(23 downto 16).asSInt).asBits.resize(18)
+	    val h3 = (rs1(31 downto 24).asSInt * rs2(31 downto 24).asSInt).asBits.resize(18)
+	    val r = rs3.asSInt + (h0.asSInt + h1.asSInt + h2.asSInt + h3.asSInt)
+
+	    r.asBits.resize(32) // return value
+	}
+	def fun_umaqa(rs1: Bits, rs2: Bits, rs3: Bits) : Bits = {
+	// 18 bits needed so that intermediate sums don't overflow
+	    val h0 = (rs1( 7 downto  0).asUInt * rs2( 7 downto  0).asUInt).asBits.resize(18)
+	    val h1 = (rs1(15 downto  8).asUInt * rs2(15 downto  8).asUInt).asBits.resize(18)
+	    val h2 = (rs1(23 downto 16).asUInt * rs2(23 downto 16).asUInt).asBits.resize(18)
+	    val h3 = (rs1(31 downto 24).asUInt * rs2(31 downto 24).asUInt).asBits.resize(18)
+	    val r = rs3.asUInt + (h0.asUInt + h1.asUInt + h2.asUInt + h3.asUInt)
+
+	    r.asBits.resize(32) // return value
 	}
 """

@@ -66,13 +66,10 @@ typedef uint32_t uint_xlen_t;
 // binary wide (64-bits output in R2n/R2n+1, e.g. smul8 from P)
 #define FUN2W(NAME, ASNAME)						\
   static inline uint64_t NAME(uint_xlen_t rs1, uint_xlen_t rs2) {	\
-    uint32_t r0, r1;							\
-    asm (#ASNAME " reg_t5, reg_%2, reg_%3\n"				\
-	 "mv %0, t5\n"							\
-	 "mv %1, t6\n"							\
+    register uint32_t r0 asm ("t5"), r1 asm ("t6");			\
+    asm (#ASNAME " reg_%0, reg_%2, reg_%3\n"				\
 	 : "=r" (r0), "=r" (r1)						\
-	 : "r" (rs1), "r" (rs2)						\
-	 : "t5", "t6");							\
+	 : "r" (rs1), "r" (rs2));					\
     return ((uint64_t)r0 | (((uint64_t)r1)<<32));			\
   }
 

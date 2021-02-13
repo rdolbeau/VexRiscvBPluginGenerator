@@ -45,6 +45,7 @@ static inline int sse8_r5vp(MpegEncContext *v, uint8_t *pix1, uint8_t *pix2,
 	uint32_t pmin = __rv__umin8(p1, p2);
 	uint32_t pmax = __rv__umax8(p1, p2);
 	uint32_t pd = __rv__sub8(pmax, pmin);
+#if 0
 	uint64_t qs = __rv__umul8(pd, pd);
 	/* uint32_t psl = (uint32_t)qs; */
 	/* uint32_t psh = (uint32_t)(qs >> 32); */
@@ -56,12 +57,16 @@ static inline int sse8_r5vp(MpegEncContext *v, uint8_t *pix1, uint8_t *pix2,
 	s += ((qs >> 16) & 0x000000000000FFFFull);
 	s += ((qs >> 32) & 0x000000000000FFFFull);
 	s += ((qs >> 48) & 0x000000000000FFFFull);
+#else
+	s = __rv__umaqa(pd, pd, s);
+#endif
 	
 	p1 = ((uint32_t*)pix1)[1];
 	p2 = ((uint32_t*)pix2)[1];
 	pmin = __rv__umin8(p1, p2);
 	pmax = __rv__umax8(p1, p2);
 	pd = __rv__sub8(pmax, pmin);
+#if 0
 	qs = __rv__umul8(pd, pd);
 	/* psl = (uint32_t)qs; */
 	/* psh = (uint32_t)(qs >> 32); */
@@ -73,6 +78,9 @@ static inline int sse8_r5vp(MpegEncContext *v, uint8_t *pix1, uint8_t *pix2,
 	s += ((qs >> 16) & 0x000000000000FFFFull);
 	s += ((qs >> 32) & 0x000000000000FFFFull);
 	s += ((qs >> 48) & 0x000000000000FFFFull);
+#else
+	s = __rv__umaqa(pd, pd, s);
+#endif
 	
         pix1 += stride;
         pix2 += stride;
