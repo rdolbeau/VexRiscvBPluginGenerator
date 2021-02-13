@@ -2,10 +2,10 @@
 
 // low-order bit of Rd (7) is 0 to ensure even-numbered Rd
 // bit 25 is used for crossing so -
-I	SMULx8    SMULx8	101010-----------000----01110111	pdpismul8	Zpn
-I	UMULx8    UMULx8	101110-----------000----01110111	pdpiumul8	Zpn
-I	SMULx16   SMULx16	101000-----------000----01110111	pdpismul16	Zpn
-I	UMULx16   UMULx16	101100-----------000----01110111	pdpiumul16	Zpn
+I	SMULx8    SMULx8	101010-----------000----01110111	pdpismul8	Zp64
+I	UMULx8    UMULx8	101110-----------000----01110111	pdpiumul8	Zp64
+I	SMULx16   SMULx16	101000-----------000----01110111	pdpismul16	Zp64
+I	UMULx16   UMULx16	101100-----------000----01110111	pdpiumul16	Zp64
 
 // binary
 S	SMULx8	"fun_smulx8(input(SRC1), input(SRC2), input(INSTRUCTION)(25).asUInt)"
