@@ -1,87 +1,22 @@
 #include "crypto_hashblocks.h"
 
-typedef unsigned int uint32;
+#include <stdint.h>
 
 #ifdef RV32ZKNH
-typedef unsigned int uint32_t;
-#define ASM1MACRO(N, O) asm(".macro "#N" rd, rs1\n"		\
-			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15))\n"	\
-			   ".endm\n");
-#define ASM2MACRO(N, O) asm(".macro "#N" rd, rs1, rs2\n"		\
-			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15) | (\\rs2 << 20))\n"	\
-			   ".endm\n");
-asm("#define reg_zero 0\n");
-asm("#define reg_ra 1\n");
-asm("#define reg_sp 2\n");
-asm("#define reg_gp 3\n");
-asm("#define reg_tp 4\n");
-asm("#define reg_t0 5\n");
-asm("#define reg_t1 6\n");
-asm("#define reg_t2 7\n");
-asm("#define reg_s0 8\n");
-asm("#define reg_s1 9\n");
-asm("#define reg_a0 10\n");
-asm("#define reg_a1 11\n");
-asm("#define reg_a2 12\n");
-asm("#define reg_a3 13\n");
-asm("#define reg_a4 14\n");
-asm("#define reg_a5 15\n");
-asm("#define reg_a6 16\n");
-asm("#define reg_a7 17\n");
-asm("#define reg_s2 18\n");
-asm("#define reg_s3 19\n");
-asm("#define reg_s4 20\n");
-asm("#define reg_s5 21\n");
-asm("#define reg_s6 22\n");
-asm("#define reg_s7 23\n");
-asm("#define reg_s8 24\n");
-asm("#define reg_s9 25\n");
-asm("#define reg_s10 26\n");
-asm("#define reg_s11 27\n");
-asm("#define reg_t3 28\n");
-asm("#define reg_t4 29\n");
-asm("#define reg_t5 30\n");
-asm("#define reg_t6 31\n");
-
-#define FUN1(NAME, ASNAME)						\
-  static inline uint32_t NAME(uint32_t rs1) {				\
-    uint32_t r;								\
-    asm (#ASNAME " reg_%0, reg_%1\n"					\
-	 : "=r" (r)							\
-	 : "r" (rs1));							\
-    return r;								\
-  }
-#define FUN2(NAME, ASNAME)						\
-  static inline uint32_t NAME(uint32_t rs1, uint32_t rs2) {		\
-    uint32_t r;								\
-    asm (#ASNAME " reg_%0, reg_%1, reg_%2\n"				\
-	 : "=r" (r)							\
-	 : "r" (rs1), "r" (rs2));					\
-    return r;								\
-  }
-  
-ASM1MACRO(SHA256SIG0,0x10201013)
-ASM1MACRO(SHA256SIG1,0x10301013)
-ASM1MACRO(SHA256SUM0,0x10001013)
-ASM1MACRO(SHA256SUM1,0x10101013)
-FUN1(sha256sig0,SHA256SIG0)
-FUN1(sha256sig1,SHA256SIG1)
-FUN1(sha256sum0,SHA256SUM0)
-FUN1(sha256sum1,SHA256SUM1)
-
+#include "new_instructions_support_k.h"
 #endif
 
-static uint32 load_bigendian(const unsigned char *x)
+static uint32_t load_bigendian(const unsigned char *x)
 {
   return
-      (uint32) (x[3]) \
-  | (((uint32) (x[2])) << 8) \
-  | (((uint32) (x[1])) << 16) \
-  | (((uint32) (x[0])) << 24)
+      (uint32_t) (x[3]) \
+  | (((uint32_t) (x[2])) << 8) \
+  | (((uint32_t) (x[1])) << 16) \
+  | (((uint32_t) (x[0])) << 24)
   ;
 }
 
-static void store_bigendian(unsigned char *x,uint32 u)
+static void store_bigendian(unsigned char *x,uint32_t u)
 {
   x[3] = u; u >>= 8;
   x[2] = u; u >>= 8;
@@ -140,17 +75,17 @@ static void store_bigendian(unsigned char *x,uint32 u)
 
 int crypto_hashblocks(unsigned char *statebytes,const unsigned char *in,unsigned long long inlen)
 {
-  uint32 state[8];
-  uint32 a;
-  uint32 b;
-  uint32 c;
-  uint32 d;
-  uint32 e;
-  uint32 f;
-  uint32 g;
-  uint32 h;
-  uint32 T1;
-  uint32 T2;
+  uint32_t state[8];
+  uint32_t a;
+  uint32_t b;
+  uint32_t c;
+  uint32_t d;
+  uint32_t e;
+  uint32_t f;
+  uint32_t g;
+  uint32_t h;
+  uint32_t T1;
+  uint32_t T2;
 
   a = load_bigendian(statebytes +  0); state[0] = a;
   b = load_bigendian(statebytes +  4); state[1] = b;
@@ -162,22 +97,22 @@ int crypto_hashblocks(unsigned char *statebytes,const unsigned char *in,unsigned
   h = load_bigendian(statebytes + 28); state[7] = h;
 
   while (inlen >= 64) {
-    uint32 w0  = load_bigendian(in +  0);
-    uint32 w1  = load_bigendian(in +  4);
-    uint32 w2  = load_bigendian(in +  8);
-    uint32 w3  = load_bigendian(in + 12);
-    uint32 w4  = load_bigendian(in + 16);
-    uint32 w5  = load_bigendian(in + 20);
-    uint32 w6  = load_bigendian(in + 24);
-    uint32 w7  = load_bigendian(in + 28);
-    uint32 w8  = load_bigendian(in + 32);
-    uint32 w9  = load_bigendian(in + 36);
-    uint32 w10 = load_bigendian(in + 40);
-    uint32 w11 = load_bigendian(in + 44);
-    uint32 w12 = load_bigendian(in + 48);
-    uint32 w13 = load_bigendian(in + 52);
-    uint32 w14 = load_bigendian(in + 56);
-    uint32 w15 = load_bigendian(in + 60);
+    uint32_t w0  = load_bigendian(in +  0);
+    uint32_t w1  = load_bigendian(in +  4);
+    uint32_t w2  = load_bigendian(in +  8);
+    uint32_t w3  = load_bigendian(in + 12);
+    uint32_t w4  = load_bigendian(in + 16);
+    uint32_t w5  = load_bigendian(in + 20);
+    uint32_t w6  = load_bigendian(in + 24);
+    uint32_t w7  = load_bigendian(in + 28);
+    uint32_t w8  = load_bigendian(in + 32);
+    uint32_t w9  = load_bigendian(in + 36);
+    uint32_t w10 = load_bigendian(in + 40);
+    uint32_t w11 = load_bigendian(in + 44);
+    uint32_t w12 = load_bigendian(in + 48);
+    uint32_t w13 = load_bigendian(in + 52);
+    uint32_t w14 = load_bigendian(in + 56);
+    uint32_t w15 = load_bigendian(in + 60);
 
     F(w0 ,0x428a2f98)
     F(w1 ,0x71374491)

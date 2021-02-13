@@ -29,103 +29,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-/* typedef uint32_t uint_xlen_t; */
-/* #define XLEN 32 */
-#include <rvintrin.h>
-
-
-typedef uint32_t uint_xlen_t;
-#define XLEN 32
 #ifdef __riscv
-  //when missing in toolchain
-#define FUN1(NAME, ASNAME)						\
-  static inline uint32_t NAME(uint32_t rs1) {				\
-    uint32_t r;								\
-    asm (#ASNAME " reg_%0, reg_%1\n"					\
-	 : "=r" (r)							\
-	 : "r" (rs1));							\
-    return r;								\
-  }
-#define FUN2(NAME, ASNAME)						\
-  static inline uint_xlen_t NAME(uint_xlen_t rs1, uint_xlen_t rs2) {	\
-    uint32_t r;								\
-    asm (#ASNAME " reg_%0, reg_%1, reg_%2\n"				\
-	       : "=r" (r)						\
-	       : "r" (rs1), "r" (rs2));					\
-    return r;								\
-  }
-#define FUN3(NAME, ASNAME)						\
-  static inline uint_xlen_t NAME(uint_xlen_t rs1, uint_xlen_t rs2, uint_xlen_t rs3) {	\
-    uint32_t r;								\
-    asm (#ASNAME " reg_%0, reg_%1, reg_%2, reg_%3\n"			\
-	       : "=r" (r)						\
-	 : "r" (rs1), "r" (rs2), "r" (rs3));				\
-    return r;								\
-  }
 
-#define ASM1MACRO(N, O) asm(".macro "#N" rd, rs1\n"		\
-			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15))\n"	\
-			   ".endm\n");
-#define ASM2MACRO(N, O) asm(".macro "#N" rd, rs1, rs2\n"		\
-			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15) | (\\rs2 << 20))\n"	\
-			   ".endm\n");
-#define ASM3MACRO(N, O) asm(".macro "#N" rd, rs1, rs2, rs3\n"		\
-			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15) | (\\rs2 << 20) | (\\rs3 << 27) )\n"	\
-			   ".endm\n");
-asm("#define reg_zero 0\n");
-asm("#define reg_ra 1\n");
-asm("#define reg_sp 2\n");
-asm("#define reg_gp 3\n");
-asm("#define reg_tp 4\n");
-asm("#define reg_t0 5\n");
-asm("#define reg_t1 6\n");
-asm("#define reg_t2 7\n");
-asm("#define reg_s0 8\n");
-asm("#define reg_s1 9\n");
-asm("#define reg_a0 10\n");
-asm("#define reg_a1 11\n");
-asm("#define reg_a2 12\n");
-asm("#define reg_a3 13\n");
-asm("#define reg_a4 14\n");
-asm("#define reg_a5 15\n");
-asm("#define reg_a6 16\n");
-asm("#define reg_a7 17\n");
-asm("#define reg_s2 18\n");
-asm("#define reg_s3 19\n");
-asm("#define reg_s4 20\n");
-asm("#define reg_s5 21\n");
-asm("#define reg_s6 22\n");
-asm("#define reg_s7 23\n");
-asm("#define reg_s8 24\n");
-asm("#define reg_s9 25\n");
-asm("#define reg_s10 26\n");
-asm("#define reg_s11 27\n");
-asm("#define reg_t3 28\n");
-asm("#define reg_t4 29\n");
-asm("#define reg_t5 30\n");
-asm("#define reg_t6 31\n");
-ASM2MACRO(XPERM_N,0x28002033)
-ASM2MACRO(XPERM_B,0x28004033)
-ASM2MACRO(XPERM_H,0x28006033)
-ASM2MACRO(SH1ADD,0x20002033)
-ASM2MACRO(SH2ADD,0x20004033)
-ASM2MACRO(SH3ADD,0x20006033)
-
-/* FUN(xperm_n,0x2928a9b3) */
-/* FUN(xperm_b,0x2928c9b3) */
-/* FUN(xperm_h,0x2928e9b3) */
-/* FUN(sh1add,0x2128a9b3) */
-/* FUN(sh2add,0x2128c9b3) */
-/* FUN(sh3add,0x2128e9b3) */
-FUN2(xperm_n,XPERM_N)
-FUN2(xperm_b,XPERM_B)
-FUN2(xperm_h,XPERM_H)
-FUN2(sh1add,SH1ADD)
-FUN2(sh2add,SH2ADD)
-FUN2(sh3add,SH3ADD)
+#include "new_instructions_support_b.h"
 
 #define _rv64_clmul2(a,b) _rv64_clmul(a,b)
 #else
+#include <rvintrin.h> // emulation
+
+typedef uint32_t uint_xlen_t;
+#define XLEN 32
   uint_xlen_t xperm(uint_xlen_t rs1, uint_xlen_t rs2, int sz_log2)
 {
     uint_xlen_t r = 0;

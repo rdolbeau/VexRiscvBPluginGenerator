@@ -13,12 +13,10 @@ Public domain.
 #include <stdio.h>
 #define ROUNDS 20
 
-#if 0
-#define ROTATE(v,c) (ROTL32(v,c))
-#else
-#include <rvintrin.h>
+#include "new_instructions_support_b.h"
+
 #define ROTATE(v,c) _rv32_rol(v,c)
-#endif
+
 #define XOR(v,w) ((v) ^ (w))
 #define PLUS(v,w) (U32V((v) + (w)))
 #define PLUSONE(v) (PLUS((v),1))

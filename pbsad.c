@@ -8,66 +8,7 @@ typedef ssize_t ptrdiff_t;
 
 #ifdef __riscv
 
-typedef uint32_t uint_xlen_t;
-#define XLEN 32
-#define FUN2(NAME, ASNAME)						\
-  static inline uint_xlen_t NAME(uint_xlen_t rs1, uint_xlen_t rs2) {	\
-    uint32_t r;								\
-    asm (#ASNAME " reg_%0, reg_%1, reg_%2\n"				\
-	       : "=r" (r)						\
-	       : "r" (rs1), "r" (rs2));					\
-    return r;								\
-  }
-#define FUN3R(NAME, ASNAME)						\
-  static inline uint_xlen_t NAME(uint_xlen_t rs1, uint_xlen_t rs2, uint_xlen_t rs3) {	\
-    uint32_t r = rs3;								\
-    asm (#ASNAME " reg_%0, reg_%1, reg_%2\n"			\
-	       : "+&r" (r)						\
-	 : "r" (rs1), "r" (rs2));				\
-    return r;								\
-  }
-#define ASM2MACRO(N, O) asm(".macro "#N" rd, rs1, rs2\n"		\
-			   ".word ("#O" | (\\rd << 7) | (\\rs1 << 15) | (\\rs2 << 20))\n"	\
-			   ".endm\n");
-#define ASM3RMACRO(N, O) ASM2MACRO(N, O)
-
-asm("#define reg_zero 0\n");
-asm("#define reg_ra 1\n");
-asm("#define reg_sp 2\n");
-asm("#define reg_gp 3\n");
-asm("#define reg_tp 4\n");
-asm("#define reg_t0 5\n");
-asm("#define reg_t1 6\n");
-asm("#define reg_t2 7\n");
-asm("#define reg_s0 8\n");
-asm("#define reg_s1 9\n");
-asm("#define reg_a0 10\n");
-asm("#define reg_a1 11\n");
-asm("#define reg_a2 12\n");
-asm("#define reg_a3 13\n");
-asm("#define reg_a4 14\n");
-asm("#define reg_a5 15\n");
-asm("#define reg_a6 16\n");
-asm("#define reg_a7 17\n");
-asm("#define reg_s2 18\n");
-asm("#define reg_s3 19\n");
-asm("#define reg_s4 20\n");
-asm("#define reg_s5 21\n");
-asm("#define reg_s6 22\n");
-asm("#define reg_s7 23\n");
-asm("#define reg_s8 24\n");
-asm("#define reg_s9 25\n");
-asm("#define reg_s10 26\n");
-asm("#define reg_s11 27\n");
-asm("#define reg_t3 28\n");
-asm("#define reg_t4 29\n");
-asm("#define reg_t5 30\n");
-asm("#define reg_t6 31\n");
-
-ASM2MACRO(PBSAD, 0xfc000077)
-FUN2(__rv__pbsad, PBSAD)
-ASM3RMACRO(PBSADA, 0xfe000077)
-FUN3R(__rv__pbsada, PBSADA)
+#include "new_instructions_support_p.h"
 
 static inline long long cpucycles_riscv(void) {
   long long result;

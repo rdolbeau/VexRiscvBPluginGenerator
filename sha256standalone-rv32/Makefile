@@ -9,8 +9,8 @@ CC=$(COMPDIR)/bin/riscv32-buildroot-linux-gnu-gcc
 ALTCC=$(ALTCOMPDIR)/bin/riscv64-unknown-elf-gcc
 CXX=$(COMPDIR)/bin/riscv32-buildroot-linux-gnu-g++
 STRIP=$(COMPDIR)/bin/riscv32-buildroot-linux-gnu-strip
-NEWOPT=-march=rv32imab -mabi=ilp32 -I. -O3 -DRV32B #-fno-vectorize #-DUSE_EPI_CUSTOM
-OPT=-march=rv32ima -mabi=ilp32 -I. -O3 #-fno-vectorize #-DUSE_EPI_CUSTOM
+NEWOPT=-march=rv32imab -mabi=ilp32 -I. -I.. -O3 -DRV32ZKNH #-fno-vectorize #-DUSE_EPI_CUSTOM
+OPT=-march=rv32ima -mabi=ilp32 -I. -I.. -O3 #-fno-vectorize #-DUSE_EPI_CUSTOM
 #ALTCC=$(CC)
 #NEWOPT=$(OPT)
 
