@@ -561,22 +561,21 @@ P	"""
 	}
 
 	def fun_smaqa(rs1: Bits, rs2: Bits, rs3: Bits) : Bits = {
-	// 18 bits needed so that intermediate sums don't overflow
-	    val h0 = (rs1( 7 downto  0).asSInt * rs2( 7 downto  0).asSInt).asBits.resize(18)
-	    val h1 = (rs1(15 downto  8).asSInt * rs2(15 downto  8).asSInt).asBits.resize(18)
-	    val h2 = (rs1(23 downto 16).asSInt * rs2(23 downto 16).asSInt).asBits.resize(18)
-	    val h3 = (rs1(31 downto 24).asSInt * rs2(31 downto 24).asSInt).asBits.resize(18)
-	    val r = rs3.asSInt + (h0.asSInt + h1.asSInt + h2.asSInt + h3.asSInt)
+	    val h0 = (rs1( 7 downto  0).asSInt * rs2( 7 downto  0).asSInt).resize(18)
+	    val h1 = (rs1(15 downto  8).asSInt * rs2(15 downto  8).asSInt).resize(18)
+	    val h2 = (rs1(23 downto 16).asSInt * rs2(23 downto 16).asSInt).resize(18)
+	    val h3 = (rs1(31 downto 24).asSInt * rs2(31 downto 24).asSInt).resize(18)
+	    val r = rs3.asSInt + (h0 + h1 + h2 + h3)
 
 	    r.asBits.resize(32) // return value
 	}
 	def fun_umaqa(rs1: Bits, rs2: Bits, rs3: Bits) : Bits = {
 	// 18 bits needed so that intermediate sums don't overflow
-	    val h0 = (rs1( 7 downto  0).asUInt * rs2( 7 downto  0).asUInt).asBits.resize(18)
-	    val h1 = (rs1(15 downto  8).asUInt * rs2(15 downto  8).asUInt).asBits.resize(18)
-	    val h2 = (rs1(23 downto 16).asUInt * rs2(23 downto 16).asUInt).asBits.resize(18)
-	    val h3 = (rs1(31 downto 24).asUInt * rs2(31 downto 24).asUInt).asBits.resize(18)
-	    val r = rs3.asUInt + (h0.asUInt + h1.asUInt + h2.asUInt + h3.asUInt)
+	    val h0 = (rs1( 7 downto  0).asUInt * rs2( 7 downto  0).asUInt).resize(18)
+	    val h1 = (rs1(15 downto  8).asUInt * rs2(15 downto  8).asUInt).resize(18)
+	    val h2 = (rs1(23 downto 16).asUInt * rs2(23 downto 16).asUInt).resize(18)
+	    val h3 = (rs1(31 downto 24).asUInt * rs2(31 downto 24).asUInt).resize(18)
+	    val r = rs3.asUInt + (h0 + h1 + h2 + h3)
 
 	    r.asBits.resize(32) // return value
 	}
