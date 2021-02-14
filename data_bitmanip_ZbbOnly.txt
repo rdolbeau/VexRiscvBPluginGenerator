@@ -1,0 +1,37 @@
+// This is the specialized version of some more general instructions
+// That are included by default in Zbb
+// Those should not be combined with a plugin implementing the matching
+// base instruction(s)
+
+//I	PACK	PACK	0000100----------100-----0110011	pack
+//I	GORCI	GORC	00101------------101-----0010011	grevorc
+//I	GREVI	GREV	01101------------101-----0010011	grevorc
+// ZEXT.H -> PACK w/ RS2 == 0
+I	ZEXTdotH ZEXTdotH 000010000000-----100-----0110011	signextend	Zbb
+// ORC.B -> GORCI w/ imm = 7 (0000111)
+I	ORCdotB	ORCdotB	  001010000111-----101-----0010011	grevorc		Zbb
+// REV8 -> GREVI w/ imm == 24 (0011000)
+I	REV8	REV8	  011010011000-----101-----0010011	grevorc		Zbb
+
+// SEMANTIC
+S	REV8		"fun_rev8(input(SRC1))"
+S	ORCdotB		"fun_orcb(input(SRC1))"
+S	ZEXTdotH	"(B"16'x0000" ## input(SRC1)(15 downto 0))"
+
+// PROLOGUE
+P	"""
+   def fun_rev8(a:Bits) : Bits = {
+   	   val r = a(7 downto 0) ## a(15 downto 8) ## a(23 downto 16) ## a(31 downto 24)
+
+	   r // return value
+   }
+   def fun_orcb(a:Bits) : Bits = {
+       val x1  = (a  | ((a  & B"32'x55555555") |<< 1) | ((a  & B"32'xAAAAAAAA") |>> 1))
+       val x2  = (x1 | ((x1 & B"32'x33333333") |<< 2) | ((x1 & B"32'xCCCCCCCC") |>> 2))
+       val x4  = (x2 | ((x2 & B"32'x0F0F0F0F") |<< 4) | ((x2 & B"32'xF0F0F0F0") |>> 4))
+	   
+       x4 // return value
+   }
+"""
+
+

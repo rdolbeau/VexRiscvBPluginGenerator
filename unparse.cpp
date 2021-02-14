@@ -255,7 +255,7 @@ void unparse(std::ostream& output,
 		output << '\t' << '\t' << '\t' << "import memory._" << std::endl;
 		where = "memory";
 	}
-
+	// 2nd level MUXes
 	for (const group* g : *groups) {
 		if (g->opnames.size() > 1) {
 		output << '\t' << '\t' << '\t' << "val val_" << g->name << " = input("<< ctrlString << g->name << ").mux(" << std::endl;
@@ -273,23 +273,32 @@ void unparse(std::ostream& output,
 		}
 	}
 	// conditional last level mux
-	output << '\t' << '\t' << '\t' << "insert(" << outputString << ") := input(" << ctrlString << ").mux(" << std::endl;
+	bool need_group = groups->size() > 1;
+	if (need_group)
+		output << '\t' << '\t' << '\t' << "insert(" << outputString << ") := input(" << ctrlString << ").mux(" << std::endl;
+	else
+		output << '\t' << '\t' << '\t' << "insert(" << outputString << ") := ";
 	for (auto it = groups->begin() ; it != groups->end() ; it++) {
 		group* g = *it;
 		if (g->opnames.size() > 1) {
-			output << '\t' << '\t' << '\t' << '\t' << ctrlEnumString << "." << g->ctrlName() << " -> val_" << g->name << ".asBits";
+			if (need_group)
+				output << '\t' << '\t' << '\t' << '\t' << ctrlEnumString << "." << g->ctrlName() << " -> ";
+			output << "val_" << g->name << ".asBits";
 		} else {
 			std::string opname = *g->opnames.begin();
 			std::string regName = prefix + "_INTERMEDIATE_" + opname + "" + std::to_string(em_widths[opname]);
 			std::string semantic = two_cycles ?  mem_semantics[opname] + "(input(" + regName + ")).asBits" : semantics[opname] + ".asBits";
-			output << '\t' << '\t' << '\t' << '\t' << ctrlEnumString << ".CTRL_" << opname << " -> " << semantic;
+			if (need_group)
+				output << '\t' << '\t' << '\t' << '\t' << ctrlEnumString << ".CTRL_" << opname << " -> ";
+			output << semantic;
 		}
 		if (std::next(it, 1) == groups->end())
 			output << std::endl;
 		else
 			output << "," << std::endl;
 	}
-	output << '\t' << '\t' << '\t' << ") // primary mux" << std::endl;
+	if (need_group)
+		output << '\t' << '\t' << '\t' << ") // primary mux" << std::endl;
 	output << '\t' << '\t' << "} // " << where << " plug newArea" << std::endl;
 	if (!two_cycles) {
 		output << '\t' << '\t' << "val injectionStage = if(earlyInjection) execute else memory" << std::endl;

@@ -1,183 +1,19 @@
-// First field (first character in the line): I (instruction), S (semantic), P (prologue, only one)
-// Starting with // is a comment
-// Fields are separated by any number of spaces and tabs
-// For S: Followed by a single field in double-quotes (space allowed but not carriage return), the instruction semantic in SpinalHDL
-// For P: Followed by a single field in triple double-quotes (anything allowed), extra code to add
-// For I: Followed by 4-9 Fields:
-// 1) instruction name
-// 2) semantic name (usually idential between R and I form)
-// 3) pattern to match
-// 4) mux (group) name
-// 5-9) optional,  (sub-)extension the instruction belongs to (up to 5)
-// Avoids non-ASCII (7 bit) characters, as some string ends up in SpinalHDL code
-//
-// Known differences with the specifications:
-// Zbb: doesn't include pack (to implement zext.h), grevi (to implement rev8), gorci (to implement orc.b) -> see data_bitmanip_ZbbOnly.txt
-// Zbp: 
-// Zbs: 
-// Zba: 
-// Zbe: bcompress/bdecompress currently unimplemented
-// Zbf: 
-// Zbc: in a dedicated file, 'data_clmul.txt'
-// Zbm: ignored, RV64-only
-// Zbr: ignored, crc32 unimplemented
-// Zbt: 
-// B  : should be Zbb, Zbp, Zbs, Zba, Zbe, Zbf, Zbc, Zbm
-//
-// INSTRUCTIONS
-// register-register
-//	inst	semant	pattern					group/mux	ext1	ext2	ext3	ext4	ext5
-//	----	-----	-------					---------	----	----	----	----	----
-I	ANDN	ANDN	0100000----------111-----0110011	bitwise		Zbb	Zbp	Zkb
-I	ORN	ORN	0100000----------110-----0110011	bitwise		Zbb	Zbp	Zkb
-I	XNOR	XNOR	0100000----------100-----0110011	bitwise		Zbb	Zbp	Zkb
-I	SLO	SLO	0010000----------001-----0110011	shift		Zxx
-I	SRO	SRO	0010000----------101-----0110011	shift		Zxx
-I	ROL	ROL	0110000----------001-----0110011	rotation	Zbb	Zbp	Zkb
-I	ROR	ROR	0110000----------101-----0110011	rotation	Zbb	Zbp	Zkb
-I	SH1ADD	SH1ADD	0010000----------010-----0110011	sh_add		Zba
-I	SH2ADD	SH2ADD	0010000----------100-----0110011	sh_add		Zba
-I	SH3ADD	SH3ADD	0010000----------110-----0110011	sh_add		Zba
-I	BCLR	BCLR	0100100----------001-----0110011	singlebit	Zbs
-I	BSET	BSET	0010100----------001-----0110011	singlebit	Zbs
-I	BINV	BINV	0110100----------001-----0110011	singlebit	Zbs
-I	BEXT	BEXT	0100100----------101-----0110011	singlebit	Zbs
-I	GORC	GORC	0010100----------101-----0110011	grevroc		Zbp
-I	GREV	GREV	0110100----------101-----0110011	grevroc		Zbp
-I	MIN	MIN	0000101----------100-----0110011	minmax		Zbb
-I	MINU	MINU	0000101----------101-----0110011	minmax		Zbb
-I	MAX	MAX	0000101----------110-----0110011	minmax		Zbb
-I	MAXU	MAXU	0000101----------111-----0110011	minmax		Zbb
-I	SHFL	SHFL	0000100----------001-----0110011	shuffle		Zbp
-I	UNSHFL	UNSHFL	0000100----------101-----0110011	shuffle		Zbp
-//I	BDECOMPRESS	BDECOMPRESS	0100100----------110-----0110011	BDECOMPRESS
-//I	BCOMPRESS	BCOMPRESS	0000100----------110-----0110011	BCOMPRESS
-I	PACK	PACK	0000100----------100-----0110011	pack			Zbp	Zbe	Zbf	Zkb
-I	PACKU	PACKU	0100100----------100-----0110011	pack		Zbp				Zkb
-//I	BMATOR	BMATOR	0000100----------011-----0110011	BMATOR
-//I	BMATXOR	BMATXOR	0100100----------011-----0110011	BMATXOR
-I	PACKH	PACKH	0000100----------111-----0110011	pack		Zbp	Zbe	Zbf		Zkb
-I	BFP	BFP	0100100----------111-----0110011	BFP				Zbf
-//I	ADDdotUW ADDdotUW 0000100----------000-----0111011	ADDdotUW
-//I	SLOW	SLOW	0010000----------001-----0111011	SLOW
-//I	SROW	SROW	0010000----------101-----0111011	SROW
-//I	ROLW	ROLW	0110000----------001-----0111011	rotation	Zbb	Zbp
-//I	RORW	RORW	0110000----------101-----0111011	rotation	Zbb	Zbp
-//I	SH1ADDdotUW SH1ADDdotUW	0010000----------010-----0111011 SH1ADDdotUW
-//I	SH2ADDdotUW SH2ADDdotUW	0010000----------100-----0111011 SH2ADDdotUW
-//I	SH3ADDdotUW SH3ADDdotUW	0010000----------110-----0111011 SH3ADDdotUW
-//I	BCLRW	BCLRW	0100100----------001-----0111011	singlebit	Zbs
-//I	BSETW	BSETW	0010100----------001-----0111011	singlebit	Zbs
-//I	BINVW	BINVW	0110100----------001-----0111011	singlebit	Zbs
-//I	BEXTW	BEXTW	0100100----------101-----0111011	singlebit	Zbs
-//I	GORCW	GORCW	0010100----------101-----0111011	GORCW
-//I	GREVW	GREVW	0110100----------101-----0111011	GREVW
-//I	SHFLW	SHFLW	0000100----------001-----0111011	shuffle		Zbp
-//I	UNSHFLW	UNSHFLW	0000100----------101-----0111011	shuffle		Zbp
-//I	BDECOMPRESSW	BDECOMPRESSW	0100100----------110-----0111011	BDECOMPRESSW
-//I	BCOMPRESSW	BCOMPRESSW	0000100----------110-----0111011	BCOMPRESSW
-//I	PACKW	PACKW	0000100----------100-----0111011	PACKW
-//I	PACKUW	PACKUW	0100100----------100-----0111011	PACKUW
-//I	BFPW	BFPW	0100100----------111-----0111011	BFPW
-I	XPERMdotN XPERMdotN 0010100----------010-----0110011	xperm		Zbp	Zkb
-I	XPERMdotB XPERMdotB 0010100----------100-----0110011	xperm		Zbp	Zkb
-I	XPERMdotH XPERMdotH 0010100----------110-----0110011	xperm		Zbp	
-//I	XPERMdotW XPERMdotW 0010100----------000-----0110011	XPERMdotW
-// register-immediate (7bits)
-I	SLOI	SLO	00100------------001-----0010011	shift		Zxx
-I	SROI	SRO	00100------------101-----0010011	shift		Zxx
-I	RORI	ROR	01100------------101-----0010011	rotation	Zbb	Zbp	Zkb
-I	BCLRI	BCLR	01001------------001-----0010011	singlebit	Zbs
-I	BSETI	BSET	00101------------001-----0010011	singlebit	Zbs
-I	BINVI	BINV	01101------------001-----0010011	singlebit	Zbs
-I	BEXTI	BEXT	01001------------101-----0010011	singlebit	Zbs
-I	GORCI	GORC	00101------------101-----0010011	grevorc		Zbp
-I	GREVI	GREV	01101------------101-----0010011	grevorc		Zbp
-I	SLLIdotUW SLLIdotUW 00001------------001-----0011011	SLLIdotUW
-// register-immediate (6bits)
-I	SHFLI	SHFL	000010-----------001-----0010011	shuffle		Zbp
-I	UNSHFLI	UNSHFL	000010-----------101-----0010011	shuffle		Zbp
-// register-immediate (5bits)
-//I	SLOIW	SLOW	0010000----------001-----0011011	shift
-//I	SROIW	SROW	0010000----------101-----0011011	shift
-//I	RORIW	RORW	0110000----------101-----0011011	rotation
-//I	BCLRIW	BCLRW	0100100----------001-----0011011	singlebit
-//I	BSETIW	BSETW	0010100----------001-----0011011	singlebit
-//I	BINVIW	BINVW	0110100----------001-----0011011	singlebit
-//I	GORCIW	GORCW	0010100----------101-----0011011	grevroc
-//I	GREVIW	GREVW	0110100----------101-----0011011	grevroc
-// unary register
-I	CLZ	CLZ	011000000000-----001-----0010011	countzeroes		Zbb
-I	CTZ	CTZ	011000000001-----001-----0010011	countzeroes		Zbb
-I	CPOP	CPOP	011000000010-----001-----0010011	countzeroes		Zbb
-//I	BMATFLIP BMATFLIP	011000000011-----001-----0010011 BMATFLIP
-I	SEXTdotB SEXTdotB	011000000100-----001-----0010011 signextend		Zbb
-I	SEXTdotH SEXTdotH	011000000101-----001-----0010011 signextend		Zbb
-I	CRC32dotB CRC32dotB	011000010000-----001-----0010011 CRC32dotB
-I	CRC32dotH CRC32dotH	011000010001-----001-----0010011 CRC32dotH
-//I	CRC32dotW CRC32dotW	011000010010-----001-----0010011 CRC32dotW
-I	CRC32dotD CRC32dotD	011000010011-----001-----0010011 CRC32dotD
-I	CRC32CdotB CRC32CdotB	011000011000-----001-----0010011 CRC32CdotB
-I	CRC32CdotH CRC32CdotH	011000011001-----001-----0010011 CRC32CdotH
-//I	CRC32CdotW CRC32CdotW	011000011010-----001-----0010011 CRC32CdotW
-I	CRC32CdotD CRC32CdotD	011000011011-----001-----0010011 CRC32CdotD
-//I	CLZW	CLZW	011000000000-----001-----0011011	countzeroes
-//I	CTZW	CTZW	011000000001-----001-----0011011	countzeroes
-//I	CPOPW	CPOPW	011000000010-----001-----0011011	countzeroes
-// register-register-register
-I       CMIX    CMIX    -----11----------001-----0110011        ternary		Zbt
-I       CMOV    CMOV    -----11----------101-----0110011        ternary		Zbt
-I       FSL     FSL     -----10----------001-----0110011        ternary		Zbt
-I       FSR     FSR     -----10----------101-----0110011        ternary		Zbt
-I       FSRI    FSR     -----1-----------101-----0010011        ternary		Zbt
-//I	FSLW    FSLW    -----10----------001-----0111011        FSLW
-//I	FSRW    FSRW    -----10----------101-----0111011        FSRW
-//I	FSRIW   FSRIW   -----10----------101-----0011011        FSRIW
+// WARNING: this is auto-generated code!
+// See https://github.com/rdolbeau/VexRiscvBPluginGenerator/
+package vexriscv.plugin
+import spinal.core._
+import vexriscv.{Stageable, DecoderService, VexRiscv}
+object BitManipZbfPlugin {
+	object BitManipZbfCtrlpackEnum extends SpinalEnum(binarySequential) {
+		 val CTRL_PACK, CTRL_PACKH = newElement()
+	}
+	object BitManipZbfCtrlEnum extends SpinalEnum(binarySequential) {
+		 val CTRL_pack, CTRL_BFP = newElement()
+	}
+	object BitManipZbfCtrlpack extends Stageable(BitManipZbfCtrlpackEnum())
+	object BitManipZbfCtrl extends Stageable(BitManipZbfCtrlEnum())
+// Prologue
 
-// SEMANTIC
-S	ROR	"input(SRC1).rotateRight((input(SRC2)&31)(4 downto 0).asUInt)"
-S	ROL	"input(SRC1).rotateLeft((input(SRC2)&31)(4 downto 0).asUInt)"
-S	GREV	"fun_grev(input(SRC1), input(SRC2))"
-S	GORC	"fun_gorc(input(SRC1), input(SRC2))"
-S	PACK	"(input(SRC2)(15 downto 0) ## input(SRC1)(15 downto 0))"
-S	PACKU	"(input(SRC2)(31 downto 16) ## input(SRC1)(31 downto 16))"
-S	PACKH	"B"16'x0000" ## (input(SRC2)(7 downto 0) ## input(SRC1)(7 downto 0))"
-S	SHFL	"fun_shfl32(input(SRC1), input(SRC2))"
-S	UNSHFL	"fun_unshfl32(input(SRC1), input(SRC2))"
-S	ANDN	"(input(SRC1) & ~input(SRC2))"
-S	ORN	"(input(SRC1) | ~input(SRC2))"
-S	XNOR	"(input(SRC1) ^ ~input(SRC2))"
-S	SH1ADD	"((input(SRC1) |<< 1).asUInt + input(SRC2).asUInt)"
-S	SH2ADD	"((input(SRC1) |<< 2).asUInt + input(SRC2).asUInt)"
-S	SH3ADD	"((input(SRC1) |<< 3).asUInt + input(SRC2).asUInt)"
-S	BSET	"(input(SRC1) |  (B"32'x00000001"|<<((input(SRC2)&31).asUInt)))"
-S	BCLR	"(input(SRC1) & ~(B"32'x00000001"|<<((input(SRC2)&31).asUInt)))"
-S	BINV	"(input(SRC1) ^  (B"32'x00000001"|<<((input(SRC2)&31).asUInt)))"
-S	BEXT	"((input(SRC1) |>> ((input(SRC2)&31).asUInt)) & B"32'x00000001")"
-S	SLO	"~((~input(SRC1)) |<< (input(SRC2)&31).asUInt)"
-S	SRO	"~((~input(SRC1)) |>> (input(SRC2)&31).asUInt)"
-S	MIN	"((input(SRC1).asSInt < input(SRC2).asSInt) ? input(SRC1) | input(SRC2))"
-S	MAX	"((input(SRC1).asSInt > input(SRC2).asSInt) ? input(SRC1) | input(SRC2))"
-S	MINU	"((input(SRC1).asUInt < input(SRC2).asUInt) ? input(SRC1) | input(SRC2))"
-S	MAXU	"((input(SRC1).asUInt > input(SRC2).asUInt) ? input(SRC1) | input(SRC2))"
-S	XPERMdotN	"fun_xperm_n(input(SRC1), input(SRC2))"
-S	XPERMdotB	"fun_xperm_b(input(SRC1), input(SRC2))"
-S	XPERMdotH	"fun_xperm_h(input(SRC1), input(SRC2))"
-// if 'SRC2' doesn't appear in the semantic, the code assume unary
-S	SEXTdotB	"(Bits(24 bits).setAllTo(input(SRC1)(7)) ## input(SRC1)(7 downto 0))"
-S	SEXTdotH	"(Bits(16 bits).setAllTo(input(SRC1)(15)) ## input(SRC1)(15 downto 0))"
-S	CLZ		"fun_clz(input(SRC1))"
-S	CTZ		"fun_ctz(input(SRC1))"
-S	CPOP		"fun_popcnt(input(SRC1))"
-// if 'SRC3' appear in the semantic, the code assume ternary
-S	CMIX	"((input(SRC1) & input(SRC2)) | (input(SRC3) & ~input(SRC2)))"
-S	CMOV	"((input(SRC2).asUInt =/= 0) ? input(SRC1) | input(SRC3))"
-S	FSL	"fun_fsl(input(SRC1), input(SRC3), input(SRC2))"
-S	FSR	"fun_fsr(input(SRC1), input(SRC3), input(SRC2))"
-S	BFP	"fun_bfp(input(SRC1), input(SRC2))"
-
-// PROLOGUE
-P	"""
    // function implementing the semantic of 32-bits generalized reverse
    def fun_grev( a:Bits, b:Bits ) : Bits = {
        val x1  = ((b&B"32'x00000001")===B"32'x00000001") ? (((a  & B"32'x55555555") |<< 1) | ((a  & B"32'xAAAAAAAA") |>> 1)) | a
@@ -488,4 +324,96 @@ P	"""
 
        r // return value
    }
-"""
+
+// End prologue
+} // object Plugin
+class BitManipZbfPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {
+	import BitManipZbfPlugin._
+	object IS_BitManipZbf extends Stageable(Bool)
+	object BitManipZbf_FINAL_OUTPUT extends Stageable(Bits(32 bits))
+	override def setup(pipeline: VexRiscv): Unit = {
+		import pipeline.config._
+		val immediateActions = List[(Stageable[_ <: BaseType],Any)](
+			SRC1_CTRL                -> Src1CtrlEnum.RS,
+			SRC2_CTRL                -> Src2CtrlEnum.IMI,
+			REGFILE_WRITE_VALID      -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
+			BYPASSABLE_MEMORY_STAGE  -> True,
+			RS1_USE -> True,
+			IS_BitManipZbf -> True
+			)
+		val binaryActions = List[(Stageable[_ <: BaseType],Any)](
+			SRC1_CTRL                -> Src1CtrlEnum.RS,
+			SRC2_CTRL                -> Src2CtrlEnum.RS,
+			REGFILE_WRITE_VALID      -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
+			BYPASSABLE_MEMORY_STAGE  -> True,
+			RS1_USE -> True,
+			RS2_USE -> True,
+			IS_BitManipZbf -> True
+			)
+		val unaryActions = List[(Stageable[_ <: BaseType],Any)](
+			SRC1_CTRL                -> Src1CtrlEnum.RS,
+			REGFILE_WRITE_VALID      -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
+			BYPASSABLE_MEMORY_STAGE  -> True,
+			RS1_USE -> True,
+			IS_BitManipZbf -> True
+			)
+		val ternaryActions = List[(Stageable[_ <: BaseType],Any)](
+			SRC1_CTRL                -> Src1CtrlEnum.RS,
+			SRC2_CTRL                -> Src2CtrlEnum.RS,
+			SRC3_CTRL                -> Src3CtrlEnum.RS,
+			REGFILE_WRITE_VALID      -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
+			BYPASSABLE_MEMORY_STAGE  -> True,
+			RS1_USE -> True,
+			RS2_USE -> True,
+			RS3_USE -> True,
+			IS_BitManipZbf -> True
+			)
+		val immTernaryActions = List[(Stageable[_ <: BaseType],Any)](
+			SRC1_CTRL                -> Src1CtrlEnum.RS,
+			SRC2_CTRL                -> Src2CtrlEnum.IMI,
+			SRC3_CTRL                -> Src3CtrlEnum.RS,
+			REGFILE_WRITE_VALID      -> True,
+			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
+			BYPASSABLE_MEMORY_STAGE  -> True,
+			RS1_USE -> True,
+			RS3_USE -> True,
+			IS_BitManipZbf -> True
+			)
+		def PACK_KEY = M"0000100----------100-----0110011"
+		def PACKH_KEY = M"0000100----------111-----0110011"
+		def BFP_KEY = M"0100100----------111-----0110011"
+		val decoderService = pipeline.service(classOf[DecoderService])
+		decoderService.addDefault(IS_BitManipZbf, False)
+		decoderService.add(List(
+			PACK_KEY	-> (binaryActions ++ List(BitManipZbfCtrl -> BitManipZbfCtrlEnum.CTRL_pack, BitManipZbfCtrlpack -> BitManipZbfCtrlpackEnum.CTRL_PACK)),
+			PACKH_KEY	-> (binaryActions ++ List(BitManipZbfCtrl -> BitManipZbfCtrlEnum.CTRL_pack, BitManipZbfCtrlpack -> BitManipZbfCtrlpackEnum.CTRL_PACKH)),
+			BFP_KEY	-> (binaryActions ++ List(BitManipZbfCtrl -> BitManipZbfCtrlEnum.CTRL_BFP))
+		))
+	} // override def setup
+	override def build(pipeline: VexRiscv): Unit = {
+		import pipeline._
+		import pipeline.config._
+		execute plug new Area{
+			import execute._
+			val val_pack = input(BitManipZbfCtrlpack).mux(
+				BitManipZbfCtrlpackEnum.CTRL_PACK -> (input(SRC2)(15 downto 0) ## input(SRC1)(15 downto 0)).asBits,
+				BitManipZbfCtrlpackEnum.CTRL_PACKH -> B"16'x0000" ## (input(SRC2)(7 downto 0) ## input(SRC1)(7 downto 0)).asBits
+			) // mux pack
+			insert(BitManipZbf_FINAL_OUTPUT) := input(BitManipZbfCtrl).mux(
+				BitManipZbfCtrlEnum.CTRL_pack -> val_pack.asBits,
+				BitManipZbfCtrlEnum.CTRL_BFP -> fun_bfp(input(SRC1), input(SRC2)).asBits
+			) // primary mux
+		} // execute plug newArea
+		val injectionStage = if(earlyInjection) execute else memory
+		injectionStage plug new Area {
+			import injectionStage._
+			when (arbitration.isValid && input(IS_BitManipZbf)) {
+				output(REGFILE_WRITE_DATA) := input(BitManipZbf_FINAL_OUTPUT)
+			} // when input is
+		} // injectionStage plug newArea
+	} // override def build
+} // class Plugin

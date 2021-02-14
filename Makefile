@@ -41,17 +41,42 @@ veryclean:
 ultraclean:
 	rm -f $(OBJXX) $(OBJ) gen_plugin *~ inst_lex.c inst_par.c *.d *.scala
 
-BitManipZbpPlugin.scala: gen_plugin data_bitmanip.txt
-	./gen_plugin -n BitManipZbp -i data_bitmanip.txt -I Zbp >| $@
-
 BitManipAllPlugin.scala: gen_plugin data_bitmanip.txt
 	./gen_plugin -n BitManipAll -i data_bitmanip.txt -I '*' >| $@
 
 CryptoZknePlugin.scala: gen_plugin data_aes.txt
 	./gen_plugin -n CryptoZkne -i data_aes.txt -I '*' >| $@
 
+BitManipZba.scala: gen_plugin data_bitmanip.txt
+	./gen_plugin -n BitManipZba -i data_bitmanip.txt -I Zba >| $@
+
+BitManipZbb.scala: gen_plugin data_bitmanip.txt data_bitmanip_ZbbOnly.txt
+	./gen_plugin -n BitManipZbb -i data_bitmanip.txt -i data_bitmanip_ZbbOnly.txt -I Zbb >| $@
+
 BitManipZbc.scala: gen_plugin data_clmul.txt
 	./gen_plugin -n BitManipZbc -i data_clmul.txt -I Zbc >| $@
+
+## Zbe unimplemented, b(de)compress are missing and pack[h] are in Zbf anyway
+
+BitManipZbf.scala: gen_plugin data_bitmanip.txt
+	./gen_plugin -n BitManipZbf -i data_bitmanip.txt -I Zbf >| $@
+
+## Zbm unimplemented, RV64 only
+
+## includes both Zbb & Zbp to avoid redudancies as there is overlap
+## and Zpb has full version instructions with partial implementation
+## in Zbb
+## Should not be included along Zbb
+BitManipZbbZbp.scala: gen_plugin data_bitmanip.txt
+	./gen_plugin -n BitManipZbbZbp -i data_bitmanip.txt -I Zbb -I Zbp >| $@
+
+## Zbr unimplemented, crc32* are missing
+
+BitManipZbs.scala: gen_plugin data_bitmanip.txt
+	./gen_plugin -n BitManipZbs -i data_bitmanip.txt -I Zbs >| $@
+
+BitManipZbt.scala: gen_plugin data_bitmanip.txt
+	./gen_plugin -n BitManipZbt -i data_bitmanip.txt -I Zbt >| $@
 
 CryptoZknh.scala: gen_plugin data_sha.txt
 	./gen_plugin -n CryptoZknh -i data_sha.txt -I '*' >| $@
@@ -66,6 +91,6 @@ P64DataProcess.scala: gen_plugin data_Zp64.txt
 	./gen_plugin -w -n P64DataProcess -i data_Zp64.txt -I '*' >| $@
 
 
-scala: BitManipZbpPlugin.scala BitManipAllPlugin.scala CryptoZknePlugin.scala BitManipZbc.scala CryptoZknh.scala
+scala: BitManipAllPlugin.scala CryptoZknePlugin.scala CryptoZknh.scala BitManipZba.scala BitManipZbb.scala BitManipZbc.scala BitManipZbf.scala BitManipZbbZbp.scala BitManipZbs.scala BitManipZbt.scala
 
 include $(DEPXX)

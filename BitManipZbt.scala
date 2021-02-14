@@ -3,39 +3,15 @@
 package vexriscv.plugin
 import spinal.core._
 import vexriscv.{Stageable, DecoderService, VexRiscv}
-object BitManipZbpPlugin {
-	object BitManipZbpCtrlbitwiseEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_ANDN, CTRL_ORN, CTRL_XNOR = newElement()
+object BitManipZbtPlugin {
+	object BitManipZbtCtrlternaryEnum extends SpinalEnum(binarySequential) {
+		 val CTRL_CMIX, CTRL_CMOV, CTRL_FSL, CTRL_FSR = newElement()
 	}
-	object BitManipZbpCtrlrotationEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_ROL, CTRL_ROR = newElement()
+	object BitManipZbtCtrlEnum extends SpinalEnum(binarySequential) {
+		 val CTRL_ternary = newElement()
 	}
-	object BitManipZbpCtrlgrevrocEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_GORC, CTRL_GREV = newElement()
-	}
-	object BitManipZbpCtrlshuffleEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_SHFL, CTRL_UNSHFL = newElement()
-	}
-	object BitManipZbpCtrlpackEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_PACK, CTRL_PACKH, CTRL_PACKU = newElement()
-	}
-	object BitManipZbpCtrlxpermEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_XPERMdotB, CTRL_XPERMdotH, CTRL_XPERMdotN = newElement()
-	}
-	object BitManipZbpCtrlgrevorcEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_GORC, CTRL_GREV = newElement()
-	}
-	object BitManipZbpCtrlEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_bitwise, CTRL_rotation, CTRL_grevroc, CTRL_shuffle, CTRL_pack, CTRL_xperm, CTRL_grevorc = newElement()
-	}
-	object BitManipZbpCtrlbitwise extends Stageable(BitManipZbpCtrlbitwiseEnum())
-	object BitManipZbpCtrlrotation extends Stageable(BitManipZbpCtrlrotationEnum())
-	object BitManipZbpCtrlgrevroc extends Stageable(BitManipZbpCtrlgrevrocEnum())
-	object BitManipZbpCtrlshuffle extends Stageable(BitManipZbpCtrlshuffleEnum())
-	object BitManipZbpCtrlpack extends Stageable(BitManipZbpCtrlpackEnum())
-	object BitManipZbpCtrlxperm extends Stageable(BitManipZbpCtrlxpermEnum())
-	object BitManipZbpCtrlgrevorc extends Stageable(BitManipZbpCtrlgrevorcEnum())
-	object BitManipZbpCtrl extends Stageable(BitManipZbpCtrlEnum())
+	object BitManipZbtCtrlternary extends Stageable(BitManipZbtCtrlternaryEnum())
+	object BitManipZbtCtrl extends Stageable(BitManipZbtCtrlEnum())
 // Prologue
 
    // function implementing the semantic of 32-bits generalized reverse
@@ -351,10 +327,10 @@ object BitManipZbpPlugin {
 
 // End prologue
 } // object Plugin
-class BitManipZbpPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {
-	import BitManipZbpPlugin._
-	object IS_BitManipZbp extends Stageable(Bool)
-	object BitManipZbp_FINAL_OUTPUT extends Stageable(Bits(32 bits))
+class BitManipZbtPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {
+	import BitManipZbtPlugin._
+	object IS_BitManipZbt extends Stageable(Bool)
+	object BitManipZbt_FINAL_OUTPUT extends Stageable(Bits(32 bits))
 	override def setup(pipeline: VexRiscv): Unit = {
 		import pipeline.config._
 		val immediateActions = List[(Stageable[_ <: BaseType],Any)](
@@ -364,7 +340,7 @@ class BitManipZbpPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
-			IS_BitManipZbp -> True
+			IS_BitManipZbt -> True
 			)
 		val binaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -374,7 +350,7 @@ class BitManipZbpPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS2_USE -> True,
-			IS_BitManipZbp -> True
+			IS_BitManipZbt -> True
 			)
 		val unaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -382,7 +358,7 @@ class BitManipZbpPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
-			IS_BitManipZbp -> True
+			IS_BitManipZbt -> True
 			)
 		val ternaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -394,7 +370,7 @@ class BitManipZbpPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			RS1_USE -> True,
 			RS2_USE -> True,
 			RS3_USE -> True,
-			IS_BitManipZbp -> True
+			IS_BitManipZbt -> True
 			)
 		val immTernaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -405,51 +381,21 @@ class BitManipZbpPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS3_USE -> True,
-			IS_BitManipZbp -> True
+			IS_BitManipZbt -> True
 			)
-		def ANDN_KEY = M"0100000----------111-----0110011"
-		def ORN_KEY = M"0100000----------110-----0110011"
-		def XNOR_KEY = M"0100000----------100-----0110011"
-		def ROL_KEY = M"0110000----------001-----0110011"
-		def ROR_KEY = M"0110000----------101-----0110011"
-		def GORC_KEY = M"0010100----------101-----0110011"
-		def GREV_KEY = M"0110100----------101-----0110011"
-		def SHFL_KEY = M"0000100----------001-----0110011"
-		def UNSHFL_KEY = M"0000100----------101-----0110011"
-		def PACK_KEY = M"0000100----------100-----0110011"
-		def PACKU_KEY = M"0100100----------100-----0110011"
-		def PACKH_KEY = M"0000100----------111-----0110011"
-		def XPERMdotN_KEY = M"0010100----------010-----0110011"
-		def XPERMdotB_KEY = M"0010100----------100-----0110011"
-		def XPERMdotH_KEY = M"0010100----------110-----0110011"
-		def RORI_KEY = M"01100------------101-----0010011"
-		def GORCI_KEY = M"00101------------101-----0010011"
-		def GREVI_KEY = M"01101------------101-----0010011"
-		def SHFLI_KEY = M"000010-----------001-----0010011"
-		def UNSHFLI_KEY = M"000010-----------101-----0010011"
+		def CMIX_KEY = M"-----11----------001-----0110011"
+		def CMOV_KEY = M"-----11----------101-----0110011"
+		def FSL_KEY = M"-----10----------001-----0110011"
+		def FSR_KEY = M"-----10----------101-----0110011"
+		def FSRI_KEY = M"-----1-----------101-----0010011"
 		val decoderService = pipeline.service(classOf[DecoderService])
-		decoderService.addDefault(IS_BitManipZbp, False)
+		decoderService.addDefault(IS_BitManipZbt, False)
 		decoderService.add(List(
-			ANDN_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_bitwise, BitManipZbpCtrlbitwise -> BitManipZbpCtrlbitwiseEnum.CTRL_ANDN)),
-			ORN_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_bitwise, BitManipZbpCtrlbitwise -> BitManipZbpCtrlbitwiseEnum.CTRL_ORN)),
-			XNOR_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_bitwise, BitManipZbpCtrlbitwise -> BitManipZbpCtrlbitwiseEnum.CTRL_XNOR)),
-			ROL_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_rotation, BitManipZbpCtrlrotation -> BitManipZbpCtrlrotationEnum.CTRL_ROL)),
-			ROR_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_rotation, BitManipZbpCtrlrotation -> BitManipZbpCtrlrotationEnum.CTRL_ROR)),
-			RORI_KEY	-> (immediateActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_rotation, BitManipZbpCtrlrotation -> BitManipZbpCtrlrotationEnum.CTRL_ROR)),
-			GORC_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_grevroc, BitManipZbpCtrlgrevroc -> BitManipZbpCtrlgrevrocEnum.CTRL_GORC)),
-			GREV_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_grevroc, BitManipZbpCtrlgrevroc -> BitManipZbpCtrlgrevrocEnum.CTRL_GREV)),
-			SHFL_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_shuffle, BitManipZbpCtrlshuffle -> BitManipZbpCtrlshuffleEnum.CTRL_SHFL)),
-			UNSHFL_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_shuffle, BitManipZbpCtrlshuffle -> BitManipZbpCtrlshuffleEnum.CTRL_UNSHFL)),
-			SHFLI_KEY	-> (immediateActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_shuffle, BitManipZbpCtrlshuffle -> BitManipZbpCtrlshuffleEnum.CTRL_SHFL)),
-			UNSHFLI_KEY	-> (immediateActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_shuffle, BitManipZbpCtrlshuffle -> BitManipZbpCtrlshuffleEnum.CTRL_UNSHFL)),
-			PACK_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_pack, BitManipZbpCtrlpack -> BitManipZbpCtrlpackEnum.CTRL_PACK)),
-			PACKU_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_pack, BitManipZbpCtrlpack -> BitManipZbpCtrlpackEnum.CTRL_PACKU)),
-			PACKH_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_pack, BitManipZbpCtrlpack -> BitManipZbpCtrlpackEnum.CTRL_PACKH)),
-			XPERMdotN_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_xperm, BitManipZbpCtrlxperm -> BitManipZbpCtrlxpermEnum.CTRL_XPERMdotN)),
-			XPERMdotB_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_xperm, BitManipZbpCtrlxperm -> BitManipZbpCtrlxpermEnum.CTRL_XPERMdotB)),
-			XPERMdotH_KEY	-> (binaryActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_xperm, BitManipZbpCtrlxperm -> BitManipZbpCtrlxpermEnum.CTRL_XPERMdotH)),
-			GORCI_KEY	-> (immediateActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_grevorc, BitManipZbpCtrlgrevorc -> BitManipZbpCtrlgrevorcEnum.CTRL_GORC)),
-			GREVI_KEY	-> (immediateActions ++ List(BitManipZbpCtrl -> BitManipZbpCtrlEnum.CTRL_grevorc, BitManipZbpCtrlgrevorc -> BitManipZbpCtrlgrevorcEnum.CTRL_GREV))
+			CMIX_KEY	-> (ternaryActions ++ List(BitManipZbtCtrl -> BitManipZbtCtrlEnum.CTRL_ternary, BitManipZbtCtrlternary -> BitManipZbtCtrlternaryEnum.CTRL_CMIX)),
+			CMOV_KEY	-> (ternaryActions ++ List(BitManipZbtCtrl -> BitManipZbtCtrlEnum.CTRL_ternary, BitManipZbtCtrlternary -> BitManipZbtCtrlternaryEnum.CTRL_CMOV)),
+			FSL_KEY	-> (ternaryActions ++ List(BitManipZbtCtrl -> BitManipZbtCtrlEnum.CTRL_ternary, BitManipZbtCtrlternary -> BitManipZbtCtrlternaryEnum.CTRL_FSL)),
+			FSR_KEY	-> (ternaryActions ++ List(BitManipZbtCtrl -> BitManipZbtCtrlEnum.CTRL_ternary, BitManipZbtCtrlternary -> BitManipZbtCtrlternaryEnum.CTRL_FSR)),
+			FSRI_KEY	-> (immTernaryActions ++ List(BitManipZbtCtrl -> BitManipZbtCtrlEnum.CTRL_ternary, BitManipZbtCtrlternary -> BitManipZbtCtrlternaryEnum.CTRL_FSR))
 		))
 	} // override def setup
 	override def build(pipeline: VexRiscv): Unit = {
@@ -457,52 +403,19 @@ class BitManipZbpPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 		import pipeline.config._
 		execute plug new Area{
 			import execute._
-			val val_bitwise = input(BitManipZbpCtrlbitwise).mux(
-				BitManipZbpCtrlbitwiseEnum.CTRL_ANDN -> (input(SRC1) & ~input(SRC2)).asBits,
-				BitManipZbpCtrlbitwiseEnum.CTRL_ORN -> (input(SRC1) | ~input(SRC2)).asBits,
-				BitManipZbpCtrlbitwiseEnum.CTRL_XNOR -> (input(SRC1) ^ ~input(SRC2)).asBits
-			) // mux bitwise
-			val val_rotation = input(BitManipZbpCtrlrotation).mux(
-				BitManipZbpCtrlrotationEnum.CTRL_ROL -> input(SRC1).rotateLeft((input(SRC2)&31)(4 downto 0).asUInt).asBits,
-				BitManipZbpCtrlrotationEnum.CTRL_ROR -> input(SRC1).rotateRight((input(SRC2)&31)(4 downto 0).asUInt).asBits
-			) // mux rotation
-			val val_grevroc = input(BitManipZbpCtrlgrevroc).mux(
-				BitManipZbpCtrlgrevrocEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)).asBits,
-				BitManipZbpCtrlgrevrocEnum.CTRL_GREV -> fun_grev(input(SRC1), input(SRC2)).asBits
-			) // mux grevroc
-			val val_shuffle = input(BitManipZbpCtrlshuffle).mux(
-				BitManipZbpCtrlshuffleEnum.CTRL_SHFL -> fun_shfl32(input(SRC1), input(SRC2)).asBits,
-				BitManipZbpCtrlshuffleEnum.CTRL_UNSHFL -> fun_unshfl32(input(SRC1), input(SRC2)).asBits
-			) // mux shuffle
-			val val_pack = input(BitManipZbpCtrlpack).mux(
-				BitManipZbpCtrlpackEnum.CTRL_PACK -> (input(SRC2)(15 downto 0) ## input(SRC1)(15 downto 0)).asBits,
-				BitManipZbpCtrlpackEnum.CTRL_PACKH -> B"16'x0000" ## (input(SRC2)(7 downto 0) ## input(SRC1)(7 downto 0)).asBits,
-				BitManipZbpCtrlpackEnum.CTRL_PACKU -> (input(SRC2)(31 downto 16) ## input(SRC1)(31 downto 16)).asBits
-			) // mux pack
-			val val_xperm = input(BitManipZbpCtrlxperm).mux(
-				BitManipZbpCtrlxpermEnum.CTRL_XPERMdotB -> fun_xperm_b(input(SRC1), input(SRC2)).asBits,
-				BitManipZbpCtrlxpermEnum.CTRL_XPERMdotH -> fun_xperm_h(input(SRC1), input(SRC2)).asBits,
-				BitManipZbpCtrlxpermEnum.CTRL_XPERMdotN -> fun_xperm_n(input(SRC1), input(SRC2)).asBits
-			) // mux xperm
-			val val_grevorc = input(BitManipZbpCtrlgrevorc).mux(
-				BitManipZbpCtrlgrevorcEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)).asBits,
-				BitManipZbpCtrlgrevorcEnum.CTRL_GREV -> fun_grev(input(SRC1), input(SRC2)).asBits
-			) // mux grevorc
-			insert(BitManipZbp_FINAL_OUTPUT) := input(BitManipZbpCtrl).mux(
-				BitManipZbpCtrlEnum.CTRL_bitwise -> val_bitwise.asBits,
-				BitManipZbpCtrlEnum.CTRL_rotation -> val_rotation.asBits,
-				BitManipZbpCtrlEnum.CTRL_grevroc -> val_grevroc.asBits,
-				BitManipZbpCtrlEnum.CTRL_shuffle -> val_shuffle.asBits,
-				BitManipZbpCtrlEnum.CTRL_pack -> val_pack.asBits,
-				BitManipZbpCtrlEnum.CTRL_xperm -> val_xperm.asBits,
-				BitManipZbpCtrlEnum.CTRL_grevorc -> val_grevorc.asBits
-			) // primary mux
+			val val_ternary = input(BitManipZbtCtrlternary).mux(
+				BitManipZbtCtrlternaryEnum.CTRL_CMIX -> ((input(SRC1) & input(SRC2)) | (input(SRC3) & ~input(SRC2))).asBits,
+				BitManipZbtCtrlternaryEnum.CTRL_CMOV -> ((input(SRC2).asUInt =/= 0) ? input(SRC1) | input(SRC3)).asBits,
+				BitManipZbtCtrlternaryEnum.CTRL_FSL -> fun_fsl(input(SRC1), input(SRC3), input(SRC2)).asBits,
+				BitManipZbtCtrlternaryEnum.CTRL_FSR -> fun_fsr(input(SRC1), input(SRC3), input(SRC2)).asBits
+			) // mux ternary
+			insert(BitManipZbt_FINAL_OUTPUT) := val_ternary.asBits
 		} // execute plug newArea
 		val injectionStage = if(earlyInjection) execute else memory
 		injectionStage plug new Area {
 			import injectionStage._
-			when (arbitration.isValid && input(IS_BitManipZbp)) {
-				output(REGFILE_WRITE_DATA) := input(BitManipZbp_FINAL_OUTPUT)
+			when (arbitration.isValid && input(IS_BitManipZbt)) {
+				output(REGFILE_WRITE_DATA) := input(BitManipZbt_FINAL_OUTPUT)
 			} // when input is
 		} // injectionStage plug newArea
 	} // override def build
