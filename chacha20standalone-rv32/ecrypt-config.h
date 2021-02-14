@@ -28,6 +28,8 @@
 #define ECRYPT_LITTLE_ENDIAN
 #elif defined(__INTEL_COMPILER) /* x86 (surely Intel compiler icl.exe) */
 #define ECRYPT_LITTLE_ENDIAN
+#elif defined(__riscv)
+#define ECRYPT_LITTLE_ENDIAN
 
 /* 
  * The BIG endian machines: 
