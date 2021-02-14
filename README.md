@@ -14,7 +14,8 @@ The generated plugin is for RV32 only. It doesn't yet support all B instructions
 * CRC32*
 * Three-operands instructions (CMIX, CMOV, FS[RL]*); they are available but need a VexRiscv patch to support the third input
 
-There is support for partial instructions (rev8, zext.h, orc.b) so that the default plugins generated for Zba, Zbb and Zbc should be feature-complete.
+There is support for partial instructions (rev8, zext.h, orc.b) so that the default plugins generated for Zba, Zbb and Zbc should be feature-complete. To get everything without conflicts, use:
+`new BitManipZbaPlugin, new BitManipZbbZbpPlugin, new BitManipZbcPlugin, new BitManipBFPOnlyPlugin, new BitManipZbsPlugin, new BitManipZbtPlugin,`
 
 This has received limited testing in a [Linux-on-Litex-VexRiscv](https://github.com/litex-hub/linux-on-litex-vexriscv) SoC. YMMV. SMP mode was tested as well.
 
