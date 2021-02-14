@@ -152,8 +152,8 @@ int main(int argc, char **argv) {
   T2(_rv32_max);
   T2(_rv32_maxu);
   
-  T2(_rv32_slo);
-  T2(_rv32_sro);
+  //T2(_rv32_slo);
+  //T2(_rv32_sro);
 
   //T2(_rv32_xperm_b);
 
