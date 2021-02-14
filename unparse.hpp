@@ -13,6 +13,8 @@ void unparse(std::ostream& output,
 	     const std::string prefix,
 	     const std::set<const instruction*> instructions,
 	     std::map<std::string,std::string> semantics,
+	     std::map<std::string,int> em_widths,
+	     std::map<std::string,std::string> mem_semantics,
 	     std::vector<std::string> prologues,
 	     std::vector<std::string> extras,
 	     bool wide);

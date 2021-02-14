@@ -17,6 +17,7 @@ extern "C" {
 	void add_inst4(const char* name, const char* opname, const char* key, const char* group, const char* e1, const char* e2, const char *e3, const char *e4);      
 	void add_inst5(const char* name, const char* opname, const char* key, const char* group, const char* e1, const char* e2, const char *e3, const char *e4, const char *e5);
 	void add_sem(const char* name, const char* sem);
+	void add_memsem(const char* name, const int em_width, const char* memsem);
 	void add_prol(const char *prol);
 	void add_extra(const char *extra);
 #ifdef __cplusplus

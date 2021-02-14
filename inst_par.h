@@ -47,10 +47,12 @@ extern int yydebug;
   {
     NAME = 258,
     STRING = 259,
-    INST = 260,
-    SEM = 261,
-    PROL = 262,
-    EXTRA = 263
+    NUM = 260,
+    INST = 261,
+    SEM = 262,
+    MEMSEM = 263,
+    PROL = 264,
+    EXTRA = 265
   };
 #endif
 
@@ -61,9 +63,10 @@ union YYSTYPE
 {
 #line 14 "inst_par.y" /* yacc.c:1909  */
 
+  int num;
   char* string;
 
-#line 67 "inst_par.h" /* yacc.c:1909  */
+#line 70 "inst_par.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

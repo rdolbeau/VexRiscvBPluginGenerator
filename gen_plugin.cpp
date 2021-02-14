@@ -28,6 +28,8 @@ extern int yydebug;
 
 std::set<const instruction*> instructions;
 std::map<std::string, std::string> semantics;
+std::map<std::string, int> em_widths;
+std::map<std::string, std::string> mem_semantics;
 std::vector<std::string> prologues;
 std::vector<std::string> extras;
 
@@ -77,7 +79,15 @@ void add_inst5(const char* name, const char* opname, const char* key, const char
 	instructions.insert(i);
 }
 void add_sem(const char* name, const char* sem) {
-	semantics[std::string(name)] = std::string(sem);
+	const std::string key(name);
+	semantics[key] = std::string(sem);
+}
+void add_memsem(const char* name, const int em_width, const char* memsem) {
+	const std::string key(name);
+	if ((em_width > 0) && (memsem != NULL)) {
+		em_widths[key] = em_width;
+		mem_semantics[key] = std::string(memsem);
+	}
 }
 void add_prol(const char *prol) {
 	prologues.push_back(std::string(prol));
@@ -155,7 +165,18 @@ int main(int argc, char **argv) {
 		//printf("adding %s\n", inst->name.c_str());
 	}
 
-	unparse(std::cout, pluginName, filtered_instructions, semantics, prologues, extras, wide == 1);
+	if ((em_widths.size() != 0) || (mem_semantics.size() !=0)) {
+		if (em_widths.size() != mem_semantics.size()) {
+			std::cerr << "Multicycle error: emwidths.size() != mem_semantics.size()" << std::endl;
+			exit(-1);
+		}
+		if (semantics.size() != mem_semantics.size()) {
+			std::cerr << "Multicycle error: semantics.size() != mem_semantics.size() (all instructions should have the same  nuber of cycles in the same plugin)" << std::endl;
+			exit(-1);
+		}
+	}
+
+	unparse(std::cout, pluginName, filtered_instructions, semantics, em_widths, mem_semantics, prologues, extras, wide == 1);
 
 	return 0;
 }

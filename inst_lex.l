@@ -5,35 +5,44 @@
  * See the LICENSE file at the top level of this software distribution for details.
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include "inst_par.h"
 %}
 
 CHAR            [[:alnum:] ,'&./()-]
+FCHARNAME       [[:alpha:]]
 CHARNAME        [[:alnum:]_+-]
 SPACE           [ \t]
 
 %%
 
-^"I"                          { return INST; }
+^"I"                             { return INST; }
 
-^"S"                          { return SEM; }
+^"S"                             { return SEM; }
 
-^"P"                          { return PROL; }
+^"T"                             { return MEMSEM; }
 
-^"E"                          { return EXTRA; }
+^"P"                             { return PROL; }
 
-"//".*                       { }
+^"E"                             { return EXTRA; }
 
-{CHARNAME}{CHARNAME}{CHARNAME}*      { yylval.string = strdup(yytext); return NAME; }
+"//".*                           { }
 
-"\"\"\""[^ù]*"\"\"\""      { yylval.string = strndup(yytext+3, strlen(yytext)-6); return STRING; }
+{FCHARNAME}{CHARNAME}{CHARNAME}* { yylval.string = strdup(yytext); return NAME; }
 
-"'''"[^ù]*"'''"      { yylval.string = strndup(yytext+3, strlen(yytext)-6); return STRING; }
+{CHARNAME}{32}                   { yylval.string = strdup(yytext); return NAME; }
 
-"\"".*"\""      { yylval.string = strndup(yytext+1, strlen(yytext)-2); return STRING; }
 
-\n                         { return yytext[0]; }
+"\"\"\""[^ù]*"\"\"\""            { yylval.string = strndup(yytext+3, strlen(yytext)-6); return STRING; }
 
-{SPACE}+                   { }
+"'''"[^ù]*"'''"                  { yylval.string = strndup(yytext+3, strlen(yytext)-6); return STRING; }
+
+"\"".*"\""                       { yylval.string = strndup(yytext+1, strlen(yytext)-2); return STRING; }
+
+[0-9][0-9]*                      { yylval.num = atoi(yytext); return NUM; }
+
+\n                               { return yytext[0]; }
+
+{SPACE}+                         { }
 
 %%
