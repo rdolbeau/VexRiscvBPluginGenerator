@@ -53,6 +53,7 @@ void unparse(std::ostream& output,
 	const std::string isString = "IS_" + prefix;
 	const bool two_cycles = em_widths.size() > 0;
 	const std::string bypassableExecuteString = two_cycles ? "False" : "Bool(earlyInjection)";
+	const std::string bypassableMemoryString = two_cycles ? "Bool(earlyInjection)" : "True";
 
 	output << "// WARNING: this is auto-generated code!" << std::endl;
 	output << "// See https://github.com/rdolbeau/VexRiscvBPluginGenerator/" << std::endl;
@@ -109,7 +110,7 @@ void unparse(std::ostream& output,
 	output << "} // object Plugin" << std::endl;
 
 	// Plugin class
-	output << "class " << prefix << "Plugin"; if (!two_cycles) output << "(earlyInjection : Boolean = true)"; output << " extends Plugin[VexRiscv] {" << std::endl;
+	output << "class " << prefix << "Plugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {" << std::endl;
 	output << '\t' << "import " << prefix << "Plugin._" << std::endl;
 	output << '\t' << "object " << isString << " extends Stageable(Bool)" << std::endl;
 	output << '\t' << "object " << outputString << " extends Stageable(Bits(" << (wide ? 64 : 32) << " bits))" << std::endl;
@@ -131,7 +132,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
 	if (wide) output << '\t' << '\t' << "\tREGFILE_WRITE_VALID_ODD  -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> " << bypassableExecuteString << "," << std::endl;
-	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
+	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> " << bypassableMemoryString << "," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\t" << isString << " -> True" << std::endl;
 	output << '\t' << '\t' << "\t)" << std::endl;
@@ -142,7 +143,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
 	if (wide) output << '\t' << '\t' << "\tREGFILE_WRITE_VALID_ODD  -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> " << bypassableExecuteString << "," << std::endl;
-	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
+	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> " << bypassableMemoryString << "," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS2_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\t" << isString << " -> True" << std::endl;
@@ -153,7 +154,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
 	if (wide) output << '\t' << '\t' << "\tREGFILE_WRITE_VALID_ODD  -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> " << bypassableExecuteString << "," << std::endl;
-	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
+	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> " << bypassableMemoryString << "," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\t" << isString << " -> True" << std::endl;
 	output << '\t' << '\t' << "\t)" << std::endl;
@@ -165,7 +166,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
 	if (wide) output << '\t' << '\t' << "\tREGFILE_WRITE_VALID_ODD  -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> " << bypassableExecuteString << "," << std::endl;
-	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
+	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> " << bypassableMemoryString << "," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS2_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS3_USE -> True," << std::endl;
@@ -179,7 +180,7 @@ void unparse(std::ostream& output,
 	output << '\t' << '\t' << "\tREGFILE_WRITE_VALID      -> True," << std::endl;
 	if (wide) output << '\t' << '\t' << "\tREGFILE_WRITE_VALID_ODD  -> True," << std::endl;
 	output << '\t' << '\t' << "\tBYPASSABLE_EXECUTE_STAGE -> " << bypassableExecuteString << "," << std::endl;
-	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> True," << std::endl;
+	output << '\t' << '\t' << "\tBYPASSABLE_MEMORY_STAGE  -> " << bypassableMemoryString << "," << std::endl;
 	output << '\t' << '\t' << "\tRS1_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\tRS3_USE -> True," << std::endl;
 	output << '\t' << '\t' << "\t" << isString << " -> True" << std::endl;
@@ -241,17 +242,28 @@ void unparse(std::ostream& output,
 	  output << "// End Extra" << std::endl;
 	}
 
-	if (!two_cycles) {
 	output << '\t' << '\t' << "execute plug new Area{" << std::endl;
 	output << '\t' << '\t' << '\t' << "import execute._" << std::endl;
+	std::string where = "execute";
+	if (two_cycles) {
+		for (auto const& pair : em_widths) {
+			std::string regName = prefix + "_INTERMEDIATE_" + pair.first + "" + std::to_string(pair.second);
+			output << '\t' << '\t' << '\t' << "insert(" << regName << ") := " << semantics[pair.first] << ".asBits" << std::endl;
+		}
+		output << '\t' << '\t' << "} // " << where << " plug newArea" << std::endl;
+		output << '\t' << '\t' << "memory plug new Area{" << std::endl;
+		output << '\t' << '\t' << '\t' << "import memory._" << std::endl;
+		where = "memory";
+	}
 
-	// 2nd level MUXes
 	for (const group* g : *groups) {
 		if (g->opnames.size() > 1) {
 		output << '\t' << '\t' << '\t' << "val val_" << g->name << " = input("<< ctrlString << g->name << ").mux(" << std::endl;
 		for (auto it = g->opnames.begin() ; it != g->opnames.end() ; it++) {
 			std::string opname = *it;
-			output << '\t' << '\t' << '\t' << '\t' << ctrlString << g->name << "Enum.CTRL_" << opname << " -> " << semantics[opname];
+			std::string regName = prefix + "_INTERMEDIATE_" + opname + "" + std::to_string(em_widths[opname]);
+			std::string semantic = two_cycles ?  mem_semantics[opname] + "(input(" + regName + ")).asBits" : semantics[opname];
+			output << '\t' << '\t' << '\t' << '\t' << ctrlString << g->name << "Enum.CTRL_" << opname << " -> " << semantic + ".asBits";
 			if (std::next(it, 1) == g->opnames.end())
 				output << std::endl;
 			else
@@ -260,7 +272,6 @@ void unparse(std::ostream& output,
 		output << '\t' << '\t' << '\t' << ") // mux " << g->name << std::endl;
 		}
 	}
-
 	// conditional last level mux
 	output << '\t' << '\t' << '\t' << "insert(" << outputString << ") := input(" << ctrlString << ").mux(" << std::endl;
 	for (auto it = groups->begin() ; it != groups->end() ; it++) {
@@ -268,7 +279,10 @@ void unparse(std::ostream& output,
 		if (g->opnames.size() > 1) {
 			output << '\t' << '\t' << '\t' << '\t' << ctrlEnumString << "." << g->ctrlName() << " -> val_" << g->name << ".asBits";
 		} else {
-			output << '\t' << '\t' << '\t' << '\t' << ctrlEnumString << ".CTRL_" << (*g->opnames.begin()) << " -> " << semantics[*g->opnames.begin()] << ".asBits";
+			std::string opname = *g->opnames.begin();
+			std::string regName = prefix + "_INTERMEDIATE_" + opname + "" + std::to_string(em_widths[opname]);
+			std::string semantic = two_cycles ?  mem_semantics[opname] + "(input(" + regName + ")).asBits" : semantics[opname] + ".asBits";
+			output << '\t' << '\t' << '\t' << '\t' << ctrlEnumString << ".CTRL_" << opname << " -> " << semantic;
 		}
 		if (std::next(it, 1) == groups->end())
 			output << std::endl;
@@ -276,9 +290,14 @@ void unparse(std::ostream& output,
 			output << "," << std::endl;
 	}
 	output << '\t' << '\t' << '\t' << ") // primary mux" << std::endl;
-	output << '\t' << '\t' << "} // execute plug newArea" << std::endl;
+	output << '\t' << '\t' << "} // " << where << " plug newArea" << std::endl;
+	if (!two_cycles) {
+		output << '\t' << '\t' << "val injectionStage = if(earlyInjection) execute else memory" << std::endl;
+	} else {
+		output << '\t' << '\t' << "val injectionStage = if(earlyInjection) memory else writeBack" << std::endl;
+	}
+	where = "injectionStage";
 
-	output << '\t' << '\t' << "val injectionStage = if(earlyInjection) execute else memory" << std::endl;
 	output << '\t' << '\t' << "injectionStage plug new Area {" << std::endl;
 	output << '\t' << '\t' << '\t' << "import injectionStage._" << std::endl;
 	output << '\t' << '\t' << '\t' << "when (arbitration.isValid && input(" << isString << ")) {" << std::endl;
@@ -289,73 +308,7 @@ void unparse(std::ostream& output,
 		output << '\t' << '\t' << '\t' << '\t' << "output(REGFILE_WRITE_DATA) := input(" << outputString << ")" << std::endl;
 	}
 	output << '\t' << '\t' << '\t' << "} // when input is" << std::endl;
-	output << '\t' << '\t' << "} // injectionStage plug newArea" << std::endl;
-	} else { // two-cycles
-	output << '\t' << '\t' << "execute plug new Area{" << std::endl;
-	output << '\t' << '\t' << '\t' << "import execute._" << std::endl;
-	for (auto const& pair : em_widths) {
-		std::string regName = prefix + "_INTERMEDIATE_" + pair.first + "" + std::to_string(pair.second);
-		output << '\t' << '\t' << '\t' << "insert(" << regName << ") := " << semantics[pair.first] << ".asBits" << std::endl;
-	}
-	output << '\t' << '\t' << "} // execute plug newArea" << std::endl;
-	output << '\t' << '\t' << "memory plug new Area{" << std::endl;
-	output << '\t' << '\t' << '\t' << "import memory._" << std::endl;
-	// 2nd level MUXes
-	for (const group* g : *groups) {
-		if (g->opnames.size() > 1) {
-		output << '\t' << '\t' << '\t' << "val val_" << g->name << " = input("<< ctrlString << g->name << ").mux(" << std::endl;
-		for (auto it = g->opnames.begin() ; it != g->opnames.end() ; it++) {
-			std::string opname = *it;
-			std::string semantic = semantics[opname];
-			std::string regName = prefix + "_INTERMEDIATE_" + opname + "" + std::to_string(em_widths[opname]);
-			output << '\t' << '\t' << '\t' << '\t' << ctrlString << g->name << "Enum.CTRL_" << opname << " -> " << mem_semantics[opname] << "(input(" << regName << ")).asBits";
-			if (std::next(it, 1) == g->opnames.end())
-				output << std::endl;
-			else
-				output << "," << std::endl;
-		}
-		output << '\t' << '\t' << '\t' << ") // mux " << g->name << std::endl;
-		}
-	}
-	// conditional last level mux
-	output << '\t' << '\t' << '\t' << "when (arbitration.isValid && input(" << isString << ")) {" << std::endl;
-	output << '\t' << '\t' << '\t' << '\t' << "output(REGFILE_WRITE_DATA) := input(" << ctrlString << ").mux(" << std::endl;
-	for (auto it = groups->begin() ; it != groups->end() ; it++) {
-		group* g = *it;
-		if (g->opnames.size() > 1) {
-			output << '\t' << '\t' << '\t' << '\t' <<'\t' << ctrlEnumString << "." << g->ctrlName() << " -> val_" << g->name << ".asBits";
-		} else {
-			std::string opname = *g->opnames.begin();
-			std::string regName = prefix + "_INTERMEDIATE_" + opname + "" + std::to_string(em_widths[opname]);
-			output << '\t' << '\t' << '\t' << '\t' << '\t' << ctrlEnumString << ".CTRL_" << opname << " -> " << mem_semantics[opname] << "(input(" << regName << ")).asBits(31 downto 0)";
-		}
-		if (std::next(it, 1) == groups->end())
-			output << std::endl;
-		else
-			output << "," << std::endl;
-	}
-	output << '\t' << '\t' << '\t' << '\t' << ") // primary mux" << std::endl;
-	if (wide) {
-	output << '\t' << '\t' << '\t' << '\t' << "output(REGFILE_WRITE_DATA_ODD) := input(" << ctrlString << ").mux(" << std::endl;
-	for (auto it = groups->begin() ; it != groups->end() ; it++) {
-		group* g = *it;
-		if (g->opnames.size() > 1) {
-			output << '\t' << '\t' << '\t' << '\t' <<'\t' << ctrlEnumString << "." << g->ctrlName() << " -> val_" << g->name << ".asBits";
-		} else {
-			std::string opname = *g->opnames.begin();
-			std::string regName = prefix + "_INTERMEDIATE_" + opname + "" + std::to_string(em_widths[opname]);
-			output << '\t' << '\t' << '\t' << '\t' << '\t' << ctrlEnumString << ".CTRL_" << opname << " -> " << mem_semantics[opname] << "(input(" << regName << ")).asBits(63 downto 32)";
-		}
-		if (std::next(it, 1) == groups->end())
-			output << std::endl;
-		else
-			output << "," << std::endl;
-	}
-	}
-	output << '\t' << '\t' << '\t' << '\t' << ") // primary mux" << std::endl;
-	output << '\t' << '\t' << '\t' << "} // when input is" << std::endl;
-	output << '\t' << '\t' << "} // memory plug newArea" << std::endl;
-	}
+	output << '\t' << '\t' << "} // " << where << " plug newArea" << std::endl;
 	output << '\t' << "} // override def build" << std::endl;
 	output << "} // class Plugin" << std::endl;
 }

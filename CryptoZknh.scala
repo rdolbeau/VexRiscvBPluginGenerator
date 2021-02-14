@@ -157,22 +157,22 @@ class CryptoZknhPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv]
 		execute plug new Area{
 			import execute._
 			val val_sha256sig = input(CryptoZknhCtrlsha256sig).mux(
-				CryptoZknhCtrlsha256sigEnum.CTRL_sha256sig0 -> fun_sha256sig0(input(SRC1)),
-				CryptoZknhCtrlsha256sigEnum.CTRL_sha256sig1 -> fun_sha256sig1(input(SRC1))
+				CryptoZknhCtrlsha256sigEnum.CTRL_sha256sig0 -> fun_sha256sig0(input(SRC1)).asBits,
+				CryptoZknhCtrlsha256sigEnum.CTRL_sha256sig1 -> fun_sha256sig1(input(SRC1)).asBits
 			) // mux sha256sig
 			val val_sha256sum = input(CryptoZknhCtrlsha256sum).mux(
-				CryptoZknhCtrlsha256sumEnum.CTRL_sha256sum0 -> fun_sha256sum0(input(SRC1)),
-				CryptoZknhCtrlsha256sumEnum.CTRL_sha256sum1 -> fun_sha256sum1(input(SRC1))
+				CryptoZknhCtrlsha256sumEnum.CTRL_sha256sum0 -> fun_sha256sum0(input(SRC1)).asBits,
+				CryptoZknhCtrlsha256sumEnum.CTRL_sha256sum1 -> fun_sha256sum1(input(SRC1)).asBits
 			) // mux sha256sum
 			val val_sha512sig = input(CryptoZknhCtrlsha512sig).mux(
-				CryptoZknhCtrlsha512sigEnum.CTRL_sha512sig0h -> fun_sha512sig0h(input(SRC1),input(SRC2)),
-				CryptoZknhCtrlsha512sigEnum.CTRL_sha512sig0l -> fun_sha512sig0l(input(SRC1),input(SRC2)),
-				CryptoZknhCtrlsha512sigEnum.CTRL_sha512sig1h -> fun_sha512sig1h(input(SRC1),input(SRC2)),
-				CryptoZknhCtrlsha512sigEnum.CTRL_sha512sig1l -> fun_sha512sig1l(input(SRC1),input(SRC2))
+				CryptoZknhCtrlsha512sigEnum.CTRL_sha512sig0h -> fun_sha512sig0h(input(SRC1),input(SRC2)).asBits,
+				CryptoZknhCtrlsha512sigEnum.CTRL_sha512sig0l -> fun_sha512sig0l(input(SRC1),input(SRC2)).asBits,
+				CryptoZknhCtrlsha512sigEnum.CTRL_sha512sig1h -> fun_sha512sig1h(input(SRC1),input(SRC2)).asBits,
+				CryptoZknhCtrlsha512sigEnum.CTRL_sha512sig1l -> fun_sha512sig1l(input(SRC1),input(SRC2)).asBits
 			) // mux sha512sig
 			val val_sha512sum = input(CryptoZknhCtrlsha512sum).mux(
-				CryptoZknhCtrlsha512sumEnum.CTRL_sha512sum0r -> fun_sha512sum0r(input(SRC1),input(SRC2)),
-				CryptoZknhCtrlsha512sumEnum.CTRL_sha512sum1r -> fun_sha512sum1r(input(SRC1),input(SRC2))
+				CryptoZknhCtrlsha512sumEnum.CTRL_sha512sum0r -> fun_sha512sum0r(input(SRC1),input(SRC2)).asBits,
+				CryptoZknhCtrlsha512sumEnum.CTRL_sha512sum1r -> fun_sha512sum1r(input(SRC1),input(SRC2)).asBits
 			) // mux sha512sum
 			insert(CryptoZknh_FINAL_OUTPUT) := input(CryptoZknhCtrl).mux(
 				CryptoZknhCtrlEnum.CTRL_sha256sig -> val_sha256sig.asBits,

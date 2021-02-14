@@ -546,71 +546,71 @@ class BitManipAllPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 		execute plug new Area{
 			import execute._
 			val val_bitwise = input(BitManipAllCtrlbitwise).mux(
-				BitManipAllCtrlbitwiseEnum.CTRL_ANDN -> (input(SRC1) & ~input(SRC2)),
-				BitManipAllCtrlbitwiseEnum.CTRL_ORN -> (input(SRC1) | ~input(SRC2)),
-				BitManipAllCtrlbitwiseEnum.CTRL_XNOR -> (input(SRC1) ^ ~input(SRC2))
+				BitManipAllCtrlbitwiseEnum.CTRL_ANDN -> (input(SRC1) & ~input(SRC2)).asBits,
+				BitManipAllCtrlbitwiseEnum.CTRL_ORN -> (input(SRC1) | ~input(SRC2)).asBits,
+				BitManipAllCtrlbitwiseEnum.CTRL_XNOR -> (input(SRC1) ^ ~input(SRC2)).asBits
 			) // mux bitwise
 			val val_shift = input(BitManipAllCtrlshift).mux(
-				BitManipAllCtrlshiftEnum.CTRL_SLO -> ~((~input(SRC1)) |<< (input(SRC2)&31).asUInt),
-				BitManipAllCtrlshiftEnum.CTRL_SRO -> ~((~input(SRC1)) |>> (input(SRC2)&31).asUInt)
+				BitManipAllCtrlshiftEnum.CTRL_SLO -> ~((~input(SRC1)) |<< (input(SRC2)&31).asUInt).asBits,
+				BitManipAllCtrlshiftEnum.CTRL_SRO -> ~((~input(SRC1)) |>> (input(SRC2)&31).asUInt).asBits
 			) // mux shift
 			val val_rotation = input(BitManipAllCtrlrotation).mux(
-				BitManipAllCtrlrotationEnum.CTRL_ROL -> input(SRC1).rotateLeft((input(SRC2)&31)(4 downto 0).asUInt),
-				BitManipAllCtrlrotationEnum.CTRL_ROR -> input(SRC1).rotateRight((input(SRC2)&31)(4 downto 0).asUInt)
+				BitManipAllCtrlrotationEnum.CTRL_ROL -> input(SRC1).rotateLeft((input(SRC2)&31)(4 downto 0).asUInt).asBits,
+				BitManipAllCtrlrotationEnum.CTRL_ROR -> input(SRC1).rotateRight((input(SRC2)&31)(4 downto 0).asUInt).asBits
 			) // mux rotation
 			val val_sh_add = input(BitManipAllCtrlsh_add).mux(
-				BitManipAllCtrlsh_addEnum.CTRL_SH1ADD -> ((input(SRC1) |<< 1).asUInt + input(SRC2).asUInt),
-				BitManipAllCtrlsh_addEnum.CTRL_SH2ADD -> ((input(SRC1) |<< 2).asUInt + input(SRC2).asUInt),
-				BitManipAllCtrlsh_addEnum.CTRL_SH3ADD -> ((input(SRC1) |<< 3).asUInt + input(SRC2).asUInt)
+				BitManipAllCtrlsh_addEnum.CTRL_SH1ADD -> ((input(SRC1) |<< 1).asUInt + input(SRC2).asUInt).asBits,
+				BitManipAllCtrlsh_addEnum.CTRL_SH2ADD -> ((input(SRC1) |<< 2).asUInt + input(SRC2).asUInt).asBits,
+				BitManipAllCtrlsh_addEnum.CTRL_SH3ADD -> ((input(SRC1) |<< 3).asUInt + input(SRC2).asUInt).asBits
 			) // mux sh_add
 			val val_singlebit = input(BitManipAllCtrlsinglebit).mux(
-				BitManipAllCtrlsinglebitEnum.CTRL_BCLR -> (input(SRC1) & ~(B"32'x00000001"|<<((input(SRC2)&31).asUInt))),
-				BitManipAllCtrlsinglebitEnum.CTRL_BEXT -> ((input(SRC1) |>> ((input(SRC2)&31).asUInt)) & B"32'x00000001"),
-				BitManipAllCtrlsinglebitEnum.CTRL_BINV -> (input(SRC1) ^  (B"32'x00000001"|<<((input(SRC2)&31).asUInt))),
-				BitManipAllCtrlsinglebitEnum.CTRL_BSET -> (input(SRC1) |  (B"32'x00000001"|<<((input(SRC2)&31).asUInt)))
+				BitManipAllCtrlsinglebitEnum.CTRL_BCLR -> (input(SRC1) & ~(B"32'x00000001"|<<((input(SRC2)&31).asUInt))).asBits,
+				BitManipAllCtrlsinglebitEnum.CTRL_BEXT -> ((input(SRC1) |>> ((input(SRC2)&31).asUInt)) & B"32'x00000001").asBits,
+				BitManipAllCtrlsinglebitEnum.CTRL_BINV -> (input(SRC1) ^  (B"32'x00000001"|<<((input(SRC2)&31).asUInt))).asBits,
+				BitManipAllCtrlsinglebitEnum.CTRL_BSET -> (input(SRC1) |  (B"32'x00000001"|<<((input(SRC2)&31).asUInt))).asBits
 			) // mux singlebit
 			val val_grevroc = input(BitManipAllCtrlgrevroc).mux(
-				BitManipAllCtrlgrevrocEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)),
-				BitManipAllCtrlgrevrocEnum.CTRL_GREV -> fun_grev(input(SRC1), input(SRC2))
+				BitManipAllCtrlgrevrocEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)).asBits,
+				BitManipAllCtrlgrevrocEnum.CTRL_GREV -> fun_grev(input(SRC1), input(SRC2)).asBits
 			) // mux grevroc
 			val val_minmax = input(BitManipAllCtrlminmax).mux(
-				BitManipAllCtrlminmaxEnum.CTRL_MAX -> ((input(SRC1).asSInt > input(SRC2).asSInt) ? input(SRC1) | input(SRC2)),
-				BitManipAllCtrlminmaxEnum.CTRL_MAXU -> ((input(SRC1).asUInt > input(SRC2).asUInt) ? input(SRC1) | input(SRC2)),
-				BitManipAllCtrlminmaxEnum.CTRL_MIN -> ((input(SRC1).asSInt < input(SRC2).asSInt) ? input(SRC1) | input(SRC2)),
-				BitManipAllCtrlminmaxEnum.CTRL_MINU -> ((input(SRC1).asUInt < input(SRC2).asUInt) ? input(SRC1) | input(SRC2))
+				BitManipAllCtrlminmaxEnum.CTRL_MAX -> ((input(SRC1).asSInt > input(SRC2).asSInt) ? input(SRC1) | input(SRC2)).asBits,
+				BitManipAllCtrlminmaxEnum.CTRL_MAXU -> ((input(SRC1).asUInt > input(SRC2).asUInt) ? input(SRC1) | input(SRC2)).asBits,
+				BitManipAllCtrlminmaxEnum.CTRL_MIN -> ((input(SRC1).asSInt < input(SRC2).asSInt) ? input(SRC1) | input(SRC2)).asBits,
+				BitManipAllCtrlminmaxEnum.CTRL_MINU -> ((input(SRC1).asUInt < input(SRC2).asUInt) ? input(SRC1) | input(SRC2)).asBits
 			) // mux minmax
 			val val_shuffle = input(BitManipAllCtrlshuffle).mux(
-				BitManipAllCtrlshuffleEnum.CTRL_SHFL -> fun_shfl32(input(SRC1), input(SRC2)),
-				BitManipAllCtrlshuffleEnum.CTRL_UNSHFL -> fun_unshfl32(input(SRC1), input(SRC2))
+				BitManipAllCtrlshuffleEnum.CTRL_SHFL -> fun_shfl32(input(SRC1), input(SRC2)).asBits,
+				BitManipAllCtrlshuffleEnum.CTRL_UNSHFL -> fun_unshfl32(input(SRC1), input(SRC2)).asBits
 			) // mux shuffle
 			val val_pack = input(BitManipAllCtrlpack).mux(
-				BitManipAllCtrlpackEnum.CTRL_PACK -> (input(SRC2)(15 downto 0) ## input(SRC1)(15 downto 0)),
-				BitManipAllCtrlpackEnum.CTRL_PACKH -> B"16'x0000" ## (input(SRC2)(7 downto 0) ## input(SRC1)(7 downto 0)),
-				BitManipAllCtrlpackEnum.CTRL_PACKU -> (input(SRC2)(31 downto 16) ## input(SRC1)(31 downto 16))
+				BitManipAllCtrlpackEnum.CTRL_PACK -> (input(SRC2)(15 downto 0) ## input(SRC1)(15 downto 0)).asBits,
+				BitManipAllCtrlpackEnum.CTRL_PACKH -> B"16'x0000" ## (input(SRC2)(7 downto 0) ## input(SRC1)(7 downto 0)).asBits,
+				BitManipAllCtrlpackEnum.CTRL_PACKU -> (input(SRC2)(31 downto 16) ## input(SRC1)(31 downto 16)).asBits
 			) // mux pack
 			val val_xperm = input(BitManipAllCtrlxperm).mux(
-				BitManipAllCtrlxpermEnum.CTRL_XPERMdotB -> fun_xperm_b(input(SRC1), input(SRC2)),
-				BitManipAllCtrlxpermEnum.CTRL_XPERMdotH -> fun_xperm_h(input(SRC1), input(SRC2)),
-				BitManipAllCtrlxpermEnum.CTRL_XPERMdotN -> fun_xperm_n(input(SRC1), input(SRC2))
+				BitManipAllCtrlxpermEnum.CTRL_XPERMdotB -> fun_xperm_b(input(SRC1), input(SRC2)).asBits,
+				BitManipAllCtrlxpermEnum.CTRL_XPERMdotH -> fun_xperm_h(input(SRC1), input(SRC2)).asBits,
+				BitManipAllCtrlxpermEnum.CTRL_XPERMdotN -> fun_xperm_n(input(SRC1), input(SRC2)).asBits
 			) // mux xperm
 			val val_grevorc = input(BitManipAllCtrlgrevorc).mux(
-				BitManipAllCtrlgrevorcEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)),
-				BitManipAllCtrlgrevorcEnum.CTRL_GREV -> fun_grev(input(SRC1), input(SRC2))
+				BitManipAllCtrlgrevorcEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)).asBits,
+				BitManipAllCtrlgrevorcEnum.CTRL_GREV -> fun_grev(input(SRC1), input(SRC2)).asBits
 			) // mux grevorc
 			val val_countzeroes = input(BitManipAllCtrlcountzeroes).mux(
-				BitManipAllCtrlcountzeroesEnum.CTRL_CLZ -> fun_clz(input(SRC1)),
-				BitManipAllCtrlcountzeroesEnum.CTRL_CPOP -> fun_popcnt(input(SRC1)),
-				BitManipAllCtrlcountzeroesEnum.CTRL_CTZ -> fun_ctz(input(SRC1))
+				BitManipAllCtrlcountzeroesEnum.CTRL_CLZ -> fun_clz(input(SRC1)).asBits,
+				BitManipAllCtrlcountzeroesEnum.CTRL_CPOP -> fun_popcnt(input(SRC1)).asBits,
+				BitManipAllCtrlcountzeroesEnum.CTRL_CTZ -> fun_ctz(input(SRC1)).asBits
 			) // mux countzeroes
 			val val_signextend = input(BitManipAllCtrlsignextend).mux(
-				BitManipAllCtrlsignextendEnum.CTRL_SEXTdotB -> (Bits(24 bits).setAllTo(input(SRC1)(7)) ## input(SRC1)(7 downto 0)),
-				BitManipAllCtrlsignextendEnum.CTRL_SEXTdotH -> (Bits(16 bits).setAllTo(input(SRC1)(15)) ## input(SRC1)(15 downto 0))
+				BitManipAllCtrlsignextendEnum.CTRL_SEXTdotB -> (Bits(24 bits).setAllTo(input(SRC1)(7)) ## input(SRC1)(7 downto 0)).asBits,
+				BitManipAllCtrlsignextendEnum.CTRL_SEXTdotH -> (Bits(16 bits).setAllTo(input(SRC1)(15)) ## input(SRC1)(15 downto 0)).asBits
 			) // mux signextend
 			val val_ternary = input(BitManipAllCtrlternary).mux(
-				BitManipAllCtrlternaryEnum.CTRL_CMIX -> ((input(SRC1) & input(SRC2)) | (input(SRC3) & ~input(SRC2))),
-				BitManipAllCtrlternaryEnum.CTRL_CMOV -> ((input(SRC2).asUInt =/= 0) ? input(SRC1) | input(SRC3)),
-				BitManipAllCtrlternaryEnum.CTRL_FSL -> fun_fsl(input(SRC1), input(SRC3), input(SRC2)),
-				BitManipAllCtrlternaryEnum.CTRL_FSR -> fun_fsr(input(SRC1), input(SRC3), input(SRC2))
+				BitManipAllCtrlternaryEnum.CTRL_CMIX -> ((input(SRC1) & input(SRC2)) | (input(SRC3) & ~input(SRC2))).asBits,
+				BitManipAllCtrlternaryEnum.CTRL_CMOV -> ((input(SRC2).asUInt =/= 0) ? input(SRC1) | input(SRC3)).asBits,
+				BitManipAllCtrlternaryEnum.CTRL_FSL -> fun_fsl(input(SRC1), input(SRC3), input(SRC2)).asBits,
+				BitManipAllCtrlternaryEnum.CTRL_FSR -> fun_fsr(input(SRC1), input(SRC3), input(SRC2)).asBits
 			) // mux ternary
 			insert(BitManipAll_FINAL_OUTPUT) := input(BitManipAllCtrl).mux(
 				BitManipAllCtrlEnum.CTRL_bitwise -> val_bitwise.asBits,

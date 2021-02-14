@@ -59,7 +59,7 @@ CryptoZknh.scala: gen_plugin data_sha.txt
 PDataProcess.scala: gen_plugin data_Zpn.txt
 	./gen_plugin -n PDataProcess -i data_Zpn.txt -I Zpn >| $@
 
-PSlowDataProcess.scala: gen_plugin data_Zpn.txt
+PSlowDataProcess.scala: gen_plugin data_Zpn_2cycles.txt
 	./gen_plugin -n PSlowDataProcess -i data_Zpn_2cycles.txt -I Zpn >| $@
 
 P64DataProcess.scala: gen_plugin data_Zp64.txt

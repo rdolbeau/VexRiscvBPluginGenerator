@@ -408,16 +408,16 @@ class CryptoZknePlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv]
 		execute plug new Area{
 			import execute._
 			val val_aes0 = input(CryptoZkneCtrlaes0).mux(
-				CryptoZkneCtrlaes0Enum.CTRL_aes32esmi0 -> fun_aesx_0(input(SRC2), input(SRC1)),
-				CryptoZkneCtrlaes0Enum.CTRL_aes32esmi1 -> fun_aesx_1(input(SRC2), input(SRC1)),
-				CryptoZkneCtrlaes0Enum.CTRL_aes32esmi2 -> fun_aesx_2(input(SRC2), input(SRC1)),
-				CryptoZkneCtrlaes0Enum.CTRL_aes32esmi3 -> fun_aesx_3(input(SRC2), input(SRC1))
+				CryptoZkneCtrlaes0Enum.CTRL_aes32esmi0 -> fun_aesx_0(input(SRC2), input(SRC1)).asBits,
+				CryptoZkneCtrlaes0Enum.CTRL_aes32esmi1 -> fun_aesx_1(input(SRC2), input(SRC1)).asBits,
+				CryptoZkneCtrlaes0Enum.CTRL_aes32esmi2 -> fun_aesx_2(input(SRC2), input(SRC1)).asBits,
+				CryptoZkneCtrlaes0Enum.CTRL_aes32esmi3 -> fun_aesx_3(input(SRC2), input(SRC1)).asBits
 			) // mux aes0
 			val val_aes1 = input(CryptoZkneCtrlaes1).mux(
-				CryptoZkneCtrlaes1Enum.CTRL_aes32esi0 -> fun_aesxnm_0(input(SRC2), input(SRC1)),
-				CryptoZkneCtrlaes1Enum.CTRL_aes32esi1 -> fun_aesxnm_1(input(SRC2), input(SRC1)),
-				CryptoZkneCtrlaes1Enum.CTRL_aes32esi2 -> fun_aesxnm_2(input(SRC2), input(SRC1)),
-				CryptoZkneCtrlaes1Enum.CTRL_aes32esi3 -> fun_aesxnm_3(input(SRC2), input(SRC1))
+				CryptoZkneCtrlaes1Enum.CTRL_aes32esi0 -> fun_aesxnm_0(input(SRC2), input(SRC1)).asBits,
+				CryptoZkneCtrlaes1Enum.CTRL_aes32esi1 -> fun_aesxnm_1(input(SRC2), input(SRC1)).asBits,
+				CryptoZkneCtrlaes1Enum.CTRL_aes32esi2 -> fun_aesxnm_2(input(SRC2), input(SRC1)).asBits,
+				CryptoZkneCtrlaes1Enum.CTRL_aes32esi3 -> fun_aesxnm_3(input(SRC2), input(SRC1)).asBits
 			) // mux aes1
 			insert(CryptoZkne_FINAL_OUTPUT) := input(CryptoZkneCtrl).mux(
 				CryptoZkneCtrlEnum.CTRL_aes0 -> val_aes0.asBits,

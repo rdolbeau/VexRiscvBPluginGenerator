@@ -458,35 +458,35 @@ class BitManipZbpPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 		execute plug new Area{
 			import execute._
 			val val_bitwise = input(BitManipZbpCtrlbitwise).mux(
-				BitManipZbpCtrlbitwiseEnum.CTRL_ANDN -> (input(SRC1) & ~input(SRC2)),
-				BitManipZbpCtrlbitwiseEnum.CTRL_ORN -> (input(SRC1) | ~input(SRC2)),
-				BitManipZbpCtrlbitwiseEnum.CTRL_XNOR -> (input(SRC1) ^ ~input(SRC2))
+				BitManipZbpCtrlbitwiseEnum.CTRL_ANDN -> (input(SRC1) & ~input(SRC2)).asBits,
+				BitManipZbpCtrlbitwiseEnum.CTRL_ORN -> (input(SRC1) | ~input(SRC2)).asBits,
+				BitManipZbpCtrlbitwiseEnum.CTRL_XNOR -> (input(SRC1) ^ ~input(SRC2)).asBits
 			) // mux bitwise
 			val val_rotation = input(BitManipZbpCtrlrotation).mux(
-				BitManipZbpCtrlrotationEnum.CTRL_ROL -> input(SRC1).rotateLeft((input(SRC2)&31)(4 downto 0).asUInt),
-				BitManipZbpCtrlrotationEnum.CTRL_ROR -> input(SRC1).rotateRight((input(SRC2)&31)(4 downto 0).asUInt)
+				BitManipZbpCtrlrotationEnum.CTRL_ROL -> input(SRC1).rotateLeft((input(SRC2)&31)(4 downto 0).asUInt).asBits,
+				BitManipZbpCtrlrotationEnum.CTRL_ROR -> input(SRC1).rotateRight((input(SRC2)&31)(4 downto 0).asUInt).asBits
 			) // mux rotation
 			val val_grevroc = input(BitManipZbpCtrlgrevroc).mux(
-				BitManipZbpCtrlgrevrocEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)),
-				BitManipZbpCtrlgrevrocEnum.CTRL_GREV -> fun_grev(input(SRC1), input(SRC2))
+				BitManipZbpCtrlgrevrocEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)).asBits,
+				BitManipZbpCtrlgrevrocEnum.CTRL_GREV -> fun_grev(input(SRC1), input(SRC2)).asBits
 			) // mux grevroc
 			val val_shuffle = input(BitManipZbpCtrlshuffle).mux(
-				BitManipZbpCtrlshuffleEnum.CTRL_SHFL -> fun_shfl32(input(SRC1), input(SRC2)),
-				BitManipZbpCtrlshuffleEnum.CTRL_UNSHFL -> fun_unshfl32(input(SRC1), input(SRC2))
+				BitManipZbpCtrlshuffleEnum.CTRL_SHFL -> fun_shfl32(input(SRC1), input(SRC2)).asBits,
+				BitManipZbpCtrlshuffleEnum.CTRL_UNSHFL -> fun_unshfl32(input(SRC1), input(SRC2)).asBits
 			) // mux shuffle
 			val val_pack = input(BitManipZbpCtrlpack).mux(
-				BitManipZbpCtrlpackEnum.CTRL_PACK -> (input(SRC2)(15 downto 0) ## input(SRC1)(15 downto 0)),
-				BitManipZbpCtrlpackEnum.CTRL_PACKH -> B"16'x0000" ## (input(SRC2)(7 downto 0) ## input(SRC1)(7 downto 0)),
-				BitManipZbpCtrlpackEnum.CTRL_PACKU -> (input(SRC2)(31 downto 16) ## input(SRC1)(31 downto 16))
+				BitManipZbpCtrlpackEnum.CTRL_PACK -> (input(SRC2)(15 downto 0) ## input(SRC1)(15 downto 0)).asBits,
+				BitManipZbpCtrlpackEnum.CTRL_PACKH -> B"16'x0000" ## (input(SRC2)(7 downto 0) ## input(SRC1)(7 downto 0)).asBits,
+				BitManipZbpCtrlpackEnum.CTRL_PACKU -> (input(SRC2)(31 downto 16) ## input(SRC1)(31 downto 16)).asBits
 			) // mux pack
 			val val_xperm = input(BitManipZbpCtrlxperm).mux(
-				BitManipZbpCtrlxpermEnum.CTRL_XPERMdotB -> fun_xperm_b(input(SRC1), input(SRC2)),
-				BitManipZbpCtrlxpermEnum.CTRL_XPERMdotH -> fun_xperm_h(input(SRC1), input(SRC2)),
-				BitManipZbpCtrlxpermEnum.CTRL_XPERMdotN -> fun_xperm_n(input(SRC1), input(SRC2))
+				BitManipZbpCtrlxpermEnum.CTRL_XPERMdotB -> fun_xperm_b(input(SRC1), input(SRC2)).asBits,
+				BitManipZbpCtrlxpermEnum.CTRL_XPERMdotH -> fun_xperm_h(input(SRC1), input(SRC2)).asBits,
+				BitManipZbpCtrlxpermEnum.CTRL_XPERMdotN -> fun_xperm_n(input(SRC1), input(SRC2)).asBits
 			) // mux xperm
 			val val_grevorc = input(BitManipZbpCtrlgrevorc).mux(
-				BitManipZbpCtrlgrevorcEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)),
-				BitManipZbpCtrlgrevorcEnum.CTRL_GREV -> fun_grev(input(SRC1), input(SRC2))
+				BitManipZbpCtrlgrevorcEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)).asBits,
+				BitManipZbpCtrlgrevorcEnum.CTRL_GREV -> fun_grev(input(SRC1), input(SRC2)).asBits
 			) // mux grevorc
 			insert(BitManipZbp_FINAL_OUTPUT) := input(BitManipZbpCtrl).mux(
 				BitManipZbpCtrlEnum.CTRL_bitwise -> val_bitwise.asBits,
