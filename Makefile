@@ -50,8 +50,8 @@ BitManipAllPlugin.scala: gen_plugin data_bitmanip.txt
 CryptoZknePlugin.scala: gen_plugin data_aes.txt
 	./gen_plugin -n CryptoZkne -i data_aes.txt -I '*' >| $@
 
-BitManipZclmul.scala: gen_plugin data_clmul.txt
-	./gen_plugin -n BitManipZclmul -i data_clmul.txt -I '*' >| $@
+BitManipZbc.scala: gen_plugin data_clmul.txt
+	./gen_plugin -n BitManipZbc -i data_clmul.txt -I Zbc >| $@
 
 CryptoZknh.scala: gen_plugin data_sha.txt
 	./gen_plugin -n CryptoZknh -i data_sha.txt -I '*' >| $@
@@ -66,6 +66,6 @@ P64DataProcess.scala: gen_plugin data_Zp64.txt
 	./gen_plugin -w -n P64DataProcess -i data_Zp64.txt -I '*' >| $@
 
 
-scala: BitManipZbpPlugin.scala BitManipAllPlugin.scala CryptoZknePlugin.scala BitManipZclmul.scala CryptoZknh.scala
+scala: BitManipZbpPlugin.scala BitManipAllPlugin.scala CryptoZknePlugin.scala BitManipZbc.scala CryptoZknh.scala
 
 include $(DEPXX)
