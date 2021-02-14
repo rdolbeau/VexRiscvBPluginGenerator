@@ -1,12 +1,17 @@
 
-I	SMAQA   SMAQA	1100100----------000----01110111	pdpiumul8	Zpn
-I	UMAQA   UMAQA	1100110----------000----01110111	pdpismul8	Zpn
+I	SMAQA   SMAQA	1100100----------000----01110111	pdpimul8	Zpn
+I	UMAQA   UMAQA	1100110----------000----01110111	pdpimul8	Zpn
+I	MADDR32	MADDR32 1100010----------000-----1110111    pdpimul32	Zpn
+I	MSUBR32 MSUBR32	1100011----------000-----1110111    pdpimul32	Zpn
 
-
-S	SMAQA	"fun_smaqa1(input(SRC1), input(SRC2), input(SRC3))"
-S	UMAQA	"fun_umaqa1(input(SRC1), input(SRC2), input(SRC3))"
-T	SMAQA	96	"fun_smaqa2"
-T	UMAQA	96	"fun_umaqa2"
+S	SMAQA	     "fun_smaqa1(input(SRC1), input(SRC2), input(SRC3))"
+S	UMAQA	     "fun_umaqa1(input(SRC1), input(SRC2), input(SRC3))"
+T	SMAQA	96	 "fun_smaqa2"
+T	UMAQA	96	 "fun_umaqa2"
+S	MADDR32      "fun_maddr321(input(SRC1), input(SRC2), input(SRC3))"
+T	MADDR32 128  "fun_maddr322"
+S	MSUBR32      "fun_maddr321(input(SRC1), input(SRC2), input(SRC3))"
+T	MSUBR32 128  "fun_msubr322"
 
 P	"""
 	def fun_smaqa1(rs1: Bits, rs2: Bits, rs3: Bits) : Bits = {
@@ -41,6 +46,35 @@ P	"""
 	    	    input(31 downto 16).asUInt.resize(18) +
 	    	    input(15 downto  0).asUInt.resize(18))
 		    
+	    r.asBits.resize(32) // return value
+	}
+
+
+
+
+	def fun_maddr321(rs1: Bits, rs2: Bits, rs3: Bits) : Bits = {
+		val MUL_LL = rs1(15 downto  0).asUInt * rs2(15 downto  0).asUInt
+		val MUL_LH = rs1(15 downto  0).asUInt * rs2(31 downto 16).asUInt
+		val MUL_HL = rs1(31 downto 16).asUInt * rs2(15 downto  0).asUInt
+
+	    rs3 ## MUL_HL ## MUL_LH ## MUL_LL // return value 128 bits
+	}
+	def fun_maddr322(input:Bits ) : Bits = {
+		val rs3 = input(127 downto 96)
+		val MUL_HL = input(95 downto 64)
+		val MUL_LH = input(63 downto 32)
+		val MUL_LL = input(31 downto  0)
+		val r = rs3.asUInt + MUL_LL.asUInt + (MUL_LH.asUInt << 16) + (MUL_HL.asUInt << 16)
+
+	    r.asBits.resize(32) // return value
+	}
+	def fun_msubr322(input:Bits ) : Bits = {
+		val rs3 = input(127 downto 96)
+		val MUL_HL = input(95 downto 64)
+		val MUL_LH = input(63 downto 32)
+		val MUL_LL = input(31 downto  0)
+		val r = rs3.asUInt - MUL_LL.asUInt - (MUL_LH.asUInt << 16) - (MUL_HL.asUInt << 16)
+
 	    r.asBits.resize(32) // return value
 	}
 """

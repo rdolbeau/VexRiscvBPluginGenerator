@@ -739,6 +739,14 @@ uint64_t __rv__umaqa(const uint32_t rs1, const uint32_t rs2, const uint32_t rs3)
   r = rs3 + c[0] + c[1] + c[2] + c[3];
   return r;
 }
+
+
+uint32_t __rv__maddr32(const uint32_t rs1, const uint32_t rs2, const uint32_t rs3) {
+	return (rs1 * rs2) + rs3;
+}
+uint32_t __rv__msubr32(const uint32_t rs1, const uint32_t rs2, const uint32_t rs3) {
+	return rs3 - (rs1 * rs2);
+}
 #endif // __riscv
   
   unsigned int a = 0x01234567;
@@ -897,6 +905,9 @@ int main(int argc, char **argv) {
   
   T3(__rv__smaqa);
   T3(__rv__umaqa);
+
+  T3(__rv__maddr32);
+  T3(__rv__msubr32);
   
   b = 0x0100F004 + index;
   }
