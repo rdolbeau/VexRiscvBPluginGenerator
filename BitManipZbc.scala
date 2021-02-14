@@ -3,11 +3,11 @@
 package vexriscv.plugin
 import spinal.core._
 import vexriscv.{Stageable, DecoderService, VexRiscv}
-object BitManipZclmulPlugin {
-	object BitManipZclmulCtrlEnum extends SpinalEnum(binarySequential) {
+object BitManipZbcPlugin {
+	object BitManipZbcCtrlEnum extends SpinalEnum(binarySequential) {
 		 val CTRL_CLMUL, CTRL_CLMULR, CTRL_CLMULH = newElement()
 	}
-	object BitManipZclmulCtrl extends Stageable(BitManipZclmulCtrlEnum())
+	object BitManipZbcCtrl extends Stageable(BitManipZbcCtrlEnum())
 // Prologue
 
 	def fun_clmul(rs1:Bits, rs2:Bits) : Bits = {
@@ -88,10 +88,10 @@ object BitManipZclmulPlugin {
 
 // End prologue
 } // object Plugin
-class BitManipZclmulPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {
-	import BitManipZclmulPlugin._
-	object IS_BitManipZclmul extends Stageable(Bool)
-	object BitManipZclmul_FINAL_OUTPUT extends Stageable(Bits(32 bits))
+class BitManipZbcPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {
+	import BitManipZbcPlugin._
+	object IS_BitManipZbc extends Stageable(Bool)
+	object BitManipZbc_FINAL_OUTPUT extends Stageable(Bits(32 bits))
 	override def setup(pipeline: VexRiscv): Unit = {
 		import pipeline.config._
 		val immediateActions = List[(Stageable[_ <: BaseType],Any)](
@@ -101,7 +101,7 @@ class BitManipZclmulPlugin(earlyInjection : Boolean = true) extends Plugin[VexRi
 			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
-			IS_BitManipZclmul -> True
+			IS_BitManipZbc -> True
 			)
 		val binaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -111,7 +111,7 @@ class BitManipZclmulPlugin(earlyInjection : Boolean = true) extends Plugin[VexRi
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS2_USE -> True,
-			IS_BitManipZclmul -> True
+			IS_BitManipZbc -> True
 			)
 		val unaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -119,7 +119,7 @@ class BitManipZclmulPlugin(earlyInjection : Boolean = true) extends Plugin[VexRi
 			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
-			IS_BitManipZclmul -> True
+			IS_BitManipZbc -> True
 			)
 		val ternaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -131,7 +131,7 @@ class BitManipZclmulPlugin(earlyInjection : Boolean = true) extends Plugin[VexRi
 			RS1_USE -> True,
 			RS2_USE -> True,
 			RS3_USE -> True,
-			IS_BitManipZclmul -> True
+			IS_BitManipZbc -> True
 			)
 		val immTernaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -142,17 +142,17 @@ class BitManipZclmulPlugin(earlyInjection : Boolean = true) extends Plugin[VexRi
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS3_USE -> True,
-			IS_BitManipZclmul -> True
+			IS_BitManipZbc -> True
 			)
 		def CLMUL_KEY = M"0000101----------001-----0110011"
 		def CLMULR_KEY = M"0000101----------010-----0110011"
 		def CLMULH_KEY = M"0000101----------011-----0110011"
 		val decoderService = pipeline.service(classOf[DecoderService])
-		decoderService.addDefault(IS_BitManipZclmul, False)
+		decoderService.addDefault(IS_BitManipZbc, False)
 		decoderService.add(List(
-			CLMUL_KEY	-> (binaryActions ++ List(BitManipZclmulCtrl -> BitManipZclmulCtrlEnum.CTRL_CLMUL)),
-			CLMULR_KEY	-> (binaryActions ++ List(BitManipZclmulCtrl -> BitManipZclmulCtrlEnum.CTRL_CLMULR)),
-			CLMULH_KEY	-> (binaryActions ++ List(BitManipZclmulCtrl -> BitManipZclmulCtrlEnum.CTRL_CLMULH))
+			CLMUL_KEY	-> (binaryActions ++ List(BitManipZbcCtrl -> BitManipZbcCtrlEnum.CTRL_CLMUL)),
+			CLMULR_KEY	-> (binaryActions ++ List(BitManipZbcCtrl -> BitManipZbcCtrlEnum.CTRL_CLMULR)),
+			CLMULH_KEY	-> (binaryActions ++ List(BitManipZbcCtrl -> BitManipZbcCtrlEnum.CTRL_CLMULH))
 		))
 	} // override def setup
 	override def build(pipeline: VexRiscv): Unit = {
@@ -160,17 +160,17 @@ class BitManipZclmulPlugin(earlyInjection : Boolean = true) extends Plugin[VexRi
 		import pipeline.config._
 		execute plug new Area{
 			import execute._
-			insert(BitManipZclmul_FINAL_OUTPUT) := input(BitManipZclmulCtrl).mux(
-				BitManipZclmulCtrlEnum.CTRL_CLMUL -> fun_clmul(input(SRC1),input(SRC2)).asBits,
-				BitManipZclmulCtrlEnum.CTRL_CLMULR -> fun_clmulr(input(SRC1),input(SRC2)).asBits,
-				BitManipZclmulCtrlEnum.CTRL_CLMULH -> fun_clmulh(input(SRC1),input(SRC2)).asBits
+			insert(BitManipZbc_FINAL_OUTPUT) := input(BitManipZbcCtrl).mux(
+				BitManipZbcCtrlEnum.CTRL_CLMUL -> fun_clmul(input(SRC1),input(SRC2)).asBits,
+				BitManipZbcCtrlEnum.CTRL_CLMULR -> fun_clmulr(input(SRC1),input(SRC2)).asBits,
+				BitManipZbcCtrlEnum.CTRL_CLMULH -> fun_clmulh(input(SRC1),input(SRC2)).asBits
 			) // primary mux
 		} // execute plug newArea
 		val injectionStage = if(earlyInjection) execute else memory
 		injectionStage plug new Area {
 			import injectionStage._
-			when (arbitration.isValid && input(IS_BitManipZclmul)) {
-				output(REGFILE_WRITE_DATA) := input(BitManipZclmul_FINAL_OUTPUT)
+			when (arbitration.isValid && input(IS_BitManipZbc)) {
+				output(REGFILE_WRITE_DATA) := input(BitManipZbc_FINAL_OUTPUT)
 			} // when input is
 		} // injectionStage plug newArea
 	} // override def build
