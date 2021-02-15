@@ -3,15 +3,27 @@
 // Those should not be combined with a plugin implementing the matching
 // base instruction(s)
 
+// base instructions implemented in B
 //I	PACK	PACK	0000100----------100-----0110011	pack
 //I	GORCI	GORC	00101------------101-----0010011	grevorc
 //I	GREVI	GREV	01101------------101-----0010011	grevorc
+//I	SHFL	SHFL	0000100----------001-----0110011	shuffle
+//I	UNSHFL	UNSHFL	0000100----------101-----0110011	shuffle
+
+// For Zbb
 // ZEXT.H -> PACK w/ RS2 == 0
 I	ZEXTdotH ZEXTdotH 000010000000-----100-----0110011	signextend	Zbb
 // ORC.B -> GORCI w/ imm = 7 (0000111)
 I	ORCdotB	ORCdotB	  001010000111-----101-----0010011	grevorc		Zbb
 // REV8 -> GREVI w/ imm == 24 (0011000)
 I	REV8	REV8	  011010011000-----101-----0010011	grevorc		Zbb	Zkb
+// those are for Zkb only
+// REVdotB -> GREVI w/ imm == 7 (0000111)
+//I	REVdotB	REVdotB	  011010000111-----101-----0010011	grevorc			Zkb
+// ZIP -> SHFL w/ imm == 11111
+//I	ZIP	  	ZIP	  	  000010011111-----001-----0110011	shuffle			Zkb
+// UNZIP -> UNSHFL w/ imm == 11111
+//I	UNZIP	UNZIP	  000010011111-----101-----0110011	shuffle			Zkb
 
 // SEMANTIC
 S	REV8		"fun_rev8(input(SRC1))"
