@@ -95,7 +95,12 @@ PSlowDataProcess.scala: gen_plugin data_Zpn_2cycles.txt
 P64DataProcess.scala: gen_plugin data_Zp64.txt
 	./gen_plugin -w -n P64DataProcess -i data_Zp64.txt -I '*' >| $@
 
+B: BitManipZba.scala BitManipZbb.scala BitManipZbc.scala BitManipZbf.scala BitManipBFPonly.scala BitManipZbbZbp.scala BitManipZbs.scala BitManipZbt.scala
 
-scala: CryptoZkne.scala CryptoZknh.scala BitManipZba.scala BitManipZbb.scala BitManipZbc.scala BitManipZbf.scala BitManipBFPonly.scala BitManipZbbZbp.scala BitManipZbs.scala BitManipZbt.scala
+P: PDataProcess.scala PSlowDataProcess.scala P64DataProcess.scala
+
+Z: CryptoZkne.scala CryptoZknh.scala
+
+scala: B P Z
 
 include $(DEPXX)

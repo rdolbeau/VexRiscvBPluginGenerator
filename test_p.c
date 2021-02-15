@@ -747,6 +747,40 @@ uint32_t __rv__maddr32(const uint32_t rs1, const uint32_t rs2, const uint32_t rs
 uint32_t __rv__msubr32(const uint32_t rs1, const uint32_t rs2, const uint32_t rs3) {
 	return rs3 - (rs1 * rs2);
 }
+
+#define GEN_SUNPKD8(x,y)											\
+	static inline uint32_t __rv__sunpkd8##x##y(const uint32_t rs1) {	\
+		int4x8_t a;													\
+		int2x16_t c;												\
+		uint32_t r;													\
+		memcpy(a, &rs1, 4);											\
+		c[1] = a[x];												\
+		c[0] = a[y];												\
+		memcpy(&r, c, 4);											\
+		return r;													\
+	}
+#define GEN_ZUNPKD8(x,y)											\
+	static inline uint32_t __rv__zunpkd8##x##y(const uint32_t rs1) {	\
+		uint4x8_t a;												\
+		uint2x16_t c;												\
+		uint32_t r;													\
+		memcpy(a, &rs1, 4);											\
+		c[1] = a[x];												\
+		c[0] = a[y];												\
+		memcpy(&r, c, 4);											\
+		return r;													\
+	}
+GEN_SUNPKD8(1,0)
+GEN_SUNPKD8(2,0)
+GEN_SUNPKD8(3,0)
+GEN_SUNPKD8(3,1)
+GEN_SUNPKD8(3,2)
+GEN_ZUNPKD8(1,0)
+GEN_ZUNPKD8(2,0)
+GEN_ZUNPKD8(3,0)
+GEN_ZUNPKD8(3,1)
+GEN_ZUNPKD8(3,2)
+
 #endif // __riscv
   
   unsigned int a = 0x01234567;
@@ -908,6 +942,17 @@ int main(int argc, char **argv) {
 
   T3(__rv__maddr32);
   T3(__rv__msubr32);
+
+  T1(__rv__sunpkd810);
+  T1(__rv__sunpkd820);
+  T1(__rv__sunpkd830);
+  T1(__rv__sunpkd831);
+  T1(__rv__sunpkd832);
+  T1(__rv__zunpkd810);
+  T1(__rv__zunpkd820);
+  T1(__rv__zunpkd830);
+  T1(__rv__zunpkd831);
+  T1(__rv__zunpkd832);
   
   b = 0x0100F004 + index;
   }

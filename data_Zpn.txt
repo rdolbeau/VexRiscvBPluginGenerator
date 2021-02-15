@@ -63,11 +63,11 @@ I	SMIN8	 SMIN8	1000100----------000-----1110111	pdpicmp	Zpn
 I	SMIN16	 SMIN16	1000000----------000-----1110111	pdpicmp	Zpn
 I	SUB8     SUB8	0100101----------000-----1110111	pdpiadd8	Zpn
 I	SUB16    SUB16	0100001----------000-----1110111	pdpiadd16	Zpn
-//I	SUNPKD810 SUNPKD810 101011001000-----000-----1110111	pdpicpct	Zpn
-//I	SUNPKD820 SUNPKD820 101011001001-----000-----1110111	pdpicpct	Zpn
-//I	SUNPKD830 SUNPKD830 101011001010-----000-----1110111	pdpicpct	Zpn
-//I	SUNPKD831 SUNPKD831 101011001011-----000-----1110111	pdpicpct	Zpn
-//I	SUNPKD832 SUNPKD832 101011010011-----000-----1110111	pdpicpct	Zpn
+I	SUNPKD810 SUNPKD8 101011001000-----000-----1110111	pdpicpct	Zpn
+I	SUNPKD820 SUNPKD8 101011001001-----000-----1110111	pdpicpct	Zpn
+I	SUNPKD830 SUNPKD8 101011001010-----000-----1110111	pdpicpct	Zpn
+I	SUNPKD831 SUNPKD8 101011001011-----000-----1110111	pdpicpct	Zpn
+I	SUNPKD832 SUNPKD8 101011010011-----000-----1110111	pdpicpct	Zpn
 I	SWAP8	 SWAP8	101011011000-----000-----1110111	pdpibit	Zpn
 I	SWAP16	 SWAP16 101011011001-----000-----1110111	pdpibit	Zpn
 I	UCMPLE8	 UCMPLE8  0011111----------000-----1110111	pdpicmp	Zpn
@@ -84,6 +84,11 @@ I	URADDW	URADDW	0011000----------001-----1110111	pdpiadd32	Zpn
 I	URSUB8	URSUB8	0010101----------000-----1110111	pdpiadd8	Zpn
 I	URSUB16	URSUB16	0010001----------000-----1110111	pdpiadd16	Zpn
 I	URSUBW	URSUBW	0011001----------001-----1110111	pdpiadd32	Zpn
+I	ZUNPKD810 ZUNPKD8 101011001100-----000-----1110111	pdpicpct	Zpn
+I	ZUNPKD820 ZUNPKD8 101011001101-----000-----1110111	pdpicpct	Zpn
+I	ZUNPKD830 ZUNPKD8 101011001110-----000-----1110111	pdpicpct	Zpn
+I	ZUNPKD831 ZUNPKD8 101011001111-----000-----1110111	pdpicpct	Zpn
+I	ZUNPKD832 ZUNPKD8 101011010111-----000-----1110111	pdpicpct	Zpn
 
 // the following needs to read Rd, so need a patch to VexRiscv
 //INSB need the I in the name to get the immediate from the tool
@@ -146,6 +151,8 @@ S	CLO8	"fun_clo8(input(SRC1))"
 S	CLZ8	"fun_clz8(input(SRC1))"
 S	SWAP8	"fun_swap8(input(SRC1))"
 S	SWAP16	"fun_swap16(input(SRC1))"
+S	SUNPKD8 "fun_sunpkd8(input(RS1), input(INSTRUCTION)(24 downto 23) ## input(INSTRUCTION)(21 downto 20))"
+S	ZUNPKD8 "fun_zunpkd8(input(RS1), input(INSTRUCTION)(24 downto 23) ## input(INSTRUCTION)(21 downto 20))"
 // ternary
 S	PBSADx	"fun_pbsada(input(SRC1), input(SRC2), (input(INSTRUCTION)(25).asUInt === 0) ? U(0, 32 bits).asBits | input(SRC3))"
 S	INSBI	"fun_insb(input(SRC1), input(SRC2), input(SRC3))"
@@ -578,5 +585,26 @@ P	"""
 	    val r = rs3.asUInt + (h0 + h1 + h2 + h3)
 
 	    r.asBits.resize(32) // return value
+	}
+
+	def fun_zunpkd8(rs1: Bits, ctrl: Bits) : Bits = {
+		val r = (ctrl).mux(
+			default    -> rs1(15 downto  8).resize(16) ## rs1( 7 downto  0).resize(16), // B"4'b0100"
+			B"4'b0101" -> rs1(23 downto 16).resize(16) ## rs1( 7 downto  0).resize(16),
+			B"4'b0110" -> rs1(31 downto 24).resize(16) ## rs1( 7 downto  0).resize(16),
+			B"4'b0111" -> rs1(31 downto 24).resize(16) ## rs1(15 downto  8).resize(16),
+			B"4'b1011" -> rs1(31 downto 24).resize(16) ## rs1(23 downto 16).resize(16)
+		)
+		r // return value
+	}
+	def fun_sunpkd8(rs1: Bits, ctrl: Bits) : Bits = {
+		val r = (ctrl).mux(
+			default    -> rs1(15 downto  8).asSInt.resize(16).asBits ## rs1( 7 downto  0).asSInt.resize(16).asBits, // B"4'b0100"
+			B"4'b0101" -> rs1(23 downto 16).asSInt.resize(16).asBits ## rs1( 7 downto  0).asSInt.resize(16).asBits,
+			B"4'b0110" -> rs1(31 downto 24).asSInt.resize(16).asBits ## rs1( 7 downto  0).asSInt.resize(16).asBits,
+			B"4'b0111" -> rs1(31 downto 24).asSInt.resize(16).asBits ## rs1(15 downto  8).asSInt.resize(16).asBits,
+			B"4'b1011" -> rs1(31 downto 24).asSInt.resize(16).asBits ## rs1(23 downto 16).asSInt.resize(16).asBits
+		)
+		r // return value
 	}
 """
