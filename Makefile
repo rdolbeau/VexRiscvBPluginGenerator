@@ -88,7 +88,8 @@ CryptoZkb.scala: gen_plugin data_bitmanip.txt data_bitmanip_ZbbOnly.txt
 CryptoZkg.scala: gen_plugin data_clmul.txt
 	./gen_plugin -n CryptoZkg -i data_clmul.txt -I CLMUL -I CLMULH >| $@
 
-## Full Zkn not there yet, missing Zknd (AES decode)
+## Full Zkn is Zknd + Zkne + Zknh + Zkg + Zkb
+## For Zkb, beware the overlap with a lot of B plugins
 
 CryptoZknd.scala: gen_plugin data_aes.txt
 	./gen_plugin -n CryptoZknd -i data_aes.txt -I Zknd >| $@
@@ -98,6 +99,8 @@ CryptoZkne.scala: gen_plugin data_aes.txt
 
 CryptoZknh.scala: gen_plugin data_sha.txt
 	./gen_plugin -n CryptoZknh -i data_sha.txt -I '*' >| $@
+
+## Zks, Zkr not supported
 
 PDataProcess.scala: gen_plugin data_Zpn.txt
 	./gen_plugin -n PDataProcess -i data_Zpn.txt -I Zpn >| $@

@@ -21,7 +21,7 @@ This has received limited testing in a [Linux-on-Litex-VexRiscv](https://github.
 
 Also, the implementations of the instructions in SpinalHDL are written for tuncitonality, and not tuned or optimized in any way for performance/area/... (file usage.txt has some numbers).
 
-A separate data file include prototype support for RV32Zkne (AES encryption instructions) and RV32Zknh (SHA hash instructions) from the [K ("crypto")](https://github.com/riscv/riscv-crypto) extension draft 0.8.1. This requires another patch to VexRiscv, as Zkne uses field rs1 instead of rd for the output register.
+A separate data file include prototype support for RV32Zkn[ed] (AES encryption/decryption instructions) and RV32Zknh (SHA hash instructions) from the [K ("crypto")](https://github.com/riscv/riscv-crypto) extension draft 0.8.1. This requires another patch to VexRiscv, as Zkn[ed] use field rs1 instead of rd for the output register.
 
 There's also some experimental support for some [P ("packed SIMD")](https://github.com/riscv/riscv-p-spec) instructions. It requires even more patches to VexRiscv, first to use a third input sourced from the destination register (so not R4 format like B's ternaries), and second to enable Zp64 instructions that write to two registers (x(2n) and x(2n+1)).
 
