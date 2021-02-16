@@ -86,12 +86,15 @@ CryptoZkb.scala: gen_plugin data_bitmanip.txt data_bitmanip_ZbbOnly.txt
 
 ## CryptoZkg doesn't require clmulr, so not 100% the same as Zbc
 CryptoZkg.scala: gen_plugin data_clmul.txt
-	./gen_plugin -n CryptoZkg -i data_clmul.txt -I clmul -I clmulh >| $@
+	./gen_plugin -n CryptoZkg -i data_clmul.txt -I CLMUL -I CLMULH >| $@
 
 ## Full Zkn not there yet, missing Zknd (AES decode)
 
+CryptoZknd.scala: gen_plugin data_aes.txt
+	./gen_plugin -n CryptoZknd -i data_aes.txt -I Zknd >| $@
+
 CryptoZkne.scala: gen_plugin data_aes.txt
-	./gen_plugin -n CryptoZkne -i data_aes.txt -I '*' >| $@
+	./gen_plugin -n CryptoZkne -i data_aes.txt -I Zkne >| $@
 
 CryptoZknh.scala: gen_plugin data_sha.txt
 	./gen_plugin -n CryptoZknh -i data_sha.txt -I '*' >| $@
