@@ -1,0 +1,15 @@
+#ifndef crypto_core_H
+#define crypto_core_H
+
+#include "crypto_core_aes256decrypt.h"
+
+#define crypto_core crypto_core_aes256decrypt
+#define crypto_core_OUTPUTBYTES crypto_core_aes256decrypt_OUTPUTBYTES
+#define crypto_core_INPUTBYTES crypto_core_aes256decrypt_INPUTBYTES
+#define crypto_core_KEYBYTES crypto_core_aes256decrypt_KEYBYTES
+#define crypto_core_CONSTBYTES crypto_core_aes256decrypt_CONSTBYTES
+#define crypto_core_PRIMITIVE "aes256decrypt"
+#define crypto_core_IMPLEMENTATION crypto_core_aes256decrypt_IMPLEMENTATION
+#define crypto_core_VERSION crypto_core_aes256decrypt_VERSION
+
+#endif
