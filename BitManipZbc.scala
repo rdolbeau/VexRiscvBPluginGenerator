@@ -4,9 +4,13 @@ package vexriscv.plugin
 import spinal.core._
 import vexriscv.{Stageable, DecoderService, VexRiscv}
 object BitManipZbcPlugin {
-	object BitManipZbcCtrlEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_CLMUL, CTRL_CLMULR, CTRL_CLMULH = newElement()
+	object BitManipZbcCtrlclmulEnum extends SpinalEnum(binarySequential) {
+		 val CTRL_CLMUL, CTRL_CLMULRH = newElement()
 	}
+	object BitManipZbcCtrlEnum extends SpinalEnum(binarySequential) {
+		 val CTRL_clmul = newElement()
+	}
+	object BitManipZbcCtrlclmul extends Stageable(BitManipZbcCtrlclmulEnum())
 	object BitManipZbcCtrl extends Stageable(BitManipZbcCtrlEnum())
 // Prologue
 
@@ -46,7 +50,7 @@ object BitManipZbcPlugin {
 		x0 ^ x1 ^ x2 ^ x3 ^ x4 ^ x5 ^ x6 ^ x7 ^ x8 ^ x9 ^ x10 ^ x11 ^ x12 ^ x13 ^ x14 ^ x15 ^ x16 ^ x17 ^ x18 ^ x19 ^ x20 ^ x21 ^ x22 ^ x23 ^ x24 ^ x25 ^ x26 ^ x27 ^ x28 ^ x29 ^ x30 ^ x31 // return value	
 	}
 
-	def fun_clmulr(rs1:Bits, rs2:Bits) : Bits = {
+	def fun_clmulrh(rs1:Bits, rs2:Bits, isH: Bool) : Bits = {
 		val x0 = (((rs2 & B"32'x00000001") =/= B"32'x00000000") ? (rs1 |>> 31) | (B"32'x00000000"))
 		val x1 = (((rs2 & B"32'x00000002") =/= B"32'x00000000") ? (rs1 |>> 30) | (B"32'x00000000"))
 		val x2 = (((rs2 & B"32'x00000004") =/= B"32'x00000000") ? (rs1 |>> 29) | (B"32'x00000000"))
@@ -79,11 +83,9 @@ object BitManipZbcPlugin {
 		val x29 = (((rs2 & B"32'x20000000") =/= B"32'x00000000") ? (rs1 |>> 2) | (B"32'x00000000"))
 		val x30 = (((rs2 & B"32'x40000000") =/= B"32'x00000000") ? (rs1 |>> 1) | (B"32'x00000000"))
 		val x31 = (((rs2 & B"32'x80000000") =/= B"32'x00000000") ? (rs1 |>> 0) | (B"32'x00000000"))
-		x0 ^ x1 ^ x2 ^ x3 ^ x4 ^ x5 ^ x6 ^ x7 ^ x8 ^ x9 ^ x10 ^ x11 ^ x12 ^ x13 ^ x14 ^ x15 ^ x16 ^ x17 ^ x18 ^ x19 ^ x20 ^ x21 ^ x22 ^ x23 ^ x24 ^ x25 ^ x26 ^ x27 ^ x28 ^ x29 ^ x30 ^ x31 // return value	
-	}
-	def fun_clmulh(rs1:Bits, rs2:Bits) : Bits = {
-		val r = fun_clmulr(rs1, rs2) |>> 1
-		r // return value
+		val r = x0 ^ x1 ^ x2 ^ x3 ^ x4 ^ x5 ^ x6 ^ x7 ^ x8 ^ x9 ^ x10 ^ x11 ^ x12 ^ x13 ^ x14 ^ x15 ^ x16 ^ x17 ^ x18 ^ x19 ^ x20 ^ x21 ^ x22 ^ x23 ^ x24 ^ x25 ^ x26 ^ x27 ^ x28 ^ x29 ^ x30 ^ x31
+
+		isH ? (r |>> 1) | (r) // return value
 	}
 
 // End prologue
@@ -145,14 +147,12 @@ class BitManipZbcPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			IS_BitManipZbc -> True
 			)
 		def CLMUL_KEY = M"0000101----------001-----0110011"
-		def CLMULR_KEY = M"0000101----------010-----0110011"
-		def CLMULH_KEY = M"0000101----------011-----0110011"
+		def CLMULRH_KEY = M"0000101----------01------0110011"
 		val decoderService = pipeline.service(classOf[DecoderService])
 		decoderService.addDefault(IS_BitManipZbc, False)
 		decoderService.add(List(
-			CLMUL_KEY	-> (binaryActions ++ List(BitManipZbcCtrl -> BitManipZbcCtrlEnum.CTRL_CLMUL)),
-			CLMULR_KEY	-> (binaryActions ++ List(BitManipZbcCtrl -> BitManipZbcCtrlEnum.CTRL_CLMULR)),
-			CLMULH_KEY	-> (binaryActions ++ List(BitManipZbcCtrl -> BitManipZbcCtrlEnum.CTRL_CLMULH))
+			CLMUL_KEY	-> (binaryActions ++ List(BitManipZbcCtrl -> BitManipZbcCtrlEnum.CTRL_clmul, BitManipZbcCtrlclmul -> BitManipZbcCtrlclmulEnum.CTRL_CLMUL)),
+			CLMULRH_KEY	-> (binaryActions ++ List(BitManipZbcCtrl -> BitManipZbcCtrlEnum.CTRL_clmul, BitManipZbcCtrlclmul -> BitManipZbcCtrlclmulEnum.CTRL_CLMULRH))
 		))
 	} // override def setup
 	override def build(pipeline: VexRiscv): Unit = {
@@ -160,11 +160,11 @@ class BitManipZbcPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 		import pipeline.config._
 		execute plug new Area{
 			import execute._
-			insert(BitManipZbc_FINAL_OUTPUT) := input(BitManipZbcCtrl).mux(
-				BitManipZbcCtrlEnum.CTRL_CLMUL -> fun_clmul(input(SRC1),input(SRC2)).asBits,
-				BitManipZbcCtrlEnum.CTRL_CLMULR -> fun_clmulr(input(SRC1),input(SRC2)).asBits,
-				BitManipZbcCtrlEnum.CTRL_CLMULH -> fun_clmulh(input(SRC1),input(SRC2)).asBits
-			) // primary mux
+			val val_clmul = input(BitManipZbcCtrlclmul).mux(
+				BitManipZbcCtrlclmulEnum.CTRL_CLMUL -> fun_clmul(input(SRC1),input(SRC2)).asBits,
+				BitManipZbcCtrlclmulEnum.CTRL_CLMULRH -> fun_clmulrh(input(SRC1),input(SRC2), input(INSTRUCTION)(12)).asBits
+			) // mux clmul
+			insert(BitManipZbc_FINAL_OUTPUT) := val_clmul.asBits
 		} // execute plug newArea
 		val injectionStage = if(earlyInjection) execute else memory
 		injectionStage plug new Area {
