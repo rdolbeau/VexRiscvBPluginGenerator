@@ -115,7 +115,7 @@ B: BitManipZba.scala BitManipZbb.scala BitManipZbc.scala BitManipZbf.scala BitMa
 
 P: PDataProcess.scala PSlowDataProcess.scala P64DataProcess.scala
 
-Z: CryptoZkne.scala CryptoZknh.scala
+Z: CryptoZkg.scala CryptoZknd.scala CryptoZkne.scala CryptoZknh.scala
 
 scala: B P Z
 

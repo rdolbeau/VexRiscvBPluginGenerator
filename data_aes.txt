@@ -20,10 +20,7 @@ I	aes32dsmi0 aes32dsmi0	0011111----------000000000110011	aes0	Zknd
 I	aes32dsmi1 aes32dsmi1	0111111----------000000000110011	aes0	Zknd
 I	aes32dsmi2 aes32dsmi2	1011111----------000000000110011	aes0	Zknd
 I	aes32dsmi3 aes32dsmi3	1111111----------000000000110011	aes0	Zknd
-I	aes32dsi0  aes32dsi0	0011101----------000000000110011	aes1	Zknd
-I	aes32dsi1  aes32dsi1	0111101----------000000000110011	aes1	Zknd
-I	aes32dsi2  aes32dsi2	1011101----------000000000110011	aes1	Zknd
-I	aes32dsi3  aes32dsi3	1111101----------000000000110011	aes1	Zknd
+I	aes32dsi   aes32dsi 	--11101----------000000000110011	aes1	Zknd
 
 S	aes32esmi0 "fun_aes32esmi0(input(SRC2), input(SRC1))"
 S	aes32esmi1 "fun_aes32esmi1(input(SRC2), input(SRC1))"
@@ -38,10 +35,7 @@ S	aes32dsmi0 "fun_aes32dsmi0(input(SRC2), input(SRC1))"
 S	aes32dsmi1 "fun_aes32dsmi1(input(SRC2), input(SRC1))"
 S	aes32dsmi2 "fun_aes32dsmi2(input(SRC2), input(SRC1))"
 S	aes32dsmi3 "fun_aes32dsmi3(input(SRC2), input(SRC1))"
-S	aes32dsi0 "fun_aes32dsi0(input(SRC2), input(SRC1))"
-S	aes32dsi1 "fun_aes32dsi1(input(SRC2), input(SRC1))"
-S	aes32dsi2 "fun_aes32dsi2(input(SRC2), input(SRC1))"
-S	aes32dsi3 "fun_aes32dsi3(input(SRC2), input(SRC1))"
+S	aes32dsi   "fun_aes32dsi(input(SRC2), input(SRC1), input(INSTRUCTION)(31 downto 30))"
 
 P	"""
         // massive MUX implementing FT0
@@ -899,24 +893,21 @@ P	"""
 		r // return value
 	}
 
-	def fun_aes32dsi0(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(7 downto 0)
-	    val r = fun_aesrsb_raw(idx)
-	    (r.resize(32)       ) ^ rs2 // return value
-	}
-	def fun_aes32dsi1(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(15 downto 8)
-	    val r = fun_aesrsb_raw(idx)
-	    (r.resize(32) |<<  8) ^ rs2 // return value
-	}
-	def fun_aes32dsi2(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(23 downto 16)
-	    val r = fun_aesrsb_raw(idx)
-	    (r.resize(32) |<< 16) ^ rs2 // return value
-	}
-	def fun_aes32dsi3(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(31 downto 24)
-	    val r = fun_aesrsb_raw(idx)
-	    (r.resize(32) |<< 24) ^ rs2 // return value
+	def fun_aes32dsi(rs1: Bits, rs2: Bits, sel: Bits) : Bits = {
+	    val idx = (sel).mux(
+			B"2'b00" -> rs1( 7 downto  0),
+			B"2'b01" -> rs1(15 downto  8),
+			B"2'b10" -> rs1(23 downto 16),
+			B"2'b11" -> rs1(31 downto 24)
+			)
+	    val x = fun_aesrsb_raw(idx)
+		val r = (sel).mux(
+			B"2'b00" -> x.resize(32),
+			B"2'b01" -> (x <<  8).resize(32),
+			B"2'b10" -> (x << 16).resize(32),
+			B"2'b11" -> (x << 24).resize(32)
+			)
+	
+	    r ^ rs2 // return value
 	}
 """

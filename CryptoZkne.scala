@@ -873,25 +873,22 @@ object CryptoZknePlugin {
 		r // return value
 	}
 
-	def fun_aes32dsi0(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(7 downto 0)
-	    val r = fun_aesrsb_raw(idx)
-	    (r.resize(32)       ) ^ rs2 // return value
-	}
-	def fun_aes32dsi1(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(15 downto 8)
-	    val r = fun_aesrsb_raw(idx)
-	    (r.resize(32) |<<  8) ^ rs2 // return value
-	}
-	def fun_aes32dsi2(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(23 downto 16)
-	    val r = fun_aesrsb_raw(idx)
-	    (r.resize(32) |<< 16) ^ rs2 // return value
-	}
-	def fun_aes32dsi3(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(31 downto 24)
-	    val r = fun_aesrsb_raw(idx)
-	    (r.resize(32) |<< 24) ^ rs2 // return value
+	def fun_aes32dsi(rs1: Bits, rs2: Bits, sel: Bits) : Bits = {
+	    val idx = (sel).mux(
+			B"2'b00" -> rs1( 7 downto  0),
+			B"2'b01" -> rs1(15 downto  8),
+			B"2'b10" -> rs1(23 downto 16),
+			B"2'b11" -> rs1(31 downto 24)
+			)
+	    val x = fun_aesrsb_raw(idx)
+		val r = (sel).mux(
+			B"2'b00" -> x.resize(32),
+			B"2'b01" -> (x <<  8).resize(32),
+			B"2'b10" -> (x << 16).resize(32),
+			B"2'b11" -> (x << 24).resize(32)
+			)
+	
+	    r ^ rs2 // return value
 	}
 
 // End prologue

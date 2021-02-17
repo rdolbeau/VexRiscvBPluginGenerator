@@ -7,14 +7,10 @@ object CryptoZkndPlugin {
 	object CryptoZkndCtrlaes0Enum extends SpinalEnum(binarySequential) {
 		 val CTRL_aes32dsmi0, CTRL_aes32dsmi1, CTRL_aes32dsmi2, CTRL_aes32dsmi3 = newElement()
 	}
-	object CryptoZkndCtrlaes1Enum extends SpinalEnum(binarySequential) {
-		 val CTRL_aes32dsi0, CTRL_aes32dsi1, CTRL_aes32dsi2, CTRL_aes32dsi3 = newElement()
-	}
 	object CryptoZkndCtrlEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_aes0, CTRL_aes1 = newElement()
+		 val CTRL_aes0, CTRL_aes32dsi = newElement()
 	}
 	object CryptoZkndCtrlaes0 extends Stageable(CryptoZkndCtrlaes0Enum())
-	object CryptoZkndCtrlaes1 extends Stageable(CryptoZkndCtrlaes1Enum())
 	object CryptoZkndCtrl extends Stageable(CryptoZkndCtrlEnum())
 // Prologue
 
@@ -873,25 +869,22 @@ object CryptoZkndPlugin {
 		r // return value
 	}
 
-	def fun_aes32dsi0(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(7 downto 0)
-	    val r = fun_aesrsb_raw(idx)
-	    (r.resize(32)       ) ^ rs2 // return value
-	}
-	def fun_aes32dsi1(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(15 downto 8)
-	    val r = fun_aesrsb_raw(idx)
-	    (r.resize(32) |<<  8) ^ rs2 // return value
-	}
-	def fun_aes32dsi2(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(23 downto 16)
-	    val r = fun_aesrsb_raw(idx)
-	    (r.resize(32) |<< 16) ^ rs2 // return value
-	}
-	def fun_aes32dsi3(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(31 downto 24)
-	    val r = fun_aesrsb_raw(idx)
-	    (r.resize(32) |<< 24) ^ rs2 // return value
+	def fun_aes32dsi(rs1: Bits, rs2: Bits, sel: Bits) : Bits = {
+	    val idx = (sel).mux(
+			B"2'b00" -> rs1( 7 downto  0),
+			B"2'b01" -> rs1(15 downto  8),
+			B"2'b10" -> rs1(23 downto 16),
+			B"2'b11" -> rs1(31 downto 24)
+			)
+	    val x = fun_aesrsb_raw(idx)
+		val r = (sel).mux(
+			B"2'b00" -> x.resize(32),
+			B"2'b01" -> (x <<  8).resize(32),
+			B"2'b10" -> (x << 16).resize(32),
+			B"2'b11" -> (x << 24).resize(32)
+			)
+	
+	    r ^ rs2 // return value
 	}
 
 // End prologue
@@ -956,10 +949,7 @@ class CryptoZkndPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv]
 		def aes32dsmi1_KEY = M"0111111----------000000000110011"
 		def aes32dsmi2_KEY = M"1011111----------000000000110011"
 		def aes32dsmi3_KEY = M"1111111----------000000000110011"
-		def aes32dsi0_KEY = M"0011101----------000000000110011"
-		def aes32dsi1_KEY = M"0111101----------000000000110011"
-		def aes32dsi2_KEY = M"1011101----------000000000110011"
-		def aes32dsi3_KEY = M"1111101----------000000000110011"
+		def aes32dsi_KEY = M"--11101----------000000000110011"
 		val decoderService = pipeline.service(classOf[DecoderService])
 		decoderService.addDefault(IS_CryptoZknd, False)
 		decoderService.add(List(
@@ -967,10 +957,7 @@ class CryptoZkndPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv]
 			aes32dsmi1_KEY	-> (binaryActions ++ List(CryptoZkndCtrl -> CryptoZkndCtrlEnum.CTRL_aes0, CryptoZkndCtrlaes0 -> CryptoZkndCtrlaes0Enum.CTRL_aes32dsmi1)),
 			aes32dsmi2_KEY	-> (binaryActions ++ List(CryptoZkndCtrl -> CryptoZkndCtrlEnum.CTRL_aes0, CryptoZkndCtrlaes0 -> CryptoZkndCtrlaes0Enum.CTRL_aes32dsmi2)),
 			aes32dsmi3_KEY	-> (binaryActions ++ List(CryptoZkndCtrl -> CryptoZkndCtrlEnum.CTRL_aes0, CryptoZkndCtrlaes0 -> CryptoZkndCtrlaes0Enum.CTRL_aes32dsmi3)),
-			aes32dsi0_KEY	-> (binaryActions ++ List(CryptoZkndCtrl -> CryptoZkndCtrlEnum.CTRL_aes1, CryptoZkndCtrlaes1 -> CryptoZkndCtrlaes1Enum.CTRL_aes32dsi0)),
-			aes32dsi1_KEY	-> (binaryActions ++ List(CryptoZkndCtrl -> CryptoZkndCtrlEnum.CTRL_aes1, CryptoZkndCtrlaes1 -> CryptoZkndCtrlaes1Enum.CTRL_aes32dsi1)),
-			aes32dsi2_KEY	-> (binaryActions ++ List(CryptoZkndCtrl -> CryptoZkndCtrlEnum.CTRL_aes1, CryptoZkndCtrlaes1 -> CryptoZkndCtrlaes1Enum.CTRL_aes32dsi2)),
-			aes32dsi3_KEY	-> (binaryActions ++ List(CryptoZkndCtrl -> CryptoZkndCtrlEnum.CTRL_aes1, CryptoZkndCtrlaes1 -> CryptoZkndCtrlaes1Enum.CTRL_aes32dsi3))
+			aes32dsi_KEY	-> (binaryActions ++ List(CryptoZkndCtrl -> CryptoZkndCtrlEnum.CTRL_aes32dsi))
 		))
 	} // override def setup
 	override def build(pipeline: VexRiscv): Unit = {
@@ -984,15 +971,9 @@ class CryptoZkndPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv]
 				CryptoZkndCtrlaes0Enum.CTRL_aes32dsmi2 -> fun_aes32dsmi2(input(SRC2), input(SRC1)).asBits,
 				CryptoZkndCtrlaes0Enum.CTRL_aes32dsmi3 -> fun_aes32dsmi3(input(SRC2), input(SRC1)).asBits
 			) // mux aes0
-			val val_aes1 = input(CryptoZkndCtrlaes1).mux(
-				CryptoZkndCtrlaes1Enum.CTRL_aes32dsi0 -> fun_aes32dsi0(input(SRC2), input(SRC1)).asBits,
-				CryptoZkndCtrlaes1Enum.CTRL_aes32dsi1 -> fun_aes32dsi1(input(SRC2), input(SRC1)).asBits,
-				CryptoZkndCtrlaes1Enum.CTRL_aes32dsi2 -> fun_aes32dsi2(input(SRC2), input(SRC1)).asBits,
-				CryptoZkndCtrlaes1Enum.CTRL_aes32dsi3 -> fun_aes32dsi3(input(SRC2), input(SRC1)).asBits
-			) // mux aes1
 			insert(CryptoZknd_FINAL_OUTPUT) := input(CryptoZkndCtrl).mux(
 				CryptoZkndCtrlEnum.CTRL_aes0 -> val_aes0.asBits,
-				CryptoZkndCtrlEnum.CTRL_aes1 -> val_aes1.asBits
+				CryptoZkndCtrlEnum.CTRL_aes32dsi -> fun_aes32dsi(input(SRC2), input(SRC1), input(INSTRUCTION)(31 downto 30)).asBits
 			) // primary mux
 		} // execute plug newArea
 		val injectionStage = if(earlyInjection) execute else memory
