@@ -1,5 +1,5 @@
-#ifndef __NEW_INSTRUCTION_SUPPORT_P_H__
-#define __NEW_INSTRUCTION_SUPPORT_P_H__
+#ifndef __NEW_INSTRUCTION_SUPPORT_K_H__
+#define __NEW_INSTRUCTION_SUPPORT_K_H__
 
 #include "new_instructions_support.h" // for support macros
 
@@ -58,4 +58,4 @@ FUN2(sha512sig1h, SHA512SIG1H)
 FUN2(sha512sum0r, SHA512SUM0R)
 FUN2(sha512sum1r, SHA512SUM1R)
 
-#endif // __NEW_INSTRUCTION_SUPPORT_P_H__
+#endif // __NEW_INSTRUCTION_SUPPORT_K_H__
