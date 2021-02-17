@@ -7,34 +7,16 @@
 //bs 11001 rs2 rs1==rd 000 rd 0110011  aes32esi
 
 
-I	aes32esmi0 aes32esmi0	0011011----------000000000110011	aes0	Zkne
-I	aes32esmi1 aes32esmi1	0111011----------000000000110011	aes0	Zkne
-I	aes32esmi2 aes32esmi2	1011011----------000000000110011	aes0	Zkne
-I	aes32esmi3 aes32esmi3	1111011----------000000000110011	aes0	Zkne
-I	aes32esi0  aes32esi0	0011001----------000000000110011	aes1	Zkne
-I	aes32esi1  aes32esi1	0111001----------000000000110011	aes1	Zkne
-I	aes32esi2  aes32esi2	1011001----------000000000110011	aes1	Zkne
-I	aes32esi3  aes32esi3	1111001----------000000000110011	aes1	Zkne
+I	aes32esmi  aes32esmi	--11011----------000000000110011	aes	Zkne
+I	aes32esi   aes32esi 	--11001----------000000000110011	aes	Zkne
 
-I	aes32dsmi0 aes32dsmi0	0011111----------000000000110011	aes0	Zknd
-I	aes32dsmi1 aes32dsmi1	0111111----------000000000110011	aes0	Zknd
-I	aes32dsmi2 aes32dsmi2	1011111----------000000000110011	aes0	Zknd
-I	aes32dsmi3 aes32dsmi3	1111111----------000000000110011	aes0	Zknd
-I	aes32dsi   aes32dsi 	--11101----------000000000110011	aes1	Zknd
+I	aes32dsmi  aes32dsmi	--11111----------000000000110011	aes	Zknd
+I	aes32dsi   aes32dsi 	--11101----------000000000110011	aes	Zknd
 
-S	aes32esmi0 "fun_aes32esmi0(input(SRC2), input(SRC1))"
-S	aes32esmi1 "fun_aes32esmi1(input(SRC2), input(SRC1))"
-S	aes32esmi2 "fun_aes32esmi2(input(SRC2), input(SRC1))"
-S	aes32esmi3 "fun_aes32esmi3(input(SRC2), input(SRC1))"
-S	aes32esi0 "fun_aes32esi0(input(SRC2), input(SRC1))"
-S	aes32esi1 "fun_aes32esi1(input(SRC2), input(SRC1))"
-S	aes32esi2 "fun_aes32esi2(input(SRC2), input(SRC1))"
-S	aes32esi3 "fun_aes32esi3(input(SRC2), input(SRC1))"
+S	aes32esmi  "fun_aes32esmi(input(SRC2), input(SRC1), input(INSTRUCTION)(31 downto 30))"
+S	aes32esi   "fun_aes32esi(input(SRC2), input(SRC1), input(INSTRUCTION)(31 downto 30))"
 
-S	aes32dsmi0 "fun_aes32dsmi0(input(SRC2), input(SRC1))"
-S	aes32dsmi1 "fun_aes32dsmi1(input(SRC2), input(SRC1))"
-S	aes32dsmi2 "fun_aes32dsmi2(input(SRC2), input(SRC1))"
-S	aes32dsmi3 "fun_aes32dsmi3(input(SRC2), input(SRC1))"
+S	aes32dsmi  "fun_aes32dsmi(input(SRC2), input(SRC1), input(INSTRUCTION)(31 downto 30))"
 S	aes32dsi   "fun_aes32dsi(input(SRC2), input(SRC1), input(INSTRUCTION)(31 downto 30))"
 
 P	"""
@@ -301,47 +283,39 @@ P	"""
 		r // return value;
 	}
 
-	def fun_aes32esmi0(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(7 downto 0)
-	    val r = fun_aesft0_raw(idx)
-	    (r(23 downto 8) ## r(15 downto 0)) ^ rs2 // return value
-	}
-	def fun_aes32esmi1(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(15 downto 8)
-	    val r = fun_aesft0_raw(idx)
-	    (r(15 downto 8) ## r(15 downto 0) ## r(23 downto 16)) ^ rs2 // return value
-	}
-	def fun_aes32esmi2(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(23 downto 16)
-	    val r = fun_aesft0_raw(idx)
-	    (r(15 downto 0) ## r(23 downto 8)) ^ rs2 // return value
-	}
-	def fun_aes32esmi3(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(31 downto 24)
-	    val r = fun_aesft0_raw(idx)
-	    (r(7 downto 0) ## r(23 downto 8) ## r(15 downto 8)) ^ rs2 // return value
+	def fun_aes32esmi(rs1: Bits, rs2: Bits, sel: Bits) : Bits = {
+	    val idx = (sel).mux(
+			B"2'b00" -> rs1( 7 downto  0),
+			B"2'b01" -> rs1(15 downto  8),
+			B"2'b10" -> rs1(23 downto 16),
+			B"2'b11" -> rs1(31 downto 24)
+			)
+	    val x = fun_aesft0_raw(idx)
+	    val r = (sel).mux(
+			B"2'b00" -> x(23 downto 8) ## x(15 downto 0),
+			B"2'b01" -> x(15 downto 8) ## x(15 downto 0) ## x(23 downto 16),
+			B"2'b10" -> x(15 downto 0) ## x(23 downto 8),
+			B"2'b11" -> x( 7 downto 0) ## x(23 downto 8) ## x(15 downto 8)
+			)
+	    r ^ rs2 // return value
 	}
 
 	// reuse the middle column of FT0 as FSb
-	def fun_aes32esi0(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(7 downto 0)
-	    val r = fun_aesft0_raw(idx)
-	    (r(15 downto 8).resize(32)       ) ^ rs2 // return value
-	}
-	def fun_aes32esi1(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(15 downto 8)
-	    val r = fun_aesft0_raw(idx)
-	    (r(15 downto 8).resize(32) |<<  8) ^ rs2 // return value
-	}
-	def fun_aes32esi2(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(23 downto 16)
-	    val r = fun_aesft0_raw(idx)
-	    (r(15 downto 8).resize(32) |<< 16) ^ rs2 // return value
-	}
-	def fun_aes32esi3(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(31 downto 24)
-	    val r = fun_aesft0_raw(idx)
-	    (r(15 downto 8).resize(32) |<< 24) ^ rs2 // return value
+	def fun_aes32esi(rs1: Bits, rs2: Bits, sel: Bits) : Bits = {
+	    val idx = (sel).mux(
+			B"2'b00" -> rs1( 7 downto  0),
+			B"2'b01" -> rs1(15 downto  8),
+			B"2'b10" -> rs1(23 downto 16),
+			B"2'b11" -> rs1(31 downto 24)
+			)
+	    val x = fun_aesft0_raw(idx)(15 downto 8)
+	    val r = (sel).mux(
+			B"2'b00" -> x.resize(32),
+			B"2'b01" -> (x <<  8).resize(32),
+			B"2'b10" -> (x << 16).resize(32),
+			B"2'b11" -> (x << 24).resize(32)
+			)
+	    r ^ rs2 // return value
 	}
 
         // even more massive MUX implementing RT0
@@ -608,25 +582,21 @@ P	"""
 		r // return value;
 	}
 
-	def fun_aes32dsmi0(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(7 downto 0)
-	    val r = fun_aesrt0_raw(idx)
-	    r(31 downto 0) ^ rs2 // return value
-	}
-	def fun_aes32dsmi1(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(15 downto 8)
-	    val r = fun_aesrt0_raw(idx)
-	    (r(23 downto 0) ## r(31 downto 24)) ^ rs2 // return value
-	}
-	def fun_aes32dsmi2(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(23 downto 16)
-	    val r = fun_aesrt0_raw(idx)
-	    (r(15 downto 0) ## r(31 downto 16)) ^ rs2 // return value
-	}
-	def fun_aes32dsmi3(rs1: Bits, rs2: Bits) : Bits = {
-	    val idx = rs1(31 downto 24)
-	    val r = fun_aesrt0_raw(idx)
-	    (r(7 downto 0) ## r(31 downto 8)) ^ rs2 // return value
+	def fun_aes32dsmi(rs1: Bits, rs2: Bits, sel: Bits) : Bits = {
+	    val idx = (sel).mux(
+			B"2'b00" -> rs1( 7 downto  0),
+			B"2'b01" -> rs1(15 downto  8),
+			B"2'b10" -> rs1(23 downto 16),
+			B"2'b11" -> rs1(31 downto 24)
+			)
+	    val x = fun_aesrt0_raw(idx)
+	    val r = (sel).mux(
+			B"2'b00" -> x(31 downto 0),
+			B"2'b01" -> x(23 downto 0) ## x(31 downto 24),
+			B"2'b10" -> x(15 downto 0) ## x(31 downto 16),
+			B"2'b11" -> x( 7 downto 0) ## x(31 downto 8)
+			)
+	    r ^ rs2 // return value
 	}
 
 	def fun_aesrsb_raw(in:Bits) : Bits = {
