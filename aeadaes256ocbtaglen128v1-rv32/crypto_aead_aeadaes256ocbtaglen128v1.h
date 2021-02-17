@@ -1,0 +1,31 @@
+#ifndef crypto_aead_aeadaes256ocbtaglen128v1_H
+#define crypto_aead_aeadaes256ocbtaglen128v1_H
+
+#define crypto_aead_aeadaes256ocbtaglen128v1_rv32_KEYBYTES 32
+#define crypto_aead_aeadaes256ocbtaglen128v1_rv32_NSECBYTES 0
+#define crypto_aead_aeadaes256ocbtaglen128v1_rv32_NPUBBYTES 12
+#define crypto_aead_aeadaes256ocbtaglen128v1_rv32_ABYTES 16
+ 
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern int crypto_aead_aeadaes256ocbtaglen128v1_rv32_encrypt(unsigned char *,unsigned long long *,const unsigned char *,unsigned long long,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *,const unsigned char *);
+extern int crypto_aead_aeadaes256ocbtaglen128v1_rv32_decrypt(unsigned char *,unsigned long long *,unsigned char *,const unsigned char *,unsigned long long,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *);
+#ifdef __cplusplus
+}
+#endif
+
+#define crypto_aead_aeadaes256ocbtaglen128v1_encrypt crypto_aead_aeadaes256ocbtaglen128v1_rv32_encrypt
+#define crypto_aead_aeadaes256ocbtaglen128v1_decrypt crypto_aead_aeadaes256ocbtaglen128v1_rv32_decrypt
+#define crypto_aead_aeadaes256ocbtaglen128v1_KEYBYTES crypto_aead_aeadaes256ocbtaglen128v1_rv32_KEYBYTES
+#define crypto_aead_aeadaes256ocbtaglen128v1_NSECBYTES crypto_aead_aeadaes256ocbtaglen128v1_rv32_NSECBYTES
+#define crypto_aead_aeadaes256ocbtaglen128v1_NPUBBYTES crypto_aead_aeadaes256ocbtaglen128v1_rv32_NPUBBYTES
+#define crypto_aead_aeadaes256ocbtaglen128v1_ABYTES crypto_aead_aeadaes256ocbtaglen128v1_rv32_ABYTES
+#define crypto_aead_aeadaes256ocbtaglen128v1_NOOVERLAP crypto_aead_aeadaes256ocbtaglen128v1_rv32_NOOVERLAP
+#define crypto_aead_aeadaes256ocbtaglen128v1_IMPLEMENTATION "crypto_aead/aeadaes256ocbtaglen128v1/dolbeau/aesenc-int"
+#ifndef crypto_aead_aeadaes256ocbtaglen128v1_rv32_VERSION
+#define crypto_aead_aeadaes256ocbtaglen128v1_rv32_VERSION "-"
+#endif
+#define crypto_aead_aeadaes256ocbtaglen128v1_VERSION crypto_aead_aeadaes256ocbtaglen128v1_rv32_VERSION
+
+#endif
