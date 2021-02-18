@@ -100,7 +100,10 @@ CryptoZkne.scala: gen_plugin data_aes.txt
 CryptoZknh.scala: gen_plugin data_sha.txt
 	./gen_plugin -n CryptoZknh -i data_sha.txt -I '*' >| $@
 
-## Zks, Zkr not supported
+## Zkr not supported
+
+CryptoZks.scala: gen_plugin data_sm3.txt data_sm4.txt
+	./gen_plugin -n CryptoZks -i data_sm3.txt -i data_sm4.txt -I '*' >| $@
 
 CryptoSM3.scala:  gen_plugin data_sm3.txt
 	./gen_plugin -n CryptoSM3 -i data_sm3.txt -I '*' >| $@
@@ -121,7 +124,7 @@ B: BitManipZba.scala BitManipZbb.scala BitManipZbc.scala BitManipZbf.scala BitMa
 
 P: PDataProcess.scala PSlowDataProcess.scala P64DataProcess.scala
 
-Z: CryptoZkg.scala CryptoZknd.scala CryptoZkne.scala CryptoZknh.scala
+Z: CryptoZkg.scala CryptoZknd.scala CryptoZkne.scala CryptoZknh.scala CryptoZks.scala
 
 scala: B P Z
 
