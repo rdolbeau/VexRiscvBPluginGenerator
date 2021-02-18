@@ -105,6 +105,9 @@ CryptoZknh.scala: gen_plugin data_sha.txt
 CryptoSM3.scala:  gen_plugin data_sm3.txt
 	./gen_plugin -n CryptoSM3 -i data_sm3.txt -I '*' >| $@
 
+CryptoSM4.scala:  gen_plugin data_sm4.txt
+	./gen_plugin -n CryptoSM4 -i data_sm4.txt -I '*' >| $@
+
 PDataProcess.scala: gen_plugin data_Zpn.txt
 	./gen_plugin -n PDataProcess -i data_Zpn.txt -I Zpn >| $@
 
