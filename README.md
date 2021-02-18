@@ -12,7 +12,7 @@ The generated plugin is for RV32 only. It doesn't yet support all B instructions
 * BMAT*, as they are RV64-only
 * BDEP/BEXT
 * CRC32*
-* Three-operands instructions (CMIX, CMOV, FS[RL]*); they are available but need a VexRiscv patch to support the third input
+* Three-operands instructions (CMIX, CMOV, FS[RL]*); they are available but need a VexRiscv patch to support the third input (all VexRiscv patch are available on https://github.com/rdolbeau/VexRiscv/tree/three_operands)
 
 There is support for partial instructions (rev8, zext.h, orc.b) so that the default plugins generated for Zba, Zbb and Zbc should be feature-complete. To get everything without conflicts, use:
 `new BitManipZbaPlugin, new BitManipZbbZbpPlugin, new BitManipZbcPlugin, new BitManipBFPOnlyPlugin, new BitManipZbsPlugin, new BitManipZbtPlugin,`
