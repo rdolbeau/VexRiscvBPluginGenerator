@@ -50,3 +50,11 @@ test_b.c is a small synthetic test for RV32IMAB Linux, to check B instructions w
 `aes256ctrstandalone-rv32` and `aes256gcmv1standalone-rv32` are stand-alone codes extracted from the [Supercop](http://bench.cr.yp.to/supercop.html) benchmark. They should give the same results (checksums) as the version in Supercop, and require `Zkne` (AES encryption instructions) in addition to some of B. `aes256gcmv1standalone-rv32` also requires `clmul[h]`.
 
 `sha256standalone-rv32` and `sha512standalone-rv32` are stand-alone codes extracted from the [Supercop](http://bench.cr.yp.to/supercop.html) benchmark. They should give the same results (checksums) as the version in Supercop, and require `Zknh` (SHA hash instructions) in addition to some of B.
+
+# Acknowledgements
+
+This work has partly been done as part of the European Processor Initiative project.
+
+The European Processor Initiative (EPI) (FPA: 800928) has received funding from the Europe
+an Union's Horizon 2020 research and innovation programme under grant agreement EPI-SGA1: 
+826647
