@@ -1,0 +1,20 @@
+I	SM3P0	SM3P0	000100001000-----001-----0010011	sm3	Zks
+I	SM3P1	SM3P1 	000100001001-----001-----0010011	sm3	Zks
+
+S	SM3P0	"fun_sm3p0(input(SRC1))"
+S	SM3P1	"fun_sm3p1(input(SRC1))"
+
+P   """
+	def fun_sm3p0(rs1: Bits) : Bits = {
+		val rs1l9  = rs1(22 downto 0) ## rs1(31 downto 23)
+		val rs1l17 = rs1(14 downto 0) ## rs1(31 downto 15)
+		val r = rs1 ^ rs1l9 ^ rs1l17
+		r // return value
+	}
+	def fun_sm3p1(rs1: Bits) : Bits = {
+		val rs1l15 = rs1(16 downto 0) ## rs1(31 downto 17)
+		val rs1l23 = rs1( 8 downto 0) ## rs1(31 downto  9)
+		val r = rs1 ^ rs1l15 ^ rs1l23
+		r // return value
+	}
+"""

@@ -102,6 +102,9 @@ CryptoZknh.scala: gen_plugin data_sha.txt
 
 ## Zks, Zkr not supported
 
+CryptoSM3.scala:  gen_plugin data_sm3.txt
+	./gen_plugin -n CryptoSM3 -i data_sm3.txt -I '*' >| $@
+
 PDataProcess.scala: gen_plugin data_Zpn.txt
 	./gen_plugin -n PDataProcess -i data_Zpn.txt -I Zpn >| $@
 

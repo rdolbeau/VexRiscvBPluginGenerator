@@ -1,31 +1,164 @@
-Usage in Artix-7 35T for the whole LiteX SoC without B:
-+----------------------------+------+-------+-----------+-------+
-|          Site Type         | Used | Fixed | Available | Util% |
-+----------------------------+------+-------+-----------+-------+
-| Slice LUTs                 | 5400 |     0 |     20800 | 25.96 |
-|   LUT as Logic             | 5230 |     0 |     20800 | 25.14 |
-|   LUT as Memory            |  170 |     0 |      9600 |  1.77 |
-|     LUT as Distributed RAM |  168 |     0 |           |       |
-|     LUT as Shift Register  |    2 |     0 |           |       |
-| Slice Registers            | 4660 |     0 |     41600 | 11.20 |
-|   Register as Flip Flop    | 4660 |     0 |     41600 | 11.20 |
-|   Register as Latch        |    0 |     0 |     41600 |  0.00 |
-| F7 Muxes                   |   78 |     0 |     16300 |  0.48 |
-| F8 Muxes                   |   13 |     0 |      8150 |  0.16 |
-+----------------------------+------+-------+-----------+-------+
+As of VecRiscv commit 36b3cd918896c94c4e8a224d97c559ab6dbf3ec9,
+plugin commit 8ad11036be11a77c261328233168ad080286da33.
+Set to 80 MHz as timings are constrained when using a lof
+of extra instructions. Usage from "utilization_place.rpt".
+Just one core.
 
-Usage in Artix-7 35T for the whole LiteX SoC with everything:
+1) Usage in Artix-7 35T for the whole LiteX SoC with no patch (C is disabled by default in VexRiscV, so rv32ima).
 +----------------------------+------+-------+-----------+-------+
 |          Site Type         | Used | Fixed | Available | Util% |
 +----------------------------+------+-------+-----------+-------+
-| Slice LUTs                 | 8040 |     0 |     20800 | 38.65 |
-|   LUT as Logic             | 7870 |     0 |     20800 | 37.84 |
-|   LUT as Memory            |  170 |     0 |      9600 |  1.77 |
-|     LUT as Distributed RAM |  168 |     0 |           |       |
-|     LUT as Shift Register  |    2 |     0 |           |       |
-| Slice Registers            | 4688 |     0 |     41600 | 11.27 |
-|   Register as Flip Flop    | 4688 |     0 |     41600 | 11.27 |
+| Slice LUTs                 | 8142 |     0 |     20800 | 39.14 |
+|   LUT as Logic             | 7410 |     0 |     20800 | 35.63 |
+|   LUT as Memory            |  732 |     0 |      9600 |  7.63 |
+|     LUT as Distributed RAM |  712 |     0 |           |       |
+|     LUT as Shift Register  |   20 |     0 |           |       |
+| Slice Registers            | 6845 |     0 |     41600 | 16.45 |
+|   Register as Flip Flop    | 6845 |     0 |     41600 | 16.45 |
 |   Register as Latch        |    0 |     0 |     41600 |  0.00 |
-| F7 Muxes                   |  251 |     0 |     16300 |  1.54 |
-| F8 Muxes                   |   85 |     0 |      8150 |  1.04 |
+| F7 Muxes                   |   69 |     0 |     16300 |  0.42 |
+| F8 Muxes                   |    5 |     0 |      8150 |  0.06 |
 +----------------------------+------+-------+-----------+-------+
++-------------------+------+-------+-----------+-------+
+|     Site Type     | Used | Fixed | Available | Util% |
++-------------------+------+-------+-----------+-------+
+| Block RAM Tile    |   21 |     0 |        50 | 42.00 |
+|   RAMB36/FIFO*    |   20 |     0 |        50 | 40.00 |
+|     RAMB36E1 only |   20 |       |           |       |
+|   RAMB18          |    2 |     0 |       100 |  2.00 |
+|     RAMB18E1 only |    2 |       |           |       |
++-------------------+------+-------+-----------+-------+
++----------------+------+-------+-----------+-------+
+|    Site Type   | Used | Fixed | Available | Util% |
++----------------+------+-------+-----------+-------+
+| DSPs           |    4 |     0 |        90 |  4.44 |
+|   DSP48E1 only |    4 |       |           |       |
++----------------+------+-------+-----------+-------+
+
+2) Usage in Artix-7 35T for the whole LiteX SoC with patches to support extensions, csr access for the cycle counter, new EvenOdd register file but no additional instructions:
++----------------------------+------+-------+-----------+-------+
+|          Site Type         | Used | Fixed | Available | Util% |
++----------------------------+------+-------+-----------+-------+
+| Slice LUTs                 | 8301 |     0 |     20800 | 39.91 |
+|   LUT as Logic             | 7521 |     0 |     20800 | 36.16 |
+|   LUT as Memory            |  780 |     0 |      9600 |  8.13 |
+|     LUT as Distributed RAM |  760 |     0 |           |       |
+|     LUT as Shift Register  |   20 |     0 |           |       |
+| Slice Registers            | 6946 |     0 |     41600 | 16.70 |
+|   Register as Flip Flop    | 6946 |     0 |     41600 | 16.70 |
+|   Register as Latch        |    0 |     0 |     41600 |  0.00 |
+| F7 Muxes                   |   76 |     0 |     16300 |  0.47 |
+| F8 Muxes                   |   10 |     0 |      8150 |  0.12 |
++----------------------------+------+-------+-----------+-------+
+(memory, DSP unchanged).
+
+3) Usage in Artix-7 35T for the whole LiteX SoC with the patches above in 2), plus:
+"new CryptoZkndPlugin(earlyInjection = false),
+ new CryptoZknePlugin(earlyInjection = false),
+ new CryptoZknhPlugin,"
+ i.e. the Zkn extension
+ +----------------------------+------+-------+-----------+-------+
+|          Site Type         | Used | Fixed | Available | Util% |
++----------------------------+------+-------+-----------+-------+
+| Slice LUTs                 | 8959 |     0 |     20800 | 43.07 |
+|   LUT as Logic             | 8179 |     0 |     20800 | 39.32 |
+|   LUT as Memory            |  780 |     0 |      9600 |  8.13 |
+|     LUT as Distributed RAM |  760 |     0 |           |       |
+|     LUT as Shift Register  |   20 |     0 |           |       |
+| Slice Registers            | 7017 |     0 |     41600 | 16.87 |
+|   Register as Flip Flop    | 7017 |     0 |     41600 | 16.87 |
+|   Register as Latch        |    0 |     0 |     41600 |  0.00 |
+| F7 Muxes                   |  191 |     0 |     16300 |  1.17 |
+| F8 Muxes                   |   53 |     0 |      8150 |  0.65 |
++----------------------------+------+-------+-----------+-------+
+(memory, DSP unchanged).
+
+4) Idem 3) but adding "new BitManipZbcPlugin(earlyInjection = false)," as well
++----------------------------+------+-------+-----------+-------+
+|          Site Type         | Used | Fixed | Available | Util% |
++----------------------------+------+-------+-----------+-------+
+| Slice LUTs                 | 9430 |     0 |     20800 | 45.34 |
+|   LUT as Logic             | 8650 |     0 |     20800 | 41.59 |
+|   LUT as Memory            |  780 |     0 |      9600 |  8.13 |
+|     LUT as Distributed RAM |  760 |     0 |           |       |
+|     LUT as Shift Register  |   20 |     0 |           |       |
+| Slice Registers            | 7051 |     0 |     41600 | 16.95 |
+|   Register as Flip Flop    | 7051 |     0 |     41600 | 16.95 |
+|   Register as Latch        |    0 |     0 |     41600 |  0.00 |
+| F7 Muxes                   |  194 |     0 |     16300 |  1.19 |
+| F8 Muxes                   |   53 |     0 |      8150 |  0.65 |
++----------------------------+------+-------+-----------+-------+
+(memory, DSP unchanged).
+
+5) Usage in Artix-7 35T for the whole LiteX SoC with the patches above in 2), plus:
+"new BitManipZbaPlugin,
+ new BitManipZbbZbpPlugin,
+ new BitManipZbcPlugin(earlyInjection = false),
+ new BitManipBFPOnlyPlugin,
+ new BitManipZbsPlugin,
+ new BitManipZbtPlugin,
+"
+i.e. all the supported B instructions that are in a subextension (slo/sro not present), but no crypto.
++----------------------------+-------+-------+-----------+-------+
+|          Site Type         |  Used | Fixed | Available | Util% |
++----------------------------+-------+-------+-----------+-------+
+| Slice LUTs                 | 10735 |     0 |     20800 | 51.61 |
+|   LUT as Logic             |  9907 |     0 |     20800 | 47.63 |
+|   LUT as Memory            |   828 |     0 |      9600 |  8.63 |
+|     LUT as Distributed RAM |   808 |     0 |           |       |
+|     LUT as Shift Register  |    20 |     0 |           |       |
+| Slice Registers            |  7036 |     0 |     41600 | 16.91 |
+|   Register as Flip Flop    |  7036 |     0 |     41600 | 16.91 |
+|   Register as Latch        |     0 |     0 |     41600 |  0.00 |
+| F7 Muxes                   |   101 |     0 |     16300 |  0.62 |
+| F8 Muxes                   |    11 |     0 |      8150 |  0.13 |
++----------------------------+-------+-------+-----------+-------+
+(memory, DSP unchanged).
+
+6) Usage in Artix-7 35T for the whole LiteX SoC with the patches above in 2), plus the plugins listed in 3) & 5), i.e nearly everything.
++----------------------------+-------+-------+-----------+-------+
+|          Site Type         |  Used | Fixed | Available | Util% |
++----------------------------+-------+-------+-----------+-------+
+| Slice LUTs                 | 11368 |     0 |     20800 | 54.65 |
+|   LUT as Logic             | 10540 |     0 |     20800 | 50.67 |
+|   LUT as Memory            |   828 |     0 |      9600 |  8.63 |
+|     LUT as Distributed RAM |   808 |     0 |           |       |
+|     LUT as Shift Register  |    20 |     0 |           |       |
+| Slice Registers            |  7109 |     0 |     41600 | 17.09 |
+|   Register as Flip Flop    |  7109 |     0 |     41600 | 17.09 |
+|   Register as Latch        |     0 |     0 |     41600 |  0.00 |
+| F7 Muxes                   |   192 |     0 |     16300 |  1.18 |
+| F8 Muxes                   |    53 |     0 |      8150 |  0.65 |
++----------------------------+-------+-------+-----------+-------+
+(memory, DSP unchanged).
+
+7) Adding C, CryptoSM3 and going dual-core:
++----------------------------+-------+-------+-----------+-------+
+|          Site Type         |  Used | Fixed | Available | Util% |
++----------------------------+-------+-------+-----------+-------+
+| Slice LUTs                 | 19641 |     0 |     20800 | 94.43 |
+|   LUT as Logic             | 18466 |     0 |     20800 | 88.78 |
+|   LUT as Memory            |  1175 |     0 |      9600 | 12.24 |
+|     LUT as Distributed RAM |  1172 |     0 |           |       |
+|     LUT as Shift Register  |     3 |     0 |           |       |
+| Slice Registers            | 11663 |     0 |     41600 | 28.04 |
+|   Register as Flip Flop    | 11663 |     0 |     41600 | 28.04 |
+|   Register as Latch        |     0 |     0 |     41600 |  0.00 |
+| F7 Muxes                   |   470 |     0 |     16300 |  2.88 |
+| F8 Muxes                   |    93 |     0 |      8150 |  1.14 |
++----------------------------+-------+-------+-----------+-------+
++-------------------+------+-------+-----------+-------+
+|     Site Type     | Used | Fixed | Available | Util% |
++-------------------+------+-------+-----------+-------+
+| Block RAM Tile    |   32 |     0 |        50 | 64.00 |
+|   RAMB36/FIFO*    |   26 |     0 |        50 | 52.00 |
+|     RAMB36E1 only |   26 |       |           |       |
+|   RAMB18          |   12 |     0 |       100 | 12.00 |
+|     RAMB18E1 only |   12 |       |           |       |
++-------------------+------+-------+-----------+-------+
++----------------+------+-------+-----------+-------+
+|    Site Type   | Used | Fixed | Available | Util% |
++----------------+------+-------+-----------+-------+
+| DSPs           |    8 |     0 |        90 |  8.89 |
+|   DSP48E1 only |    8 |       |           |       |
++----------------+------+-------+-----------+-------+
