@@ -1,4 +1,4 @@
-# B plugin generator for VexRiscv
+# B/K/... plugin generator for VexRiscv
 
 **beware** This is targeting the bitmanip extension (B) on an intermediate draft from January 20, 2021, so opcodes and subsets might be not match the current version of B. Ditto for Z, this is targeting version 0.8.1. Both may require feature patch to VexRiscv, see below. Packed SIMD (P) stuff is missing a lot of feature and targets 0.92.
 
