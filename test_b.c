@@ -98,12 +98,24 @@ static inline int64_t _rv64_clmul2(int64_t rs1, int64_t rs2)
 
   unsigned int a = 0x01234567;
 
+//#define CHECK_SIGILL
+
+#if defined(CHECK_SIGILL)
+#include <setjmp.h>
+extern jmp_buf jb;
+void installillhandler(void);
+#endif // CHECK_SIGILL
+
 int main(int argc, char **argv) {
   unsigned int b = 0xdeadbeef;
   unsigned int c;
   unsigned int d = 0xC0FFEE00;
   unsigned int index;
   unsigned int index2;
+  
+#if defined(CHECK_SIGILL)
+  installillhandler();
+#endif // CHECK_SIGILL
 
   if (argc > 1)
     a = strtoul(argv[1], NULL, 16);
@@ -112,12 +124,49 @@ int main(int argc, char **argv) {
   if (argc > 3)
     d = strtoul(argv[3], NULL, 16);
 
-#define T2(X) \
+  #if !defined(CHECK_SIGILL)
+#define T2(X)							\
   c = X(a,b);printf(#X "(0x%08x, 0x%08x) -> 0x%08x\n", a, b, c)
 #define T1(X) \
   c = X(a);printf(#X "(0x%08x) -> 0x%08x\n", a, c)
 #define T3(X) \
-  c = X(a,d,b);printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, d, b, c)
+  c = X(a,b,d);printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, b, d, c)
+#define T2W(X)							\
+  cq = X(a,b);printf(#X "(0x%08x, 0x%08x) -> 0x%016llx\n", a, b, cq)
+#else
+#define T2(X) do {							\
+    if (setjmp(jb)) {							\
+      printf(#X "(0x%08x, 0x%08x) -> *SIGILL*\n", a, b);		\
+    } else {								\
+      c = X(a,b);							\
+      printf(#X "(0x%08x, 0x%08x) -> 0x%08x\n", a, b, c);		\
+    }									\
+  } while (0)
+#define T1(X) do {							\
+    if (setjmp(jb)) {							\
+      printf(#X "(0x%08x) -> *SIGILL*\n", a);				\
+    } else {								\
+      c = X(a);								\
+      printf(#X "(0x%08x) -> 0x%08x\n", a, c);				\
+    }									\
+  } while (0)
+#define T3(X) do {							\
+    if (setjmp(jb)) {							\
+      printf(#X "(0x%08x, 0x%08x, 0x%08x) -> *SIGILL*\n", a, b, d);	\
+    } else {								\
+      c = X(a,b,d);							\
+      printf(#X "(0x%08x, 0x%08x, 0x%08x) -> 0x%08x\n", a, b, d, c);	\
+    }									\
+  } while (0)
+#define T2W(X) do {							\
+    if (setjmp(jb)) {							\
+      printf(#X "(0x%08x, 0x%08x) -> *SIGILL*\n", a, b);		\
+    } else {								\
+      cq = X(a,b);							\
+      printf(#X "(0x%08x, 0x%08x) -> 0x%016llx\n", a, b, cq);		\
+    }									\
+  } while (0)
+#endif // CHECK_SIGILL
 
   for (index = 0 ; index < 32 ; index++) {
   
@@ -138,9 +187,9 @@ int main(int argc, char **argv) {
   T2(_rv_xnor);
   T2(_rv_orn);
 
-  // T2(_rv32_sh1add);
-  // T2(_rv32_sh2add);
-  // T2(_rv32_sh3add);
+  //T2(_rv32_sh1add);
+  //T2(_rv32_sh2add);
+  //T2(_rv32_sh3add);
 
   T2(_rv32_sbset);
   T2(_rv32_sbclr);
@@ -152,8 +201,8 @@ int main(int argc, char **argv) {
   T2(_rv32_max);
   T2(_rv32_maxu);
   
-  //T2(_rv32_slo);
-  //T2(_rv32_sro);
+  T2(_rv32_slo);
+  T2(_rv32_sro);
 
   //T2(_rv32_xperm_b);
 

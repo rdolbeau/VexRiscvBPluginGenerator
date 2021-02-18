@@ -785,18 +785,12 @@ GEN_ZUNPKD8(3,2)
   
   unsigned int a = 0x01234567;
 
-#define CHECK_SIGILL
+//#define CHECK_SIGILL
 
 #if defined(CHECK_SIGILL)
-#include <signal.h>
 #include <setjmp.h>
-
-static jmp_buf jb;
-
-static void sighandler(int x)
-{
-     longjmp(jb, 1);
-}
+extern jmp_buf jb;
+void installillhandler(void);
 #endif // CHECK_SIGILL
 
 int main(int argc, char **argv) {
@@ -806,9 +800,9 @@ int main(int argc, char **argv) {
   unsigned int index;
   unsigned int index2;
   unsigned long long cq = 0;
+  
 #if defined(CHECK_SIGILL)
-  void (*oldsig)(int);
-  oldsig = signal(SIGILL, sighandler);
+  installillhandler();
 #endif // CHECK_SIGILL
 
   if (argc > 1)
