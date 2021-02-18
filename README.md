@@ -21,7 +21,7 @@ This has received limited testing in a [Linux-on-Litex-VexRiscv](https://github.
 
 Also, the implementations of the instructions in SpinalHDL are written for tuncitonality, and not tuned or optimized in any way for performance/area/... (file usage.txt has some numbers).
 
-A separate data file include prototype support for RV32Zkn[ed] (AES encryption/decryption instructions) and RV32Zknh (SHA hash instructions) from the [K ("crypto")](https://github.com/riscv/riscv-crypto) extension draft 0.8.1. This requires another patch to VexRiscv, as Zkn[ed] use field rs1 instead of rd for the output register.
+A separate data file include prototype support for RV32Zkn[ed] (AES encryption/decryption instructions) and RV32Zknh (SHA hash instructions) from the [K ("crypto")](https://github.com/riscv/riscv-crypto) extension draft 0.8.1. This requires another patch to VexRiscv, as Zkn[ed] use field rs1 instead of rd for the output register. There is now support for SM3 and SM4 acceleration (collectively Zks), which requires an expanded version of the rs1-for-rd patch. 
 
 There's also some experimental support for some [P ("packed SIMD")](https://github.com/riscv/riscv-p-spec) instructions. It requires even more patches to VexRiscv, first to use a third input sourced from the destination register (so not R4 format like B's ternaries), and second to enable Zp64 instructions that write to two registers (x(2n) and x(2n+1)).
 
@@ -41,15 +41,21 @@ Will generate a plugin supporting Zbb (using the full version of `grev` and `gor
 ./gen_plugin -n BitManipAll -i data_bitmanip.txt -I '*' > BitManipAllPlugin.scala
 ```
 
+The plugin(s) can then be instantiated in the core definition. A way to test all of this is the [LiteX](https://github.com/enjoy-digital/litex/) SoC generator. There is a project to ease the generation of the SoC and associated software, [Linux-on-Litex-Vexriscv](https://github.com/litex-hub/linux-on-litex-vexriscv). This is what is used for the development of the new instructions.
+
 ## Test codes
 
 test_b.c is a small synthetic test for RV32IMAB Linux, to check B instructions with various test patterns. See in the file on how to use it.
 
-`chacha20standalone-rv32` is a stand-alone code extracted from the [Supercop](http://bench.cr.yp.to/supercop.html) benchmark (similar to https://github.com/rdolbeau/EPI-test-codes-vector/). It should give the same results (checksums) as the version in Supercop, and can be compiled for RV32IMA or RV32IMAB. From B, they mostly rely on the rotation instructions (although the B toolchain also generates other instructions, in particular those from Zba).
+`chacha20standalone-rv32` is a stand-alone code extracted from the [Supercop](http://bench.cr.yp.to/supercop.html) benchmark (similar to https://github.com/rdolbeau/EPI-test-codes-vector/), from `crypto_stream`. It should give the same results (checksums) as the version in Supercop, and can be compiled for RV32IMA or RV32IMAB. From B, they mostly rely on the rotation instructions (although the B toolchain also generates other instructions, in particular those from Zba).
 
-`aes256ctrstandalone-rv32` and `aes256gcmv1standalone-rv32` are stand-alone codes extracted from the [Supercop](http://bench.cr.yp.to/supercop.html) benchmark. They should give the same results (checksums) as the version in Supercop, and require `Zkne` (AES encryption instructions) in addition to some of B. `aes256gcmv1standalone-rv32` also requires `clmul[h]`.
+`aes256ctrstandalone-rv32` and `aes256gcmv1standalone-rv32` are stand-alone codes extracted from the [Supercop](http://bench.cr.yp.to/supercop.html) benchmark, from `crypto_stream` and `crypto_aead` respectively. They should give the same results (checksums) as the version in Supercop, and require `Zkne` (AES encryption instructions) in addition to some of B. `aes256gcmv1standalone-rv32` also requires `clmul[h]`.
 
-`sha256standalone-rv32` and `sha512standalone-rv32` are stand-alone codes extracted from the [Supercop](http://bench.cr.yp.to/supercop.html) benchmark. They should give the same results (checksums) as the version in Supercop, and require `Zknh` (SHA hash instructions) in addition to some of B.
+`sha256standalone-rv32` and `sha512standalone-rv32` are stand-alone codes extracted from the [Supercop](http://bench.cr.yp.to/supercop.html) benchmark, from `crypto_hashblocks`. They should give the same results (checksums) as the version in Supercop, and require `Zknh` (SHA hash instructions) in addition to some of B.
+
+`aes256encrypt-rv32` and `aes256decrypt-rv32` are on the same line, from `crypto_core`.
+
+`aeadaes256ocbtaglen128v1-rv32` is on the same line, from `crypto_aead`.
 
 # Acknowledgements
 
