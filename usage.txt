@@ -132,20 +132,20 @@ i.e. all the supported B instructions that are in a subextension (slo/sro not pr
 +----------------------------+-------+-------+-----------+-------+
 (memory, DSP unchanged).
 
-7) Adding C, CryptoSM3 and going dual-core:
+7) Adding C (for compatibility with https://github.com/rvkrypto/rvkrypto-fips binaries), CryptoSM3, CryptoSM4 and going dual-core:
 +----------------------------+-------+-------+-----------+-------+
 |          Site Type         |  Used | Fixed | Available | Util% |
 +----------------------------+-------+-------+-----------+-------+
-| Slice LUTs                 | 19641 |     0 |     20800 | 94.43 |
-|   LUT as Logic             | 18466 |     0 |     20800 | 88.78 |
+| Slice LUTs                 | 19886 |     0 |     20800 | 95.61 |
+|   LUT as Logic             | 18711 |     0 |     20800 | 89.96 |
 |   LUT as Memory            |  1175 |     0 |      9600 | 12.24 |
 |     LUT as Distributed RAM |  1172 |     0 |           |       |
 |     LUT as Shift Register  |     3 |     0 |           |       |
-| Slice Registers            | 11663 |     0 |     41600 | 28.04 |
-|   Register as Flip Flop    | 11663 |     0 |     41600 | 28.04 |
+| Slice Registers            | 11732 |     0 |     41600 | 28.20 |
+|   Register as Flip Flop    | 11732 |     0 |     41600 | 28.20 |
 |   Register as Latch        |     0 |     0 |     41600 |  0.00 |
-| F7 Muxes                   |   470 |     0 |     16300 |  2.88 |
-| F8 Muxes                   |    93 |     0 |      8150 |  1.14 |
+| F7 Muxes                   |   503 |     0 |     16300 |  3.09 |
+| F8 Muxes                   |   111 |     0 |      8150 |  1.36 |
 +----------------------------+-------+-------+-----------+-------+
 +-------------------+------+-------+-----------+-------+
 |     Site Type     | Used | Fixed | Available | Util% |
