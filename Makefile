@@ -128,15 +128,7 @@ scala: B P Z
 
 include $(DEPXX)
 
-## B Toolchain so we get some automatic B generation
-R5B_TOOLCHAIN=/opt/riscv64b/
-R5B_GCC=$(R5B_TOOLCHAIN)/bin/riscv64-unknown-elf-gcc
-R5B_OPT=-Os -march=rv32imab -mabi=ilp32 -I.
-## Buildroot toolchain for linking and hacing up-to-date libraries and systems calls
-R5IMA_TOOLCHAIN=/home/dolbeau2/LITEX/buildroot-rv32/output/host
-R5IMA_GCC=$(R5IMA_TOOLCHAIN)/bin/riscv32-buildroot-linux-gnu-gcc
-R5IMA_OPT=-Os -march=rv32ima -mabi=ilp32 -I.
-R5IMA_STRIP=$(R5IMA_TOOLCHAIN)/riscv32-buildroot-linux-gnu-strip
+include r5.mk
 
 NEWINST_H=new_instructions_support_b.h new_instructions_support.h new_instructions_support_k.h new_instructions_support_p.h
 
