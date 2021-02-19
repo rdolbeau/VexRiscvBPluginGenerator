@@ -57,15 +57,15 @@ uint_xlen_t xperm_h (uint_xlen_t rs1, uint_xlen_t rs2) {  return xperm(rs1, rs2,
 uint_xlen_t xperm_w (uint_xlen_t rs1, uint_xlen_t rs2) {  return xperm(rs1, rs2, 5); }
 
   
-uint_xlen_t sh1add(uint_xlen_t rs1, uint_xlen_t rs2)
+uint_xlen_t _sh1add(uint_xlen_t rs1, uint_xlen_t rs2)
 {
     return (rs1 << 1) + rs2;
 }
-uint_xlen_t sh2add(uint_xlen_t rs1, uint_xlen_t rs2)
+uint_xlen_t _sh2add(uint_xlen_t rs1, uint_xlen_t rs2)
 {
     return (rs1 << 2) + rs2;
 }
-uint_xlen_t sh3add(uint_xlen_t rs1, uint_xlen_t rs2)
+uint_xlen_t _sh3add(uint_xlen_t rs1, uint_xlen_t rs2)
 {
     return (rs1 << 3) + rs2;
 }
@@ -226,9 +226,9 @@ int main(int argc, char **argv) {
   }
 
   // extra stuff
-  T2(sh1add);
-  T2(sh2add);
-  T2(sh3add);
+  T2(_sh1add);
+  T2(_sh2add);
+  T2(_sh3add);
 
   T2(xperm_n);
   T2(xperm_b);

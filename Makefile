@@ -4,6 +4,8 @@ DEPXX=$(SRCXX:.cpp=.d)
 OBJ=inst_par.o inst_lex.o
 LEX=flex
 YACC=bison -d #--report-file=bison.log --report=all
+CC=gcc
+CFLAGS=-O2
 CXX=g++
 CXXFLAGS=-O2
 
@@ -134,19 +136,22 @@ R5B_OPT=-Os -march=rv32imab -mabi=ilp32 -I.
 R5IMA_TOOLCHAIN=/home/dolbeau2/LITEX/buildroot-rv32/output/host
 R5IMA_GCC=$(R5IMA_TOOLCHAIN)/bin/riscv32-buildroot-linux-gnu-gcc
 R5IMA_OPT=-Os -march=rv32ima -mabi=ilp32 -I.
+R5IMA_STRIP=$(R5IMA_TOOLCHAIN)/riscv32-buildroot-linux-gnu-strip
+
+NEWINST_H=new_instructions_support_b.h new_instructions_support.h new_instructions_support_k.h new_instructions_support_p.h
 
 tests: test_b test_p
 
 signal.o: signal.c
 	$(R5IMA_GCC) $(R5IMA_OPT) -c $< -o $@
 
-test_b.S: test_b.c
+test_b.S: test_b.c $(NEWINST_H)
 	$(R5B_GCC) $(R5B_OPT) -DCHECK_SIGILL -S $< -o $@
 
 test_p.S: test_p.c
 	$(R5B_GCC) $(R5B_OPT) -DCHECK_SIGILL -S $< -o $@
 
-test_b.o: test_b.S
+test_b.o: test_b.S $(NEWINST_H)
 	$(R5B_GCC) $(R5B_OPT) -DCHECK_SIGILL -c $< -o $@
 
 test_p.o: test_p.S

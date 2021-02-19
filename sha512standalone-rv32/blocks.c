@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#ifdef RV32ZKNH
+#ifdef RV32K
 #include "new_instructions_support_k.h"
 #endif
 
@@ -39,7 +39,7 @@ static void store_bigendian(unsigned char *x,uint64_t u)
 #define Ch(x,y,z) ((x & y) ^ (~x & z))
 #define Maj(x,y,z) ((x & y) ^ (x & z) ^ (y & z))
 
-#ifndef RV32ZKNH
+#ifndef RV32K
 #define Sigma0(x) (ROTR(x,28) ^ ROTR(x,34) ^ ROTR(x,39))
 #define Sigma1(x) (ROTR(x,14) ^ ROTR(x,18) ^ ROTR(x,41))
 #define sigma0(x) (ROTR(x, 1) ^ ROTR(x, 8) ^ SHR(x,7))
