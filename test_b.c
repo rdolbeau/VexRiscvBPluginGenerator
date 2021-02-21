@@ -217,6 +217,11 @@ int main(int argc, char **argv) {
   T2(_rv32_clmulr);
   T2(_rv32_clmulh);
 
+#if defined(CHECK_SIGILL)
+  if (setjmp(jb)) {
+    printf("clmul[hr]: **SIGILL**\n");
+  } else
+#endif
   {
     int64_t x = 0xc4f5a63e4ac4567bULL ^ (uint64_t)a << 32 ^ (uint64_t)c << 17 ^ (uint64_t)b;
     int64_t y = 0x9ff123456aabbcc9ULL ^ (uint64_t)c << 32 ^ (uint64_t)b << 23 ^ (uint64_t)a;
@@ -244,6 +249,12 @@ int main(int argc, char **argv) {
 
   b = index;
   }
+#if defined(CHECK_SIGILL)
+  if (setjmp(jb)) {
+    printf("bfp: **SIGILL**\n");
+  } else
+#endif
+  {
   for (index2 = 0 ; index2 < 16 ; index2++) {
     for (index = 0 ; index < 32 ; index++){
       {
@@ -264,6 +275,7 @@ int main(int argc, char **argv) {
       }
     }
   }
+ }
 
   return 0;
 }
