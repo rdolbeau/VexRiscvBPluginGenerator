@@ -66,9 +66,13 @@ BitManipBFPonly.scala: gen_plugin data_bitmanip.txt
 ## includes both Zbb & Zbp to avoid redudancies as there is overlap
 ## and Zpb has full version instructions with partial implementation
 ## in Zbb
-## Should not be included along Zbb
+## Should not be included along Zbb or Zbp
 BitManipZbbZbp.scala: gen_plugin data_bitmanip.txt
 	./gen_plugin -n BitManipZbbZbp -i data_bitmanip.txt -I Zbb -I Zbp >| $@
+
+# stand-alone Zbp
+BitManipZbp.scala: gen_plugin data_bitmanip.txt
+	./gen_plugin -n BitManipZbp -i data_bitmanip.txt -I Zbp >| $@
 
 ## Zbr unimplemented, crc32* are missing
 
@@ -109,20 +113,20 @@ CryptoSM3.scala:  gen_plugin data_sm3.txt
 CryptoSM4.scala:  gen_plugin data_sm4.txt
 	./gen_plugin -n CryptoSM4 -i data_sm4.txt -I '*' >| $@
 
-PDataProcess.scala: gen_plugin data_Zpn.txt
-	./gen_plugin -n PDataProcess -i data_Zpn.txt -I Zpn >| $@
+PackedSIMDBase.scala: gen_plugin data_Zpn.txt
+	./gen_plugin -n PackedSIMDBase -i data_Zpn.txt -I Zpn >| $@
 
-PSlowDataProcess.scala: gen_plugin data_Zpn_2cycles.txt
-	./gen_plugin -n PSlowDataProcess -i data_Zpn_2cycles.txt -I Zpn >| $@
+PackedSIMDSlow.scala: gen_plugin data_Zpn_2cycles.txt
+	./gen_plugin -n PackedSIMDSlow -i data_Zpn_2cycles.txt -I Zpn >| $@
 
-P64DataProcess.scala: gen_plugin data_Zp64.txt
-	./gen_plugin -w -n P64DataProcess -i data_Zp64.txt -I '*' >| $@
+PackedSIMDWide.scala: gen_plugin data_Zp64.txt
+	./gen_plugin -w -n PackedSIMDWide -i data_Zp64.txt -I '*' >| $@
 
-B: BitManipZba.scala BitManipZbb.scala BitManipZbc.scala BitManipZbf.scala BitManipBFPonly.scala BitManipZbbZbp.scala BitManipZbs.scala BitManipZbt.scala
+B: BitManipZba.scala BitManipZbb.scala BitManipZbbZbp.scala BitManipZbc.scala BitManipZbf.scala BitManipBFPonly.scala BitManipZbp.scala BitManipZbs.scala BitManipZbt.scala
 
-P: PDataProcess.scala PSlowDataProcess.scala P64DataProcess.scala
+P: PackedSIMDBase.scala PackedSIMDSlow.scala PackedSIMDWide.scala
 
-Z: CryptoZkg.scala CryptoZknd.scala CryptoZkne.scala CryptoZknh.scala CryptoZks.scala
+Z: CryptoZkb.scala CryptoZkg.scala CryptoZknd.scala CryptoZkne.scala CryptoZknh.scala CryptoZks.scala
 
 scala: B P Z
 
