@@ -136,7 +136,7 @@ include r5.mk
 
 NEWINST_H=new_instructions_support_b.h new_instructions_support.h new_instructions_support_k.h new_instructions_support_p.h
 
-tests: test_b test_p
+tests: test_b test_p test_b.txt test_p.txt
 
 signal.o: signal.c
 	$(R5IMA_GCC) $(R5IMA_OPT) -c $< -o $@
@@ -158,6 +158,12 @@ test_b: test_b.o signal.o
 
 test_p: test_p.o signal.o
 	$(R5IMA_GCC) $(R5IMA_OPT) $^ -o $@
+
+test_b.txt: test_b.c
+	gcc -I. -O2 $< -o /tmp/a.out && /tmp/a.out | tee $@
+
+test_p.txt: test_p.c
+	gcc -I. -O2 $< -o /tmp/a.out && /tmp/a.out | tee $@
 
 ## avoid builtin rule for .o
 .SUFFIXES:
