@@ -52,7 +52,13 @@ BitManipZbb.scala: gen_plugin data_bitmanip.txt data_bitmanip_ZbbOnly.txt
 BitManipZbc.scala: gen_plugin data_clmul.txt
 	./gen_plugin -n BitManipZbc -i data_clmul.txt -I Zbc >| $@
 
-## Zbe unimplemented, b(de)compress are missing and pack[h] are in Zbf anyway
+# this is just pack[h], so don't use with Zbp or Zbf
+BitManipZbe1cycle.scala: gen_plugin data_bitmanip.txt
+	./gen_plugin -n BitManipZbe1cycle -i data_bitmanip.txt -I Zbe >| $@
+
+# b[de]compress, implemented over 2 cycles
+BitManipZbe2cycles.scala: gen_plugin data_bitmanip_compress.txt
+	./gen_plugin -n BitManipZbe2cycles -i data_bitmanip_compress.txt -I Zbe >| $@
 
 BitManipZbf.scala: gen_plugin data_bitmanip.txt
 	./gen_plugin -n BitManipZbf -i data_bitmanip.txt -I Zbf >| $@
@@ -122,7 +128,7 @@ PackedSIMDSlow.scala: gen_plugin data_Zpn_2cycles.txt
 PackedSIMDWide.scala: gen_plugin data_Zp64.txt
 	./gen_plugin -w -n PackedSIMDWide -i data_Zp64.txt -I '*' >| $@
 
-B: BitManipZba.scala BitManipZbb.scala BitManipZbbZbp.scala BitManipZbc.scala BitManipZbf.scala BitManipBFPonly.scala BitManipZbp.scala BitManipZbs.scala BitManipZbt.scala
+B: BitManipZba.scala BitManipZbb.scala BitManipZbbZbp.scala BitManipZbc.scala BitManipZbe1cycle.scala BitManipZbe2cycles.scala BitManipZbf.scala BitManipBFPonly.scala BitManipZbp.scala BitManipZbs.scala BitManipZbt.scala
 
 P: PackedSIMDBase.scala PackedSIMDSlow.scala PackedSIMDWide.scala
 

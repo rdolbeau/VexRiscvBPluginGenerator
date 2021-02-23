@@ -109,13 +109,6 @@ int main(int argc, char **argv) {
 	installillhandler();
 #endif // CHECK_SIGILL
 
-	if (argc > 1)
-		a = strtoul(argv[1], NULL, 16);
-	if (argc > 2)
-		b = strtoul(argv[2], NULL, 16);
-	if (argc > 3)
-		d = strtoul(argv[3], NULL, 16);
-
 	for (index = 0 ; index < nonrandom_cnt[0] ; index++) {
 		a = nonrandom_a[index];
 
@@ -192,6 +185,9 @@ int main(int argc, char **argv) {
 			T2(xperm_h);
 
 			T2(_rv32_bfp);
+
+			T2(_rv32_bdep);
+			T2(_rv32_bext);
 
 			for (index2 = 0 ; index2 < nonrandom_cnt[2] ; index2++) {
 				d = nonrandom_d[index2];

@@ -794,6 +794,10 @@ int main(int argc, char **argv) {
 	unsigned int index, index1, index2, index3;
 	unsigned long long cq = 0;
 
+#if defined(CHECK_SIGILL)
+	installillhandler();
+#endif // CHECK_SIGILL
+	
 	for (index = 0 ; index < nonrandom_cnt[0] ; index++) {
 		a = nonrandom_a[index];
 

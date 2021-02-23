@@ -1,0 +1,60 @@
+I	BDECOMPRESS	BDECOMPRESS	0100100----------110-----0110011	bcompress	Zbe
+I	BCOMPRESS	BCOMPRESS	0000100----------110-----0110011	bcompress	Zbe
+
+S	BCOMPRESS					"fun_compress1(input(SRC1), input(SRC2))"
+T	BCOMPRESS		53 			"fun_compress2"
+S	BDECOMPRESS					"fun_decompress1(input(SRC1), input(SRC2))"
+T	BDECOMPRESS		69 			"fun_decompress2"
+
+P	"""
+   def fun_compress1(rs1:Bits, rs2: Bits) : Bits = {
+	   var r = B"16'x0000"
+	   var j = (B"5'b00000").asUInt
+	   for (i <- 0 to 15) {
+	   	   val rs2i = rs2(i).asUInt
+	   	   val rs1i = rs2(i) & rs1(i)
+	   	   r = r | (rs1i.asBits << j).resize(16)
+		   j = j + rs2i
+	   }
+	   j.asBits.resize(5) ## r ## rs1(31 downto 16) ## rs2(31 downto 16)// return value
+   }
+   def fun_compress2(x:Bits) : Bits = {
+       val rs2 = x(15 downto 0)
+	   val rs1 = x(31 downto 16)
+	   var r = B"16'x0000" ## x(47 downto 32)
+	   var j = x(52 downto 48).asUInt
+	   
+	   for (i <- 0 to 15) {
+	   	   val rs2i = rs2(i).asUInt
+	   	   val rs1i = rs2(i) & rs1(i)
+	   	   r = r | (rs1i.asBits << j).resize(32)
+		   j = j + rs2i
+	   }
+	   r(31 downto 0) // return value
+   }
+   def fun_decompress1(rs1:Bits, rs2: Bits) : Bits = {
+	   var r = B"16'x0000"
+	   var j = (B"5'b00000").asUInt
+	   for (i <- 0 to 15) {
+	   	   val rs2i = rs2(i).asUInt
+	   	   val rs1j = rs2(i) & (rs1 >> j)(0)
+	   	   r = r | (rs1j.asBits << i).resize(16)
+		   j = j + rs2i
+	   }
+	   j.asBits.resize(5) ## r ## rs1(31 downto 0) ## rs2(31 downto 16)// return value
+   }
+   def fun_decompress2(x:Bits) : Bits = {
+       val rs2 = x(15 downto 0)
+	   val rs1 = x(47 downto 16)
+	   var r = B"16'x0000" ## x(63 downto 48)
+	   var j = x(68 downto 64).asUInt
+	   
+	   for (i <- 0 to 15) {
+	   	   val rs2i = rs2(i).asUInt
+	   	   val rs1j = rs2(i) & (rs1 >> j)(0)
+	   	   r = r | (rs1j.asBits << (i+16)).asBits.resize(32)
+		   j = j + rs2i
+	   }
+	   r(31 downto 0) // return value
+   }
+"""
