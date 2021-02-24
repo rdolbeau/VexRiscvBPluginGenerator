@@ -358,6 +358,36 @@ object BitManipZbbPlugin {
 	   
        x4 // return value
    }
+   def fun_revdotb(a:Bits) : Bits = {
+   	   val r = a(24) ## a(25) ## a(26) ## a(27) ## a(28) ## a(29) ## a(30) ## a(31) ##
+	   	   	   a(16) ## a(17) ## a(18) ## a(19) ## a(20) ## a(21) ## a(22) ## a(23) ##
+			   a( 8) ## a( 9) ## a(10) ## a(11) ## a(12) ## a(13) ## a(14) ## a(15) ##
+			   a( 0) ## a( 1) ## a( 2) ## a( 3) ## a( 4) ## a( 5) ## a( 6) ## a( 7)
+
+   	   r // return value;
+   }
+   // helper function for the implementation of the generalized shuffles
+   def fun_shuffle32bis_stage(src:Bits, maskL:Bits, maskR:Bits, N:Int) : Bits = {
+       val x = src & ~(maskL | maskR)
+       val x2 = x | ((src |<< N) & maskL) | ((src |>> N) & maskR);
+       x2 // return value
+   }
+   def fun_zip(a:Bits) : Bits = {
+       val x = a;
+       val x1 = fun_shuffle32bis_stage(x , B"32'x00FF0000", B"32'x0000FF00", 8)
+       val x2 = fun_shuffle32bis_stage(x1, B"32'x0F000F00", B"32'x00F000F0", 4)
+       val x3 = fun_shuffle32bis_stage(x2, B"32'x30303030", B"32'x0C0C0C0C", 2)
+       val x4 = fun_shuffle32bis_stage(x3, B"32'x44444444", B"32'x22222222", 1)
+       x4 // return value
+   }
+   def fun_unzip(a:Bits) : Bits = {
+      val x = a;
+      val x1 = fun_shuffle32bis_stage(x , B"32'x44444444", B"32'x22222222", 1)
+      val x2 = fun_shuffle32bis_stage(x1, B"32'x30303030", B"32'x0C0C0C0C", 2)
+      val x3 = fun_shuffle32bis_stage(x2, B"32'x0F000F00", B"32'x00F000F0", 4)
+      val x4 = fun_shuffle32bis_stage(x3, B"32'x00FF0000", B"32'x0000FF00", 8)
+      x4 // return value
+   }
 
 // End prologue
 } // object Plugin

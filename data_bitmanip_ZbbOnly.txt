@@ -7,8 +7,8 @@
 //I	PACK	PACK	0000100----------100-----0110011	pack
 //I	GORCI	GORC	00101------------101-----0010011	grevorc
 //I	GREVI	GREV	01101------------101-----0010011	grevorc
-//I	SHFL	SHFL	0000100----------001-----0110011	shuffle
-//I	UNSHFL	UNSHFL	0000100----------101-----0110011	shuffle
+//I	SHFLI	SHFL	0000100----------001-----0010011	shuffle
+//I	UNSHFLI	UNSHFL	0000100----------101-----0010011	shuffle
 
 // For Zbb
 // ZEXT.H -> PACK w/ RS2 == 0
@@ -19,16 +19,19 @@ I	ORCdotB	ORCdotB	  001010000111-----101-----0010011	grevorc		Zbb
 I	REV8	REV8	  011010011000-----101-----0010011	grevorc		Zbb	Zkb
 // those are for Zkb only
 // REVdotB -> GREVI w/ imm == 7 (0000111)
-//I	REVdotB	REVdotB	  011010000111-----101-----0010011	grevorc			Zkb
-// ZIP -> SHFL w/ imm == 01111
-//I	ZIP	  	ZIP	  	  000010001111-----001-----0110011	shuffle			Zkb
-// UNZIP -> UNSHFL w/ imm == 01111
-//I	UNZIP	UNZIP	  000010001111-----101-----0110011	shuffle			Zkb
+I	REVdotB	REVdotB	  011010000111-----101-----0010011	grevorc			Zkb
+// ZIP -> SHFLI w/ imm == 01111
+I	ZIP	  	ZIP	  	  000010001111-----001-----0010011	shuffle			Zkb
+// UNZIP -> UNSHFLI w/ imm == 01111
+I	UNZIP	UNZIP	  000010001111-----101-----0010011	shuffle			Zkb
 
 // SEMANTIC
 S	REV8		"fun_rev8(input(SRC1))"
 S	ORCdotB		"fun_orcb(input(SRC1))"
 S	ZEXTdotH	"(B"16'x0000" ## input(SRC1)(15 downto 0))"
+S	REVdotB		"fun_revdotb(input(SRC1))"
+S	ZIP			"fun_zip(input(SRC1))"
+S	UNZIP		"fun_unzip(input(SRC1))"
 
 // PROLOGUE
 P	"""
@@ -44,6 +47,34 @@ P	"""
 	   
        x4 // return value
    }
+   def fun_revdotb(a:Bits) : Bits = {
+   	   val r = a(24) ## a(25) ## a(26) ## a(27) ## a(28) ## a(29) ## a(30) ## a(31) ##
+	   	   	   a(16) ## a(17) ## a(18) ## a(19) ## a(20) ## a(21) ## a(22) ## a(23) ##
+			   a( 8) ## a( 9) ## a(10) ## a(11) ## a(12) ## a(13) ## a(14) ## a(15) ##
+			   a( 0) ## a( 1) ## a( 2) ## a( 3) ## a( 4) ## a( 5) ## a( 6) ## a( 7)
+
+   	   r // return value;
+   }
+   // helper function for the implementation of the generalized shuffles
+   def fun_shuffle32bis_stage(src:Bits, maskL:Bits, maskR:Bits, N:Int) : Bits = {
+       val x = src & ~(maskL | maskR)
+       val x2 = x | ((src |<< N) & maskL) | ((src |>> N) & maskR);
+       x2 // return value
+   }
+   def fun_zip(a:Bits) : Bits = {
+       val x = a;
+       val x1 = fun_shuffle32bis_stage(x , B"32'x00FF0000", B"32'x0000FF00", 8)
+       val x2 = fun_shuffle32bis_stage(x1, B"32'x0F000F00", B"32'x00F000F0", 4)
+       val x3 = fun_shuffle32bis_stage(x2, B"32'x30303030", B"32'x0C0C0C0C", 2)
+       val x4 = fun_shuffle32bis_stage(x3, B"32'x44444444", B"32'x22222222", 1)
+       x4 // return value
+   }
+   def fun_unzip(a:Bits) : Bits = {
+      val x = a;
+      val x1 = fun_shuffle32bis_stage(x , B"32'x44444444", B"32'x22222222", 1)
+      val x2 = fun_shuffle32bis_stage(x1, B"32'x30303030", B"32'x0C0C0C0C", 2)
+      val x3 = fun_shuffle32bis_stage(x2, B"32'x0F000F00", B"32'x00F000F0", 4)
+      val x4 = fun_shuffle32bis_stage(x3, B"32'x00FF0000", B"32'x0000FF00", 8)
+      x4 // return value
+   }
 """
-
-

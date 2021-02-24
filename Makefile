@@ -88,9 +88,8 @@ BitManipZbs.scala: gen_plugin data_bitmanip.txt
 BitManipZbt.scala: gen_plugin data_bitmanip.txt
 	./gen_plugin -n BitManipZbt -i data_bitmanip.txt -I Zbt >| $@
 
-## Still missing rev.b (special case of grevi), [un]zip (special cases of [un]shfl)
 CryptoZkb.scala: gen_plugin data_bitmanip.txt data_bitmanip_ZbbOnly.txt
-	./gen_plugin -n BitManipZkb -i data_bitmanip.txt -i data_bitmanip_ZbbOnly.txt -I Zkb >| $@
+	./gen_plugin -n CryptoZkb -i data_bitmanip.txt -i data_bitmanip_ZbbOnly.txt -I Zkb >| $@
 
 ## CryptoZkg doesn't require clmulr, so not 100% the same as Zbc
 CryptoZkg.scala: gen_plugin data_clmul.txt

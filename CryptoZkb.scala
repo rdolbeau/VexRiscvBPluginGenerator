@@ -3,31 +3,35 @@
 package vexriscv.plugin
 import spinal.core._
 import vexriscv.{Stageable, DecoderService, VexRiscv}
-object BitManipZkbPlugin {
-	object BitManipZkbCtrlbitwiseEnum extends SpinalEnum(binarySequential) {
+object CryptoZkbPlugin {
+	object CryptoZkbCtrlbitwiseEnum extends SpinalEnum(binarySequential) {
 		 val CTRL_ANDN, CTRL_ORN, CTRL_XNOR = newElement()
 	}
-	object BitManipZkbCtrlrotationEnum extends SpinalEnum(binarySequential) {
+	object CryptoZkbCtrlrotationEnum extends SpinalEnum(binarySequential) {
 		 val CTRL_ROL, CTRL_ROR = newElement()
 	}
-	object BitManipZkbCtrlpackEnum extends SpinalEnum(binarySequential) {
+	object CryptoZkbCtrlpackEnum extends SpinalEnum(binarySequential) {
 		 val CTRL_PACK, CTRL_PACKH, CTRL_PACKU = newElement()
 	}
-	object BitManipZkbCtrlxpermEnum extends SpinalEnum(binarySequential) {
+	object CryptoZkbCtrlxpermEnum extends SpinalEnum(binarySequential) {
 		 val CTRL_XPERMdotB, CTRL_XPERMdotN = newElement()
 	}
-	object BitManipZkbCtrlgrevorcEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_GORC, CTRL_REV8 = newElement()
+	object CryptoZkbCtrlgrevorcEnum extends SpinalEnum(binarySequential) {
+		 val CTRL_GORC, CTRL_REV8, CTRL_REVdotB = newElement()
 	}
-	object BitManipZkbCtrlEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_bitwise, CTRL_rotation, CTRL_pack, CTRL_xperm, CTRL_grevorc = newElement()
+	object CryptoZkbCtrlshuffleEnum extends SpinalEnum(binarySequential) {
+		 val CTRL_UNZIP, CTRL_ZIP = newElement()
 	}
-	object BitManipZkbCtrlbitwise extends Stageable(BitManipZkbCtrlbitwiseEnum())
-	object BitManipZkbCtrlrotation extends Stageable(BitManipZkbCtrlrotationEnum())
-	object BitManipZkbCtrlpack extends Stageable(BitManipZkbCtrlpackEnum())
-	object BitManipZkbCtrlxperm extends Stageable(BitManipZkbCtrlxpermEnum())
-	object BitManipZkbCtrlgrevorc extends Stageable(BitManipZkbCtrlgrevorcEnum())
-	object BitManipZkbCtrl extends Stageable(BitManipZkbCtrlEnum())
+	object CryptoZkbCtrlEnum extends SpinalEnum(binarySequential) {
+		 val CTRL_bitwise, CTRL_rotation, CTRL_pack, CTRL_xperm, CTRL_grevorc, CTRL_shuffle = newElement()
+	}
+	object CryptoZkbCtrlbitwise extends Stageable(CryptoZkbCtrlbitwiseEnum())
+	object CryptoZkbCtrlrotation extends Stageable(CryptoZkbCtrlrotationEnum())
+	object CryptoZkbCtrlpack extends Stageable(CryptoZkbCtrlpackEnum())
+	object CryptoZkbCtrlxperm extends Stageable(CryptoZkbCtrlxpermEnum())
+	object CryptoZkbCtrlgrevorc extends Stageable(CryptoZkbCtrlgrevorcEnum())
+	object CryptoZkbCtrlshuffle extends Stageable(CryptoZkbCtrlshuffleEnum())
+	object CryptoZkbCtrl extends Stageable(CryptoZkbCtrlEnum())
 // Prologue
 
    // function implementing the semantic of 32-bits generalized reverse
@@ -354,13 +358,43 @@ object BitManipZkbPlugin {
 	   
        x4 // return value
    }
+   def fun_revdotb(a:Bits) : Bits = {
+   	   val r = a(24) ## a(25) ## a(26) ## a(27) ## a(28) ## a(29) ## a(30) ## a(31) ##
+	   	   	   a(16) ## a(17) ## a(18) ## a(19) ## a(20) ## a(21) ## a(22) ## a(23) ##
+			   a( 8) ## a( 9) ## a(10) ## a(11) ## a(12) ## a(13) ## a(14) ## a(15) ##
+			   a( 0) ## a( 1) ## a( 2) ## a( 3) ## a( 4) ## a( 5) ## a( 6) ## a( 7)
+
+   	   r // return value;
+   }
+   // helper function for the implementation of the generalized shuffles
+   def fun_shuffle32bis_stage(src:Bits, maskL:Bits, maskR:Bits, N:Int) : Bits = {
+       val x = src & ~(maskL | maskR)
+       val x2 = x | ((src |<< N) & maskL) | ((src |>> N) & maskR);
+       x2 // return value
+   }
+   def fun_zip(a:Bits) : Bits = {
+       val x = a;
+       val x1 = fun_shuffle32bis_stage(x , B"32'x00FF0000", B"32'x0000FF00", 8)
+       val x2 = fun_shuffle32bis_stage(x1, B"32'x0F000F00", B"32'x00F000F0", 4)
+       val x3 = fun_shuffle32bis_stage(x2, B"32'x30303030", B"32'x0C0C0C0C", 2)
+       val x4 = fun_shuffle32bis_stage(x3, B"32'x44444444", B"32'x22222222", 1)
+       x4 // return value
+   }
+   def fun_unzip(a:Bits) : Bits = {
+      val x = a;
+      val x1 = fun_shuffle32bis_stage(x , B"32'x44444444", B"32'x22222222", 1)
+      val x2 = fun_shuffle32bis_stage(x1, B"32'x30303030", B"32'x0C0C0C0C", 2)
+      val x3 = fun_shuffle32bis_stage(x2, B"32'x0F000F00", B"32'x00F000F0", 4)
+      val x4 = fun_shuffle32bis_stage(x3, B"32'x00FF0000", B"32'x0000FF00", 8)
+      x4 // return value
+   }
 
 // End prologue
 } // object Plugin
-class BitManipZkbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {
-	import BitManipZkbPlugin._
-	object IS_BitManipZkb extends Stageable(Bool)
-	object BitManipZkb_FINAL_OUTPUT extends Stageable(Bits(32 bits))
+class CryptoZkbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {
+	import CryptoZkbPlugin._
+	object IS_CryptoZkb extends Stageable(Bool)
+	object CryptoZkb_FINAL_OUTPUT extends Stageable(Bits(32 bits))
 	override def setup(pipeline: VexRiscv): Unit = {
 		import pipeline.config._
 		val immediateActions = List[(Stageable[_ <: BaseType],Any)](
@@ -370,7 +404,7 @@ class BitManipZkbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
-			IS_BitManipZkb -> True
+			IS_CryptoZkb -> True
 			)
 		val binaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -380,7 +414,7 @@ class BitManipZkbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS2_USE -> True,
-			IS_BitManipZkb -> True
+			IS_CryptoZkb -> True
 			)
 		val unaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -388,7 +422,7 @@ class BitManipZkbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
-			IS_BitManipZkb -> True
+			IS_CryptoZkb -> True
 			)
 		val ternaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -400,7 +434,7 @@ class BitManipZkbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			RS1_USE -> True,
 			RS2_USE -> True,
 			RS3_USE -> True,
-			IS_BitManipZkb -> True
+			IS_CryptoZkb -> True
 			)
 		val immTernaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -411,7 +445,7 @@ class BitManipZkbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS3_USE -> True,
-			IS_BitManipZkb -> True
+			IS_CryptoZkb -> True
 			)
 		def ANDN_KEY = M"0100000----------111-----0110011"
 		def ORN_KEY = M"0100000----------110-----0110011"
@@ -426,22 +460,28 @@ class BitManipZkbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 		def RORI_KEY = M"01100------------101-----0010011"
 		def GORCI_KEY = M"00101------------101-----0010011"
 		def REV8_KEY = M"011010011000-----101-----0010011"
+		def REVdotB_KEY = M"011010000111-----101-----0010011"
+		def ZIP_KEY = M"000010001111-----001-----0010011"
+		def UNZIP_KEY = M"000010001111-----101-----0010011"
 		val decoderService = pipeline.service(classOf[DecoderService])
-		decoderService.addDefault(IS_BitManipZkb, False)
+		decoderService.addDefault(IS_CryptoZkb, False)
 		decoderService.add(List(
-			ANDN_KEY	-> (binaryActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_bitwise, BitManipZkbCtrlbitwise -> BitManipZkbCtrlbitwiseEnum.CTRL_ANDN)),
-			ORN_KEY	-> (binaryActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_bitwise, BitManipZkbCtrlbitwise -> BitManipZkbCtrlbitwiseEnum.CTRL_ORN)),
-			XNOR_KEY	-> (binaryActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_bitwise, BitManipZkbCtrlbitwise -> BitManipZkbCtrlbitwiseEnum.CTRL_XNOR)),
-			ROL_KEY	-> (binaryActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_rotation, BitManipZkbCtrlrotation -> BitManipZkbCtrlrotationEnum.CTRL_ROL)),
-			ROR_KEY	-> (binaryActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_rotation, BitManipZkbCtrlrotation -> BitManipZkbCtrlrotationEnum.CTRL_ROR)),
-			RORI_KEY	-> (immediateActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_rotation, BitManipZkbCtrlrotation -> BitManipZkbCtrlrotationEnum.CTRL_ROR)),
-			PACK_KEY	-> (binaryActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_pack, BitManipZkbCtrlpack -> BitManipZkbCtrlpackEnum.CTRL_PACK)),
-			PACKU_KEY	-> (binaryActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_pack, BitManipZkbCtrlpack -> BitManipZkbCtrlpackEnum.CTRL_PACKU)),
-			PACKH_KEY	-> (binaryActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_pack, BitManipZkbCtrlpack -> BitManipZkbCtrlpackEnum.CTRL_PACKH)),
-			XPERMdotN_KEY	-> (binaryActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_xperm, BitManipZkbCtrlxperm -> BitManipZkbCtrlxpermEnum.CTRL_XPERMdotN)),
-			XPERMdotB_KEY	-> (binaryActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_xperm, BitManipZkbCtrlxperm -> BitManipZkbCtrlxpermEnum.CTRL_XPERMdotB)),
-			GORCI_KEY	-> (immediateActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_grevorc, BitManipZkbCtrlgrevorc -> BitManipZkbCtrlgrevorcEnum.CTRL_GORC)),
-			REV8_KEY	-> (unaryActions ++ List(BitManipZkbCtrl -> BitManipZkbCtrlEnum.CTRL_grevorc, BitManipZkbCtrlgrevorc -> BitManipZkbCtrlgrevorcEnum.CTRL_REV8))
+			ANDN_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_bitwise, CryptoZkbCtrlbitwise -> CryptoZkbCtrlbitwiseEnum.CTRL_ANDN)),
+			ORN_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_bitwise, CryptoZkbCtrlbitwise -> CryptoZkbCtrlbitwiseEnum.CTRL_ORN)),
+			XNOR_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_bitwise, CryptoZkbCtrlbitwise -> CryptoZkbCtrlbitwiseEnum.CTRL_XNOR)),
+			ROL_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_rotation, CryptoZkbCtrlrotation -> CryptoZkbCtrlrotationEnum.CTRL_ROL)),
+			ROR_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_rotation, CryptoZkbCtrlrotation -> CryptoZkbCtrlrotationEnum.CTRL_ROR)),
+			RORI_KEY	-> (immediateActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_rotation, CryptoZkbCtrlrotation -> CryptoZkbCtrlrotationEnum.CTRL_ROR)),
+			PACK_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_pack, CryptoZkbCtrlpack -> CryptoZkbCtrlpackEnum.CTRL_PACK)),
+			PACKU_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_pack, CryptoZkbCtrlpack -> CryptoZkbCtrlpackEnum.CTRL_PACKU)),
+			PACKH_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_pack, CryptoZkbCtrlpack -> CryptoZkbCtrlpackEnum.CTRL_PACKH)),
+			XPERMdotN_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_xperm, CryptoZkbCtrlxperm -> CryptoZkbCtrlxpermEnum.CTRL_XPERMdotN)),
+			XPERMdotB_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_xperm, CryptoZkbCtrlxperm -> CryptoZkbCtrlxpermEnum.CTRL_XPERMdotB)),
+			GORCI_KEY	-> (immediateActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_grevorc, CryptoZkbCtrlgrevorc -> CryptoZkbCtrlgrevorcEnum.CTRL_GORC)),
+			REV8_KEY	-> (unaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_grevorc, CryptoZkbCtrlgrevorc -> CryptoZkbCtrlgrevorcEnum.CTRL_REV8)),
+			REVdotB_KEY	-> (unaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_grevorc, CryptoZkbCtrlgrevorc -> CryptoZkbCtrlgrevorcEnum.CTRL_REVdotB)),
+			ZIP_KEY	-> (unaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_shuffle, CryptoZkbCtrlshuffle -> CryptoZkbCtrlshuffleEnum.CTRL_ZIP)),
+			UNZIP_KEY	-> (unaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_shuffle, CryptoZkbCtrlshuffle -> CryptoZkbCtrlshuffleEnum.CTRL_UNZIP))
 		))
 	} // override def setup
 	override def build(pipeline: VexRiscv): Unit = {
@@ -449,41 +489,47 @@ class BitManipZkbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 		import pipeline.config._
 		execute plug new Area{
 			import execute._
-			val val_bitwise = input(BitManipZkbCtrlbitwise).mux(
-				BitManipZkbCtrlbitwiseEnum.CTRL_ANDN -> (input(SRC1) & ~input(SRC2)).asBits,
-				BitManipZkbCtrlbitwiseEnum.CTRL_ORN -> (input(SRC1) | ~input(SRC2)).asBits,
-				BitManipZkbCtrlbitwiseEnum.CTRL_XNOR -> (input(SRC1) ^ ~input(SRC2)).asBits
+			val val_bitwise = input(CryptoZkbCtrlbitwise).mux(
+				CryptoZkbCtrlbitwiseEnum.CTRL_ANDN -> (input(SRC1) & ~input(SRC2)).asBits,
+				CryptoZkbCtrlbitwiseEnum.CTRL_ORN -> (input(SRC1) | ~input(SRC2)).asBits,
+				CryptoZkbCtrlbitwiseEnum.CTRL_XNOR -> (input(SRC1) ^ ~input(SRC2)).asBits
 			) // mux bitwise
-			val val_rotation = input(BitManipZkbCtrlrotation).mux(
-				BitManipZkbCtrlrotationEnum.CTRL_ROL -> input(SRC1).rotateLeft((input(SRC2)&31)(4 downto 0).asUInt).asBits,
-				BitManipZkbCtrlrotationEnum.CTRL_ROR -> input(SRC1).rotateRight((input(SRC2)&31)(4 downto 0).asUInt).asBits
+			val val_rotation = input(CryptoZkbCtrlrotation).mux(
+				CryptoZkbCtrlrotationEnum.CTRL_ROL -> input(SRC1).rotateLeft((input(SRC2)&31)(4 downto 0).asUInt).asBits,
+				CryptoZkbCtrlrotationEnum.CTRL_ROR -> input(SRC1).rotateRight((input(SRC2)&31)(4 downto 0).asUInt).asBits
 			) // mux rotation
-			val val_pack = input(BitManipZkbCtrlpack).mux(
-				BitManipZkbCtrlpackEnum.CTRL_PACK -> (input(SRC2)(15 downto 0) ## input(SRC1)(15 downto 0)).asBits,
-				BitManipZkbCtrlpackEnum.CTRL_PACKH -> B"16'x0000" ## (input(SRC2)(7 downto 0) ## input(SRC1)(7 downto 0)).asBits,
-				BitManipZkbCtrlpackEnum.CTRL_PACKU -> (input(SRC2)(31 downto 16) ## input(SRC1)(31 downto 16)).asBits
+			val val_pack = input(CryptoZkbCtrlpack).mux(
+				CryptoZkbCtrlpackEnum.CTRL_PACK -> (input(SRC2)(15 downto 0) ## input(SRC1)(15 downto 0)).asBits,
+				CryptoZkbCtrlpackEnum.CTRL_PACKH -> B"16'x0000" ## (input(SRC2)(7 downto 0) ## input(SRC1)(7 downto 0)).asBits,
+				CryptoZkbCtrlpackEnum.CTRL_PACKU -> (input(SRC2)(31 downto 16) ## input(SRC1)(31 downto 16)).asBits
 			) // mux pack
-			val val_xperm = input(BitManipZkbCtrlxperm).mux(
-				BitManipZkbCtrlxpermEnum.CTRL_XPERMdotB -> fun_xperm_b(input(SRC1), input(SRC2)).asBits,
-				BitManipZkbCtrlxpermEnum.CTRL_XPERMdotN -> fun_xperm_n(input(SRC1), input(SRC2)).asBits
+			val val_xperm = input(CryptoZkbCtrlxperm).mux(
+				CryptoZkbCtrlxpermEnum.CTRL_XPERMdotB -> fun_xperm_b(input(SRC1), input(SRC2)).asBits,
+				CryptoZkbCtrlxpermEnum.CTRL_XPERMdotN -> fun_xperm_n(input(SRC1), input(SRC2)).asBits
 			) // mux xperm
-			val val_grevorc = input(BitManipZkbCtrlgrevorc).mux(
-				BitManipZkbCtrlgrevorcEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)).asBits,
-				BitManipZkbCtrlgrevorcEnum.CTRL_REV8 -> fun_rev8(input(SRC1)).asBits
+			val val_grevorc = input(CryptoZkbCtrlgrevorc).mux(
+				CryptoZkbCtrlgrevorcEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)).asBits,
+				CryptoZkbCtrlgrevorcEnum.CTRL_REV8 -> fun_rev8(input(SRC1)).asBits,
+				CryptoZkbCtrlgrevorcEnum.CTRL_REVdotB -> fun_revdotb(input(SRC1)).asBits
 			) // mux grevorc
-			insert(BitManipZkb_FINAL_OUTPUT) := input(BitManipZkbCtrl).mux(
-				BitManipZkbCtrlEnum.CTRL_bitwise -> val_bitwise.asBits,
-				BitManipZkbCtrlEnum.CTRL_rotation -> val_rotation.asBits,
-				BitManipZkbCtrlEnum.CTRL_pack -> val_pack.asBits,
-				BitManipZkbCtrlEnum.CTRL_xperm -> val_xperm.asBits,
-				BitManipZkbCtrlEnum.CTRL_grevorc -> val_grevorc.asBits
+			val val_shuffle = input(CryptoZkbCtrlshuffle).mux(
+				CryptoZkbCtrlshuffleEnum.CTRL_UNZIP -> fun_unzip(input(SRC1)).asBits,
+				CryptoZkbCtrlshuffleEnum.CTRL_ZIP -> fun_zip(input(SRC1)).asBits
+			) // mux shuffle
+			insert(CryptoZkb_FINAL_OUTPUT) := input(CryptoZkbCtrl).mux(
+				CryptoZkbCtrlEnum.CTRL_bitwise -> val_bitwise.asBits,
+				CryptoZkbCtrlEnum.CTRL_rotation -> val_rotation.asBits,
+				CryptoZkbCtrlEnum.CTRL_pack -> val_pack.asBits,
+				CryptoZkbCtrlEnum.CTRL_xperm -> val_xperm.asBits,
+				CryptoZkbCtrlEnum.CTRL_grevorc -> val_grevorc.asBits,
+				CryptoZkbCtrlEnum.CTRL_shuffle -> val_shuffle.asBits
 			) // primary mux
 		} // execute plug newArea
 		val injectionStage = if(earlyInjection) execute else memory
 		injectionStage plug new Area {
 			import injectionStage._
-			when (arbitration.isValid && input(IS_BitManipZkb)) {
-				output(REGFILE_WRITE_DATA) := input(BitManipZkb_FINAL_OUTPUT)
+			when (arbitration.isValid && input(IS_CryptoZkb)) {
+				output(REGFILE_WRITE_DATA) := input(CryptoZkb_FINAL_OUTPUT)
 			} // when input is
 		} // injectionStage plug newArea
 	} // override def build
