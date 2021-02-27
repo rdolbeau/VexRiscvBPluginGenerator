@@ -21,11 +21,60 @@ Public domain.
 #define PLUS(v,w) (U32V((v) + (w)))
 #define PLUSONE(v) (PLUS((v),1))
 
+#if !defined(ENABLE_XAR) && !defined(ENABLE_CHACHA)
 #define QUARTERROUND(a,b,c,d) \
   x[a] = PLUS(x[a],x[b]); x[d] = ROTATE(XOR(x[d],x[a]),16); \
   x[c] = PLUS(x[c],x[d]); x[b] = ROTATE(XOR(x[b],x[c]),12); \
   x[a] = PLUS(x[a],x[b]); x[d] = ROTATE(XOR(x[d],x[a]), 8); \
   x[c] = PLUS(x[c],x[d]); x[b] = ROTATE(XOR(x[b],x[c]), 7);
+
+#define QUARTERROUND1(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND2(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND3(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND4(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND5(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND6(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND7(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND8(a,b,c,d) QUARTERROUND(a,b,c,d)
+#elif !defined(ENABLE_CHACHA)
+#define QUARTERROUND(a,b,c,d) \
+  x[a] = PLUS(x[a],x[b]); x[d] = __rv__xar(x[a],16,x[d]); \
+  x[c] = PLUS(x[c],x[d]); x[b] = __rv__xar(x[c],12,x[b]); \
+  x[a] = PLUS(x[a],x[b]); x[d] = __rv__xar(x[a], 8,x[d]); \
+  x[c] = PLUS(x[c],x[d]); x[b] = __rv__xar(x[c], 7,x[b]);
+
+#define QUARTERROUND1(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND2(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND3(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND4(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND5(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND6(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND7(a,b,c,d) QUARTERROUND(a,b,c,d)
+#define QUARTERROUND8(a,b,c,d) QUARTERROUND(a,b,c,d)
+#else
+#define QUARTERROUNDx(a,b,c,d,r0,r1,r2,r3)					\
+	{														\
+		register uint32_t A asm(""#r0) = x[a];				\
+		register uint32_t D asm(""#r1) = x[d];				\
+		register uint32_t C asm(""#r2) = x[c];				\
+		register uint32_t B asm(""#r3) = x[b];				\
+		asm("CHACHA16 reg_%0, reg_%1, reg_%3\n"				\
+		    "CHACHA12 reg_%2, reg_%3, reg_%1\n"				\
+			"CHACHA8  reg_%0, reg_%1, reg_%3\n"				\
+		    "CHACHA7  reg_%2, reg_%3, reg_%1\n"				\
+			: "+&r" (A), "+&r" (B), "+&r" (C), "+&r" (D));	\
+		x[a] = A; x[b] = B; x[c] = C; x[d] = D;				\
+	}
+#define QUARTERROUND1(a,b,c,d) QUARTERROUNDx(a,b,c,d,t3,t4,t5,t6)
+#define QUARTERROUND2(a,b,c,d) QUARTERROUNDx(a,b,c,d,s8,s9,s10,s11)
+#define QUARTERROUND3(a,b,c,d) QUARTERROUNDx(a,b,c,d,s4,s5,s6,s7)
+#define QUARTERROUND4(a,b,c,d) QUARTERROUNDx(a,b,c,d,a6,a7,s2,s3)
+
+#define QUARTERROUND5(a,b,c,d) QUARTERROUNDx(a,b,c,d,t3,t4,s6,s7)
+#define QUARTERROUND6(a,b,c,d) QUARTERROUNDx(a,b,c,d,s8,s9,s2,s3)
+#define QUARTERROUND7(a,b,c,d) QUARTERROUNDx(a,b,c,d,s4,s5,t5,t6)
+#define QUARTERROUND8(a,b,c,d) QUARTERROUNDx(a,b,c,d,a6,a7,s10,s11)
+#endif
 
 static void salsa20_wordtobyte(u8 output[64],const u32 input[16])
 {
@@ -34,14 +83,14 @@ static void salsa20_wordtobyte(u8 output[64],const u32 input[16])
 
   for (i = 0;i < 16;++i) x[i] = input[i];
   for (i = ROUNDS;i > 0;i -= 2) {
-    QUARTERROUND( 0, 4, 8,12)
-    QUARTERROUND( 1, 5, 9,13)
-    QUARTERROUND( 2, 6,10,14)
-    QUARTERROUND( 3, 7,11,15)
-    QUARTERROUND( 0, 5,10,15)
-    QUARTERROUND( 1, 6,11,12)
-    QUARTERROUND( 2, 7, 8,13)
-    QUARTERROUND( 3, 4, 9,14)
+    QUARTERROUND1( 0, 4, 8,12)
+    QUARTERROUND2( 1, 5, 9,13)
+    QUARTERROUND3( 2, 6,10,14)
+    QUARTERROUND4( 3, 7,11,15)
+    QUARTERROUND5( 0, 5,10,15)
+    QUARTERROUND6( 1, 6,11,12)
+    QUARTERROUND7( 2, 7, 8,13)
+    QUARTERROUND8( 3, 4, 9,14)
   }
   for (i = 0;i < 16;++i) x[i] = PLUS(x[i],input[i]);
   for (i = 0;i < 16;++i) U32TO8_LITTLE(output + 4 * i,x[i]);

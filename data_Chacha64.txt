@@ -1,0 +1,24 @@
+//for vX.Y  of P
+
+// low-order bit of Rd (7) is 0 to ensure even-numbered Rd
+I	CHACHA	 CHACHA	    101--00----------000----01110111	chacha	Zchacha
+
+S	CHACHA	"fun_chacha(input(SRC1), input(SRC2), input(SRC3), input(INSTRUCTION)(28 downto 27))"
+
+P	"""
+	def fun_chacha(rs1: Bits, rs2: Bits, rs3: Bits, num: Bits) : Bits = {
+	    val rotv = (num).mux(
+			B"2'b00" -> U(16),
+			B"2'b01" -> U(12),
+			B"2'b10" -> U( 8),
+			B"2'b11" -> U( 7)
+			)
+		val a = rs3
+		val b = rs1
+		val d = rs2
+		val sum = (a.asUInt + b.asUInt).asBits.resize(32)
+		val xor = sum ^ d
+		val rot = xor.rotateLeft(rotv)
+		rot ## sum // return value
+	}
+"""

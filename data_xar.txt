@@ -1,0 +1,11 @@
+I	XAR	XAR 1100100----------000-----1110111    xar	Zbxar
+
+S	XAR "fun_xar(input(SRC1), input(SRC2), input(SRC3))"
+
+P	"""
+	def fun_xar(rs1: Bits, rs2: Bits, rs3: Bits) : Bits = {
+		val in = rs1 ^ rs3
+		val r = in.rotateLeft(rs2(4 downto 0).asUInt)
+		r // return value
+	}
+"""

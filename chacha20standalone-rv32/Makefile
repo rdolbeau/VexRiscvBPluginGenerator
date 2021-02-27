@@ -41,3 +41,29 @@ kernelrandombytes.o: random.cpp
 
 cpucycles.o: riscv.c
 	$(R5IMA_GCC) $< -march=rv32ima -mabi=ilp32 -I. -O1 -c -o $@
+
+
+chacha_XAR.S: chacha.c
+	$(R5B_GCC) $(R5B_OPT) -DENABLE_XAR $< -S -o $@
+
+chacha_XAR.o: chacha_XAR.S
+	$(R5B_GCC) $(R5B_OPT) -DENABLE_XAR $< -c -o $@
+
+chacha20_XAR: $(OBJs) chacha_XAR.o try.o $(SCLIBS)
+	$(R5IMA_GXX) $(R5IMA_OPT) $^ -o $@
+
+chacha20_XAR_small: $(OBJs) chacha_XAR.o try_small.o $(SCLIBS)
+	$(R5IMA_GXX) $(R5IMA_OPT) $^ -o $@
+
+
+chacha_CHACHA.S: chacha.c
+	$(R5B_GCC) $(R5B_OPT) -O3 -DENABLE_CHACHA $< -S -o $@
+
+chacha_CHACHA.o: chacha_CHACHA.S
+	$(R5B_GCC) $(R5B_OPT) -O3 -DENABLE_CHACHA $< -c -o $@
+
+chacha20_CHACHA: $(OBJs) chacha_CHACHA.o try.o $(SCLIBS)
+	$(R5IMA_GXX) $(R5IMA_OPT) $^ -o $@
+
+chacha20_CHACHA_small: $(OBJs) chacha_CHACHA.o try_small.o $(SCLIBS)
+	$(R5IMA_GXX) $(R5IMA_OPT) $^ -o $@

@@ -73,6 +73,21 @@ typedef uint32_t uint_xlen_t;
     return ((uint64_t)r0 | (((uint64_t)r1)<<32));			\
   }
 
+// ternary wide (64-bits output in R2n/R2n+1)
+#define FUN3Wx(NAME, ASNAME, r0, r1)										\
+  static inline uint64_t NAME(uint_xlen_t rs1, uint_xlen_t rs2, uint_xlen_t rs3) {	\
+	  register uint32_t r0 asm (""#r0), r1 asm (""#r1);					\
+	  r0 = rs3;															\
+	  asm (#ASNAME " reg_%0, reg_%2, reg_%3\n"							\
+		   : "+r" (r0), "=r" (r1)										\
+		   : "r" (rs1), "r" (rs2));										\
+	  return ((uint64_t)r0 | (((uint64_t)r1)<<32));						\
+  }
+#define FUN3Wt5(NAME, ASNAME) FUN3Wx(NAME, ASNAME, t5, t6)
+#define FUN3Wt3(NAME, ASNAME) FUN3Wx(NAME, ASNAME, t3, t4)
+#define FUN3Ws10(NAME, ASNAME) FUN3Wx(NAME, ASNAME, s10, s11)
+#define FUN3Ws8(NAME, ASNAME) FUN3Wx(NAME, ASNAME, s8, s9)
+
 // macro to build assembly macros to generate the proper
 // opcodes as .word macro
 // the translation from name to number is done my the
