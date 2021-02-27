@@ -115,7 +115,11 @@ object BitManipZbpPlugin {
        
        r // return value
    }
-   def fun_clz(in:Bits) : Bits = {
+   // For trailing count, count using use leading count on bit-reversed value
+   def fun_cltz(ino:Bits, ctz:Bool) : Bits = {
+       val inr = ino(0) ## ino(1) ## ino(2) ## ino(3) ## ino(4) ## ino(5) ## ino(6) ## ino(7) ## ino(8) ## ino(9) ## ino(10) ## ino(11) ## ino(12) ## ino(13) ## ino(14) ## ino(15) ## ino(16) ## ino(17) ## ino(18) ## ino(19) ## ino(20) ## ino(21) ## ino(22) ## ino(23) ## ino(24) ## ino(25) ## ino(26) ## ino(27) ## ino(28) ## ino(29) ## ino(30) ## ino(31)
+	   val in = (ctz === True) ? (inr) | (ino)
+
        val nlc7 = fun_clz_NLCi(in(31 downto 28))
        val nlc6 = fun_clz_NLCi(in(27 downto 24))
        val nlc5 = fun_clz_NLCi(in(23 downto 20))
@@ -140,11 +144,6 @@ object BitManipZbpPlugin {
       val r = (bne(3)) ?  B"6'b100000" | (B"1'b0" ## bne(2 downto 0) ## muxo(1 downto 0)) // 6 bits
       
       r.resize(32) // return value
-   }
-   // For trailing count, count using use leading count on bit-reversed value
-   def fun_ctz(in:Bits) : Bits = {
-       val inr = in(0) ## in(1) ## in(2) ## in(3) ## in(4) ## in(5) ## in(6) ## in(7) ## in(8) ## in(9) ## in(10) ## in(11) ## in(12) ## in(13) ## in(14) ## in(15) ## in(16) ## in(17) ## in(18) ## in(19) ## in(20) ## in(21) ## in(22) ## in(23) ## in(24) ## in(25) ## in(26) ## in(27) ## in(28) ## in(29) ## in(30) ## in(31)
-       fun_clz(inr) // return value
    }
 
    // naive popcnt

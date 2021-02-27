@@ -14,7 +14,7 @@ object BitManipZbbPlugin {
 		 val CTRL_MAX, CTRL_MAXU, CTRL_MIN, CTRL_MINU = newElement()
 	}
 	object BitManipZbbCtrlcountzeroesEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_CLZ, CTRL_CPOP, CTRL_CTZ = newElement()
+		 val CTRL_CLTZ, CTRL_CPOP = newElement()
 	}
 	object BitManipZbbCtrlsignextendEnum extends SpinalEnum(binarySequential) {
 		 val CTRL_SEXTdotB, CTRL_SEXTdotH, CTRL_ZEXTdotH = newElement()
@@ -111,7 +111,11 @@ object BitManipZbbPlugin {
        
        r // return value
    }
-   def fun_clz(in:Bits) : Bits = {
+   // For trailing count, count using use leading count on bit-reversed value
+   def fun_cltz(ino:Bits, ctz:Bool) : Bits = {
+       val inr = ino(0) ## ino(1) ## ino(2) ## ino(3) ## ino(4) ## ino(5) ## ino(6) ## ino(7) ## ino(8) ## ino(9) ## ino(10) ## ino(11) ## ino(12) ## ino(13) ## ino(14) ## ino(15) ## ino(16) ## ino(17) ## ino(18) ## ino(19) ## ino(20) ## ino(21) ## ino(22) ## ino(23) ## ino(24) ## ino(25) ## ino(26) ## ino(27) ## ino(28) ## ino(29) ## ino(30) ## ino(31)
+	   val in = (ctz === True) ? (inr) | (ino)
+
        val nlc7 = fun_clz_NLCi(in(31 downto 28))
        val nlc6 = fun_clz_NLCi(in(27 downto 24))
        val nlc5 = fun_clz_NLCi(in(23 downto 20))
@@ -136,11 +140,6 @@ object BitManipZbbPlugin {
       val r = (bne(3)) ?  B"6'b100000" | (B"1'b0" ## bne(2 downto 0) ## muxo(1 downto 0)) // 6 bits
       
       r.resize(32) // return value
-   }
-   // For trailing count, count using use leading count on bit-reversed value
-   def fun_ctz(in:Bits) : Bits = {
-       val inr = in(0) ## in(1) ## in(2) ## in(3) ## in(4) ## in(5) ## in(6) ## in(7) ## in(8) ## in(9) ## in(10) ## in(11) ## in(12) ## in(13) ## in(14) ## in(15) ## in(16) ## in(17) ## in(18) ## in(19) ## in(20) ## in(21) ## in(22) ## in(23) ## in(24) ## in(25) ## in(26) ## in(27) ## in(28) ## in(29) ## in(30) ## in(31)
-       fun_clz(inr) // return value
    }
 
    // naive popcnt
@@ -457,8 +456,7 @@ class BitManipZbbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 		def MAX_KEY = M"0000101----------110-----0110011"
 		def MAXU_KEY = M"0000101----------111-----0110011"
 		def RORI_KEY = M"01100------------101-----0010011"
-		def CLZ_KEY = M"011000000000-----001-----0010011"
-		def CTZ_KEY = M"011000000001-----001-----0010011"
+		def CLTZ_KEY = M"01100000000------001-----0010011"
 		def CPOP_KEY = M"011000000010-----001-----0010011"
 		def SEXTdotB_KEY = M"011000000100-----001-----0010011"
 		def SEXTdotH_KEY = M"011000000101-----001-----0010011"
@@ -478,8 +476,7 @@ class BitManipZbbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			MINU_KEY	-> (binaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_minmax, BitManipZbbCtrlminmax -> BitManipZbbCtrlminmaxEnum.CTRL_MINU)),
 			MAX_KEY	-> (binaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_minmax, BitManipZbbCtrlminmax -> BitManipZbbCtrlminmaxEnum.CTRL_MAX)),
 			MAXU_KEY	-> (binaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_minmax, BitManipZbbCtrlminmax -> BitManipZbbCtrlminmaxEnum.CTRL_MAXU)),
-			CLZ_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_countzeroes, BitManipZbbCtrlcountzeroes -> BitManipZbbCtrlcountzeroesEnum.CTRL_CLZ)),
-			CTZ_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_countzeroes, BitManipZbbCtrlcountzeroes -> BitManipZbbCtrlcountzeroesEnum.CTRL_CTZ)),
+			CLTZ_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_countzeroes, BitManipZbbCtrlcountzeroes -> BitManipZbbCtrlcountzeroesEnum.CTRL_CLTZ)),
 			CPOP_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_countzeroes, BitManipZbbCtrlcountzeroes -> BitManipZbbCtrlcountzeroesEnum.CTRL_CPOP)),
 			SEXTdotB_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_signextend, BitManipZbbCtrlsignextend -> BitManipZbbCtrlsignextendEnum.CTRL_SEXTdotB)),
 			SEXTdotH_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_signextend, BitManipZbbCtrlsignextend -> BitManipZbbCtrlsignextendEnum.CTRL_SEXTdotH)),
@@ -509,9 +506,8 @@ class BitManipZbbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 				BitManipZbbCtrlminmaxEnum.CTRL_MINU -> ((input(SRC1).asUInt < input(SRC2).asUInt) ? input(SRC1) | input(SRC2)).asBits
 			) // mux minmax
 			val val_countzeroes = input(BitManipZbbCtrlcountzeroes).mux(
-				BitManipZbbCtrlcountzeroesEnum.CTRL_CLZ -> fun_clz(input(SRC1)).asBits,
-				BitManipZbbCtrlcountzeroesEnum.CTRL_CPOP -> fun_popcnt(input(SRC1)).asBits,
-				BitManipZbbCtrlcountzeroesEnum.CTRL_CTZ -> fun_ctz(input(SRC1)).asBits
+				BitManipZbbCtrlcountzeroesEnum.CTRL_CLTZ -> fun_cltz(input(SRC1), input(INSTRUCTION)(20)).asBits,
+				BitManipZbbCtrlcountzeroesEnum.CTRL_CPOP -> fun_popcnt(input(SRC1)).asBits
 			) // mux countzeroes
 			val val_signextend = input(BitManipZbbCtrlsignextend).mux(
 				BitManipZbbCtrlsignextendEnum.CTRL_SEXTdotB -> (Bits(24 bits).setAllTo(input(SRC1)(7)) ## input(SRC1)(7 downto 0)).asBits,
