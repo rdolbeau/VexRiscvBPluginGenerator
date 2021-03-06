@@ -17,7 +17,7 @@ object CryptoZkbPlugin {
 		 val CTRL_XPERMdotB, CTRL_XPERMdotN = newElement()
 	}
 	object CryptoZkbCtrlgrevorcEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_GORC, CTRL_REV8, CTRL_REVdotB = newElement()
+		 val CTRL_REV8, CTRL_REVdotB = newElement()
 	}
 	object CryptoZkbCtrlshuffleEnum extends SpinalEnum(binarySequential) {
 		 val CTRL_UNZIP, CTRL_ZIP = newElement()
@@ -457,7 +457,6 @@ class CryptoZkbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] 
 		def XPERMdotN_KEY = M"0010100----------010-----0110011"
 		def XPERMdotB_KEY = M"0010100----------100-----0110011"
 		def RORI_KEY = M"01100------------101-----0010011"
-		def GORCI_KEY = M"00101------------101-----0010011"
 		def REV8_KEY = M"011010011000-----101-----0010011"
 		def REVdotB_KEY = M"011010000111-----101-----0010011"
 		def ZIP_KEY = M"000010001111-----001-----0010011"
@@ -476,7 +475,6 @@ class CryptoZkbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] 
 			PACKH_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_pack, CryptoZkbCtrlpack -> CryptoZkbCtrlpackEnum.CTRL_PACKH)),
 			XPERMdotN_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_xperm, CryptoZkbCtrlxperm -> CryptoZkbCtrlxpermEnum.CTRL_XPERMdotN)),
 			XPERMdotB_KEY	-> (binaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_xperm, CryptoZkbCtrlxperm -> CryptoZkbCtrlxpermEnum.CTRL_XPERMdotB)),
-			GORCI_KEY	-> (immediateActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_grevorc, CryptoZkbCtrlgrevorc -> CryptoZkbCtrlgrevorcEnum.CTRL_GORC)),
 			REV8_KEY	-> (unaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_grevorc, CryptoZkbCtrlgrevorc -> CryptoZkbCtrlgrevorcEnum.CTRL_REV8)),
 			REVdotB_KEY	-> (unaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_grevorc, CryptoZkbCtrlgrevorc -> CryptoZkbCtrlgrevorcEnum.CTRL_REVdotB)),
 			ZIP_KEY	-> (unaryActions ++ List(CryptoZkbCtrl -> CryptoZkbCtrlEnum.CTRL_shuffle, CryptoZkbCtrlshuffle -> CryptoZkbCtrlshuffleEnum.CTRL_ZIP)),
@@ -507,7 +505,6 @@ class CryptoZkbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] 
 				CryptoZkbCtrlxpermEnum.CTRL_XPERMdotN -> fun_xperm_n(input(SRC1), input(SRC2)).asBits
 			) // mux xperm
 			val val_grevorc = input(CryptoZkbCtrlgrevorc).mux(
-				CryptoZkbCtrlgrevorcEnum.CTRL_GORC -> fun_gorc(input(SRC1), input(SRC2)).asBits,
 				CryptoZkbCtrlgrevorcEnum.CTRL_REV8 -> fun_rev8(input(SRC1)).asBits,
 				CryptoZkbCtrlgrevorcEnum.CTRL_REVdotB -> fun_revdotb(input(SRC1)).asBits
 			) // mux grevorc

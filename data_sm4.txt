@@ -1,5 +1,5 @@
-I	SM4ED	SM4ED	--11000----------000000000110011	sm4	Zks
-I	SM4KS   SM4KS 	--11010----------000000000110011	sm4	Zks
+I	SM4ED	SM4ED	--11000----------000000000110011	sm4	Zks Zksed
+I	SM4KS   SM4KS 	--11010----------000000000110011	sm4	Zks	Zksed
 
 S	SM4ED  "fun_sm4ed(input(SRC1), input(SRC2), input(INSTRUCTION)(31 downto 30))"
 S	SM4KS  "fun_sm4ks(input(SRC1), input(SRC2), input(INSTRUCTION)(31 downto 30))"
