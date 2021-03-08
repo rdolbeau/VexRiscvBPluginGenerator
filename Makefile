@@ -80,7 +80,8 @@ BitManipZbbZbp.scala: gen_plugin data_bitmanip.txt
 BitManipZbp.scala: gen_plugin data_bitmanip.txt
 	./gen_plugin -n BitManipZbp -i data_bitmanip.txt -I Zbp >| $@
 
-## Zbr unimplemented, crc32* are missing
+BitManipZbr.scala: gen_plugin data_crc.txt
+	./gen_plugin -n BitManipZbr -i data_crc.txt -I Zbr >| $@
 
 BitManipZbs.scala: gen_plugin data_bitmanip.txt
 	./gen_plugin -n BitManipZbs -i data_bitmanip.txt -I Zbs >| $@
@@ -127,7 +128,7 @@ PackedSIMDSlow.scala: gen_plugin data_Zpn_2cycles.txt
 PackedSIMDWide.scala: gen_plugin data_Zp64.txt
 	./gen_plugin -w -n PackedSIMDWide -i data_Zp64.txt -I '*' >| $@
 
-B: BitManipZba.scala BitManipZbb.scala BitManipZbbZbp.scala BitManipZbc.scala BitManipZbe1cycle.scala BitManipZbe2cycles.scala BitManipZbf.scala BitManipBFPonly.scala BitManipZbp.scala BitManipZbs.scala BitManipZbt.scala
+B: BitManipZba.scala BitManipZbb.scala BitManipZbbZbp.scala BitManipZbc.scala BitManipZbe1cycle.scala BitManipZbe2cycles.scala BitManipZbf.scala BitManipBFPonly.scala BitManipZbp.scala BitManipZbr.scala BitManipZbs.scala BitManipZbt.scala
 
 P: PackedSIMDBase.scala PackedSIMDSlow.scala PackedSIMDWide.scala
 

@@ -1,5 +1,5 @@
 ## B Toolchain so we get some automatic B generation
-R5B_TOOLCHAIN=/opt/riscv64b/
+R5B_TOOLCHAIN=/opt/riscv64bk/
 R5B_GCC=$(R5B_TOOLCHAIN)/bin/riscv64-unknown-elf-gcc
 R5B_OPT=-Os -march=rv32imab -mabi=ilp32 -I.
 

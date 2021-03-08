@@ -1,0 +1,40 @@
+// Zbr
+I	CRC32xdotB	 CRC32xdotB	01100001-000-----001-----0010011 CRC32x	Zbr
+I	CRC32xdotH	 CRC32xdotH	01100001-001-----001-----0010011 CRC32x	Zbr
+I	CRC32xdotW	 CRC32xdotW	01100001-010-----001-----0010011 CRC32x	Zbr
+//I	CRC32xdotD	 CRC32xdotD	01100001-011-----001-----0010011 CRC32x	Zbr
+
+S	CRC32xdotB  "fun_crc32xdotb(input(SRC1), input(INSTRUCTION)(23))"
+S	CRC32xdotH  "fun_crc32xdoth(input(SRC1), input(INSTRUCTION)(23))"
+S	CRC32xdotW  "fun_crc32xdotw(input(SRC1), input(INSTRUCTION)(23))"
+
+P	"""
+	def fun_crc32xdotb(rs1: Bits, isC : Bool) : Bits = {
+	   val p = ((isC === True) ? (B"32'x82F63B78") | (B"32'xEDB88320"))
+	   var x = rs1
+	   for (i <- 0 to 7) {
+	   	   x = (x |>> 1) ^ ((x(0) === True) ? (p) | (B"32'x00000000"))
+	   }
+	   val r = x
+	   r // return value
+	}
+	def fun_crc32xdoth(rs1: Bits, isC : Bool) : Bits = {
+	   val p = ((isC === True) ? (B"32'x82F63B78") | (B"32'xEDB88320"))
+	   var x = rs1
+	   for (i <- 0 to 15) {
+	   	   x = (x |>> 1) ^ ((x(0) === True) ? (p) | (B"32'x00000000"))
+	   }
+	   val r = x
+	   r // return value
+	}
+	def fun_crc32xdotw(rs1: Bits, isC : Bool) : Bits = {
+	   val p = ((isC === True) ? (B"32'x82F63B78") | (B"32'xEDB88320"))
+	   var x = rs1
+	   for (i <- 0 to 31) {
+	   	   x = (x |>> 1) ^ ((x(0) === True) ? (p) | (B"32'x00000000"))
+	   }
+	   val r = x
+	   r // return value
+	}
+"""
+

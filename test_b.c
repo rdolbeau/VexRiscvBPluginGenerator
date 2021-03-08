@@ -36,38 +36,40 @@
 #include "new_instructions_support_b.h"
 
 #define _rv64_clmul2(a,b) _rv64_clmul(a,b)
+
+
+			//not yet in rvintrin.h ?
+static inline uint_xlen_t _rv32_sh1add(uint_xlen_t rs1, uint_xlen_t rs2) {
+	uint_xlen_t rd;
+	asm ("sh1add %0, %1, %2\n" : "=r" (rd) : "r" (rs1), "r" (rs2));
+	return rd;
+}
+static inline uint_xlen_t _rv32_sh2add(uint_xlen_t rs1, uint_xlen_t rs2) {
+	uint_xlen_t rd;
+	asm ("sh2add %0, %1, %2\n" : "=r" (rd) : "r" (rs1), "r" (rs2));
+	return rd;
+}
+static inline uint_xlen_t _rv32_sh3add(uint_xlen_t rs1, uint_xlen_t rs2) {
+	uint_xlen_t rd;
+	asm ("sh3add %0, %1, %2\n" : "=r" (rd) : "r" (rs1), "r" (rs2));
+	return rd;
+}
 #else
 #include <rvintrin.h> // emulation
 
 typedef uint32_t uint_xlen_t;
 #define XLEN 32
-uint_xlen_t xperm(uint_xlen_t rs1, uint_xlen_t rs2, int sz_log2)
-{
-    uint_xlen_t r = 0;
-    uint_xlen_t sz = 1LL << sz_log2;
-    uint_xlen_t mask = (1LL << sz) - 1;
-    for (int i = 0; i < XLEN; i += sz) {
-        uint_xlen_t pos = ((rs2 >> i) & mask) << sz_log2;
-        if (pos < XLEN)
-            r |= ((rs1 >> pos) & mask) << i;
-    }
-    return r;
-}
-uint_xlen_t xperm_n (uint_xlen_t rs1, uint_xlen_t rs2) {  return xperm(rs1, rs2, 2); }
-uint_xlen_t xperm_b (uint_xlen_t rs1, uint_xlen_t rs2) {  return xperm(rs1, rs2, 3); }
-uint_xlen_t xperm_h (uint_xlen_t rs1, uint_xlen_t rs2) {  return xperm(rs1, rs2, 4); }
-uint_xlen_t xperm_w (uint_xlen_t rs1, uint_xlen_t rs2) {  return xperm(rs1, rs2, 5); }
-
   
-uint_xlen_t _sh1add(uint_xlen_t rs1, uint_xlen_t rs2)
+			//not yet in rvintrin.h ?
+uint_xlen_t _rv32_sh1add(uint_xlen_t rs1, uint_xlen_t rs2)
 {
     return (rs1 << 1) + rs2;
 }
-uint_xlen_t _sh2add(uint_xlen_t rs1, uint_xlen_t rs2)
+uint_xlen_t _rv32_sh2add(uint_xlen_t rs1, uint_xlen_t rs2)
 {
     return (rs1 << 2) + rs2;
 }
-uint_xlen_t _sh3add(uint_xlen_t rs1, uint_xlen_t rs2)
+uint_xlen_t _rv32_sh3add(uint_xlen_t rs1, uint_xlen_t rs2)
 {
     return (rs1 << 3) + rs2;
 }
@@ -118,7 +120,14 @@ int main(int argc, char **argv) {
 		T1(_rv32_clz);
 		T1(_rv32_ctz);
 		T1(_rv32_pcnt);
-			
+
+		T1(_rv_crc32_b);
+		T1(_rv_crc32_h);
+		T1(_rv_crc32_w);
+		T1(_rv_crc32c_b);
+		T1(_rv_crc32c_h);
+		T1(_rv_crc32c_w);
+
 		for (index1 = 0 ; index1 < nonrandom_cnt[1] ; index1++) {
 			b = nonrandom_b[index1];
   
@@ -139,10 +148,6 @@ int main(int argc, char **argv) {
 			T2(_rv_xnor);
 			T2(_rv_orn);
 
-			//T2(_rv32_sh1add);
-			//T2(_rv32_sh2add);
-			//T2(_rv32_sh3add);
-
 			T2(_rv32_sbset);
 			T2(_rv32_sbclr);
 			T2(_rv32_sbinv);
@@ -152,9 +157,10 @@ int main(int argc, char **argv) {
 			T2(_rv32_minu);
 			T2(_rv32_max);
 			T2(_rv32_maxu);
-  
-			T2(_rv32_slo);
-			T2(_rv32_sro);
+
+			// no longer in toolchain, dropped from extension
+			/* T2(_rv32_slo); */
+			/* T2(_rv32_sro); */
 
 			//T2(_rv32_xperm_b);
 
@@ -175,14 +181,13 @@ int main(int argc, char **argv) {
 					printf("0x%016llx 0x%016llx (0x%016llx)\n", z, z2, z^z2);
 				}
 
-			// extra stuff
-			T2(_sh1add);
-			T2(_sh2add);
-			T2(_sh3add);
+			T2(_rv32_sh1add);
+			T2(_rv32_sh2add);
+			T2(_rv32_sh3add);
 
-			T2(xperm_n);
-			T2(xperm_b);
-			T2(xperm_h);
+			T2(_rv_xperm_n);
+			T2(_rv_xperm_b);
+			T2(_rv_xperm_h);
 
 			T2(_rv32_bfp);
 

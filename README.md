@@ -10,7 +10,6 @@ The generated plugin is for RV32 only. It doesn't yet support all B instructions
 
 * all instructions ending in 'W', as they are RV64-only
 * BMAT*, as they are RV64-only
-* CRC32*
 * Three-operands instructions (CMIX, CMOV, FS[RL]*); they are available but need a VexRiscv patch to support the third input (all VexRiscv patch are available on https://github.com/rdolbeau/VexRiscv/tree/three_operands)
 
 There is support for partial instructions (rev8, zext.h, orc.b) so that the default plugins generated for Zba, Zbb and Zbc should be feature-complete. To get everything without conflicts, use:
