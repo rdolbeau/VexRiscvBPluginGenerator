@@ -20,7 +20,7 @@
 // Zbf: 
 // Zbc: in a dedicated file, 'data_clmul.txt'
 // Zbm: ignored, RV64-only
-// Zbr: ignored, crc32 unimplemented
+// Zbr: in a dedicated file, 'data_crc.txt'
 // Zbt: (requires three-operands patch to VexRiscv)
 // B  : should be Zbb, Zbp, Zbs, Zba, Zbe, Zbf, Zbc, Zbm
 //
