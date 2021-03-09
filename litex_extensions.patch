@@ -1,0 +1,52 @@
+diff --git a/litex/soc/cores/cpu/vexriscv_smp/core.py b/litex/soc/cores/cpu/vexriscv_smp/core.py
+index 59d34fc7..d2134dec 100644
+--- a/litex/soc/cores/cpu/vexriscv_smp/core.py
++++ b/litex/soc/cores/cpu/vexriscv_smp/core.py
+@@ -47,6 +47,7 @@ class VexRiscvSMP(CPU):
+     dcache_width         = 32
+     icache_width         = 32
+     aes_instruction      = False
++    extensions           = ""
+     out_of_order_decoder = True
+     wishbone_memory      = False
+ 
+@@ -62,6 +63,7 @@ class VexRiscvSMP(CPU):
+         parser.add_argument("--icache-size",                  default=None,        help="L1 instruction cache size in byte per CPU.")
+         parser.add_argument("--icache-ways",                  default=None,        help="L1 instruction cache ways per CPU")
+         parser.add_argument("--aes-instruction",              default=None,        help="Enable AES instruction acceleration.")
++        parser.add_argument("--extensions",                   default=None,        help="List of extensions to enable (comma-separated)")
+         parser.add_argument("--without-out-of-order-decoder", action="store_true", help="Reduce area at cost of peripheral access speed")
+         parser.add_argument("--with-wishbone-memory"        , action="store_true", help="Disable native LiteDRAM interface")
+ 
+@@ -85,6 +87,7 @@ class VexRiscvSMP(CPU):
+         if(args.dcache_ways):                  VexRiscvSMP.dcache_ways           = int(args.dcache_ways)
+         if(args.icache_ways):                  VexRiscvSMP.icache_ways           = int(args.icache_ways)
+         if(args.aes_instruction):              VexRiscvSMP.aes_instruction       = bool(args.aes_instruction)
++        if(args.extensions):                   VexRiscvSMP.extensions            = args.extensions
+         if(args.without_out_of_order_decoder): VexRiscvSMP.out_of_order_decoder  = False
+         if(args.with_wishbone_memory): VexRiscvSMP.wishbone_memory               = True
+ 
+@@ -110,6 +113,7 @@ class VexRiscvSMP(CPU):
+     @staticmethod
+     def generate_cluster_name():
+         ldw = f"Ldw{VexRiscvSMP.litedram_width}"
++        ext = VexRiscvSMP.extensions.replace(",","_")
+         VexRiscvSMP.cluster_name = f"VexRiscvLitexSmpCluster_" \
+         f"Cc{VexRiscvSMP.cpu_count}"    \
+         "_" \
+@@ -123,6 +127,7 @@ class VexRiscvSMP(CPU):
+         f"{'_'+ldw if not VexRiscvSMP.wishbone_memory  else ''}" \
+         f"{'_Cdma' if VexRiscvSMP.coherent_dma         else ''}" \
+         f"{'_Aes'  if VexRiscvSMP.aes_instruction      else ''}" \
++        f"{'_'+ext if VexRiscvSMP.extensions           else ''}" \
+         f"{'_Ood'  if VexRiscvSMP.out_of_order_decoder else ''}" \
+         f"{'_Wm'   if VexRiscvSMP.wishbone_memory      else ''}"
+ 
+@@ -200,6 +205,7 @@ class VexRiscvSMP(CPU):
+         gen_args.append(f"--icache-ways={VexRiscvSMP.icache_ways}")
+         gen_args.append(f"--litedram-width={VexRiscvSMP.litedram_width}")
+         gen_args.append(f"--aes-instruction={VexRiscvSMP.aes_instruction}")
++        gen_args.append(f"--extensions={VexRiscvSMP.extensions}")
+         gen_args.append(f"--out-of-order-decoder={VexRiscvSMP.out_of_order_decoder}")
+         gen_args.append(f"--wishbone-memory={VexRiscvSMP.wishbone_memory}")
+         gen_args.append(f"--netlist-name={VexRiscvSMP.cluster_name}")
