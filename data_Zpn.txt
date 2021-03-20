@@ -101,6 +101,12 @@ I	UMAQA   UMAQA	1100110----------000----01110111	pdpismul8	Zpnslow
 // ternary + binary (bit 25)
 I	PBSADx	PBSADx	111111-----------000-----1110111	pdpipsad	Zpn
 
+// Saturating, currently doesn't set the CSR
+I  KADD8	KADD8	0001100----------000-----1110111	pdpikadd8	Zpn
+I  UKADD8	UKADD8	0011100----------000-----1110111	pdpikadd8	Zpn
+I  KSUB8	KSUB8	0001101----------000-----1110111	pdpikadd8	Zpn
+I  UKSUB8	UKSUB8	0011101----------000-----1110111	pdpikadd8	Zpn
+
 // binary
 S	ADD8	"fun_add8(input(SRC1), input(SRC2))"
 S	ADD16	"fun_add16(input(SRC1), input(SRC2))"
@@ -158,6 +164,12 @@ S	PBSADx	"fun_pbsada(input(SRC1), input(SRC2), (input(INSTRUCTION)(25).asUInt ==
 S	INSBI	"fun_insb(input(SRC1), input(SRC2), input(SRC3))"
 S	SMAQA	"fun_smaqa(input(SRC1), input(SRC2), input(SRC3))"
 S	UMAQA	"fun_umaqa(input(SRC1), input(SRC2), input(SRC3))"
+
+// saturating, fixme for csr
+S  KADD8	"fun_kadd8(input(SRC1), input(SRC2))"
+S  UKADD8	"fun_ukadd8(input(SRC1), input(SRC2))"
+S  KSUB8	"fun_ksub8(input(SRC1), input(SRC2))"
+S  UKSUB8	"fun_uksub8(input(SRC1), input(SRC2))"
 
 P	"""
 	def fun_add8(rs1: Bits, rs2: Bits) : Bits = {
@@ -606,5 +618,50 @@ P	"""
 			B"4'b1011" -> rs1(31 downto 24).asSInt.resize(16).asBits ## rs1(23 downto 16).asSInt.resize(16).asBits
 		)
 		r // return value
+	}
+
+// saturating, csr is missing
+// it seems sat() (and it's shortcut +| and -|) in SpinalHDL don't do what I need
+// for unsigned substraction (no way to tell the difference between overflow
+// and underflow unless going signed, I think)
+   def fun_satsub8u(a: Bits, b: Bits) : Bits = {
+   	   val s = (B"1'b0" ## a).asSInt -^ (B"1'b0" ## b).asSInt // -^ will keep 10 bits
+	   // if sign bit set -> underflow, else if bit eight set -> overflow
+	   val r = ((s(9).asUInt === 1) ? (B"8'x00") | ((s(8).asUInt === 1) ? (B"8'xFF") | (s(7 downto 0).asBits)))
+	   
+	   r // return value
+   }
+
+	def fun_kadd8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asSInt +| rs2( 7 downto  0).asSInt).asBits.resize(8)
+	    val b1 = (rs1(15 downto  8).asSInt +| rs2(15 downto  8).asSInt).asBits.resize(8)
+	    val b2 = (rs1(23 downto 16).asSInt +| rs2(23 downto 16).asSInt).asBits.resize(8)
+	    val b3 = (rs1(31 downto 24).asSInt +| rs2(31 downto 24).asSInt).asBits.resize(8)
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_ukadd8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asUInt +| rs2( 7 downto  0).asUInt).asBits.resize(8)
+	    val b1 = (rs1(15 downto  8).asUInt +| rs2(15 downto  8).asUInt).asBits.resize(8)
+	    val b2 = (rs1(23 downto 16).asUInt +| rs2(23 downto 16).asUInt).asBits.resize(8)
+	    val b3 = (rs1(31 downto 24).asUInt +| rs2(31 downto 24).asUInt).asBits.resize(8)
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_ksub8(rs1: Bits, rs2: Bits) : Bits = {
+	    val b0 = (rs1( 7 downto  0).asSInt -| rs2( 7 downto  0).asSInt).asBits.resize(8)
+	    val b1 = (rs1(15 downto  8).asSInt -| rs2(15 downto  8).asSInt).asBits.resize(8)
+	    val b2 = (rs1(23 downto 16).asSInt -| rs2(23 downto 16).asSInt).asBits.resize(8)
+	    val b3 = (rs1(31 downto 24).asSInt -| rs2(31 downto 24).asSInt).asBits.resize(8)
+
+	    b3 ## b2 ## b1 ## b0 // return value
+	}
+	def fun_uksub8(rs1: Bits, rs2: Bits) : Bits = {
+		val b0 = fun_satsub8u(rs1( 7 downto  0), rs2( 7 downto  0)).asBits
+		val b1 = fun_satsub8u(rs1(15 downto  8), rs2(15 downto  8)).asBits
+		val b2 = fun_satsub8u(rs1(23 downto 16), rs2(23 downto 16)).asBits
+		val b3 = fun_satsub8u(rs1(31 downto 24), rs2(31 downto 24)).asBits
+
+	    b3 ## b2 ## b1 ## b0 // return value
 	}
 """

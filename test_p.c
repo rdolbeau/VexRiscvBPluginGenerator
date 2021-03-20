@@ -783,6 +783,57 @@ GEN_ZUNPKD8(3,0)
 GEN_ZUNPKD8(3,1)
 GEN_ZUNPKD8(3,2)
 
+#define SATs8(x) ((x) > 127 ? 127 : (x) < -128 ? -128 : (x))
+#define SATu8(x) ((x) > 255 ? 255 : (x) < 0 ? 0 : (x))
+uint32_t __rv__kadd8(const uint32_t rs1, const uint32_t rs2) {
+	int4x8_t a, b, c;
+	int32_t r;
+	memcpy(a, &rs1, 4);
+	memcpy(b, &rs2, 4);
+	c[0] = SATs8((int32_t)a[0] + (int32_t)b[0]);
+	c[1] = SATs8((int32_t)a[1] + (int32_t)b[1]);
+	c[2] = SATs8((int32_t)a[2] + (int32_t)b[2]);
+	c[3] = SATs8((int32_t)a[3] + (int32_t)b[3]);
+	memcpy(&r, c, 4);
+	return r;
+}
+uint32_t __rv__ukadd8(const uint32_t rs1, const uint32_t rs2) {
+	uint4x8_t a, b, c;
+	uint32_t r;
+	memcpy(a, &rs1, 4);
+	memcpy(b, &rs2, 4);
+	c[0] = SATu8((int32_t)a[0] + (int32_t)b[0]);
+	c[1] = SATu8((int32_t)a[1] + (int32_t)b[1]);
+	c[2] = SATu8((int32_t)a[2] + (int32_t)b[2]);
+	c[3] = SATu8((int32_t)a[3] + (int32_t)b[3]);
+	memcpy(&r, c, 4);
+	return r;
+}
+uint32_t __rv__ksub8(const uint32_t rs1, const uint32_t rs2) {
+	int4x8_t a, b, c;
+	int32_t r;
+	memcpy(a, &rs1, 4);
+	memcpy(b, &rs2, 4);
+	c[0] = SATs8((int32_t)a[0] - (int32_t)b[0]);
+	c[1] = SATs8((int32_t)a[1] - (int32_t)b[1]);
+	c[2] = SATs8((int32_t)a[2] - (int32_t)b[2]);
+	c[3] = SATs8((int32_t)a[3] - (int32_t)b[3]);
+	memcpy(&r, c, 4);
+	return r;
+}
+uint32_t __rv__uksub8(const uint32_t rs1, const uint32_t rs2) {
+	uint4x8_t a, b, c;
+	uint32_t r;
+	memcpy(a, &rs1, 4);
+	memcpy(b, &rs2, 4);
+	c[0] = SATu8((int32_t)a[0] - (int32_t)b[0]);
+	c[1] = SATu8((int32_t)a[1] - (int32_t)b[1]);
+	c[2] = SATu8((int32_t)a[2] - (int32_t)b[2]);
+	c[3] = SATu8((int32_t)a[3] - (int32_t)b[3]);
+	memcpy(&r, c, 4);
+	return r;
+}
+
 #endif // __riscv
   
 unsigned int a = 0x01234567;
@@ -823,7 +874,7 @@ int main(int argc, char **argv) {
 		T1(__rv__swap16);
 		
 		for (index1 = 0 ; index1 < nonrandom_cnt[1] ; index1++) {
-			b = nonrandom_b[index];
+			b = nonrandom_b[index1];
 #if 1
 			T2(__rv__add8);
 			T2(__rv__radd8);
@@ -891,6 +942,11 @@ int main(int argc, char **argv) {
 			T2W(__rv__umulx8);
 			T2W(__rv__smulx16);
 			T2W(__rv__umulx16);
+
+			T2(__rv__kadd8);
+			T2(__rv__ukadd8);
+			T2(__rv__ksub8);
+			T2(__rv__uksub8);
   
 			for (index2 = 0 ; index2 < nonrandom_cnt[2] ; index2++) {
 				d = nonrandom_d[index2];
