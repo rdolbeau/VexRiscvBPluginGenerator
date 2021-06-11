@@ -1,17 +1,10 @@
-//for v0.8 of K scalar
-//#define MASK_AES32ESMI  0x3e00707f
-//#define MATCH_AES32ESMI 0x36000033
-//#define MASK_AES32ESI  0x3e00707f
-//#define MATCH_AES32ESI 0x32000033
-//bs 11011 rs2 rs1==rd 000 rd 0110011 aes32esmi
-//bs 11001 rs2 rs1==rd 000 rd 0110011  aes32esi
+//for v0.9.2 of K scalar
 
+I	aes32esmi  aes32esmi	--11011----------000-----0110011	aes	Zkne
+I	aes32esi   aes32esi 	--11001----------000-----0110011	aes	Zkne
 
-I	aes32esmi  aes32esmi	--11011----------000000000110011	aes	Zkne
-I	aes32esi   aes32esi 	--11001----------000000000110011	aes	Zkne
-
-I	aes32dsmi  aes32dsmi	--11111----------000000000110011	aes	Zknd
-I	aes32dsi   aes32dsi 	--11101----------000000000110011	aes	Zknd
+I	aes32dsmi  aes32dsmi	--11111----------000-----0110011	aes	Zknd
+I	aes32dsi   aes32dsi 	--11101----------000-----0110011	aes	Zknd
 
 S	aes32esmi  "fun_aes32esmi(input(SRC2), input(SRC1), input(INSTRUCTION)(31 downto 30))"
 S	aes32esi   "fun_aes32esi(input(SRC2), input(SRC1), input(INSTRUCTION)(31 downto 30))"

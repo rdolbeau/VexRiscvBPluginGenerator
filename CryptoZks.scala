@@ -399,8 +399,8 @@ class CryptoZksPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] 
 			)
 		def SM3P0_KEY = M"000100001000-----001-----0010011"
 		def SM3P1_KEY = M"000100001001-----001-----0010011"
-		def SM4ED_KEY = M"--11000----------000000000110011"
-		def SM4KS_KEY = M"--11010----------000000000110011"
+		def SM4ED_KEY = M"--11000----------000-----0110011"
+		def SM4KS_KEY = M"--11010----------000-----0110011"
 		val decoderService = pipeline.service(classOf[DecoderService])
 		decoderService.addDefault(IS_CryptoZks, False)
 		decoderService.add(List(

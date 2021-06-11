@@ -89,14 +89,19 @@ BitManipZbs.scala: gen_plugin data_bitmanip.txt
 BitManipZbt.scala: gen_plugin data_bitmanip.txt
 	./gen_plugin -n BitManipZbt -i data_bitmanip.txt -I Zbt >| $@
 
-CryptoZkb.scala: gen_plugin data_bitmanip.txt data_bitmanip_ZbbOnly.txt
-	./gen_plugin -n CryptoZkb -i data_bitmanip.txt -i data_bitmanip_ZbbOnly.txt -I Zkb >| $@
+CryptoZbkb.scala: gen_plugin data_bitmanip.txt data_bitmanip_ZbbOnly.txt
+	./gen_plugin -n CryptoZbkb -i data_bitmanip.txt -i data_bitmanip_ZbbOnly.txt -I Zbkb >| $@
 
-## CryptoZkg doesn't require clmulr, so not 100% the same as Zbc
-CryptoZkg.scala: gen_plugin data_clmul.txt
-	./gen_plugin -n CryptoZkg -i data_clmul.txt -I CLMUL -I CLMULH >| $@
+CryptoZbkx.scala: gen_plugin data_bitmanip.txt data_bitmanip_ZbbOnly.txt
+	./gen_plugin -n CryptoZbkx -i data_bitmanip.txt -i data_bitmanip_ZbbOnly.txt -I Zbkx >| $@
 
-## Full Zkn is Zknd + Zkne + Zknh + Zkg + Zkb
+## CryptoZbkc doesn't require clmulr, so not 100% the same as Zbc
+## However the current implementation has just the one entry for clmulh & clmulr
+## So in practice this is identical to BitManipZbc
+CryptoZbkc.scala: gen_plugin data_clmul.txt
+	./gen_plugin -n CryptoZbkc -i data_clmul.txt -I Zbkc >| $@
+
+## Full Zkn is Zknd + Zkne + Zknh + Zbkc + Zkb
 ## For Zkb, beware the overlap with a lot of B plugins
 
 CryptoZknd.scala: gen_plugin data_aes.txt
@@ -132,9 +137,9 @@ B: BitManipZba.scala BitManipZbb.scala BitManipZbbZbp.scala BitManipZbc.scala Bi
 
 P: PackedSIMDBase.scala PackedSIMDSlow.scala PackedSIMDWide.scala
 
-Z: CryptoZkb.scala CryptoZkg.scala CryptoZknd.scala CryptoZkne.scala CryptoZknh.scala CryptoZks.scala
+K: CryptoZbkb.scala CryptoZbkx.scala CryptoZbkc.scala CryptoZknd.scala CryptoZkne.scala CryptoZknh.scala CryptoZks.scala
 
-scala: B P Z
+scala: B P K
 
 include $(DEPXX)
 

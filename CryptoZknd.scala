@@ -933,8 +933,8 @@ class CryptoZkndPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv]
 			RS3_USE -> True,
 			IS_CryptoZknd -> True
 			)
-		def aes32dsmi_KEY = M"--11111----------000000000110011"
-		def aes32dsi_KEY = M"--11101----------000000000110011"
+		def aes32dsmi_KEY = M"--11111----------000-----0110011"
+		def aes32dsi_KEY = M"--11101----------000-----0110011"
 		val decoderService = pipeline.service(classOf[DecoderService])
 		decoderService.addDefault(IS_CryptoZknd, False)
 		decoderService.add(List(

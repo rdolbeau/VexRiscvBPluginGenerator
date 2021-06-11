@@ -3,11 +3,15 @@
 package vexriscv.plugin
 import spinal.core._
 import vexriscv.{Stageable, DecoderService, VexRiscv}
-object CryptoZkgPlugin {
-	object CryptoZkgCtrlEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_CLMUL = newElement()
+object CryptoZbkcPlugin {
+	object CryptoZbkcCtrlclmulEnum extends SpinalEnum(binarySequential) {
+		 val CTRL_CLMUL, CTRL_CLMULRH = newElement()
 	}
-	object CryptoZkgCtrl extends Stageable(CryptoZkgCtrlEnum())
+	object CryptoZbkcCtrlEnum extends SpinalEnum(binarySequential) {
+		 val CTRL_clmul = newElement()
+	}
+	object CryptoZbkcCtrlclmul extends Stageable(CryptoZbkcCtrlclmulEnum())
+	object CryptoZbkcCtrl extends Stageable(CryptoZbkcCtrlEnum())
 // Prologue
 
 	def fun_clmul(rs1:Bits, rs2:Bits) : Bits = {
@@ -86,10 +90,10 @@ object CryptoZkgPlugin {
 
 // End prologue
 } // object Plugin
-class CryptoZkgPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {
-	import CryptoZkgPlugin._
-	object IS_CryptoZkg extends Stageable(Bool)
-	object CryptoZkg_FINAL_OUTPUT extends Stageable(Bits(32 bits))
+class CryptoZbkcPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] {
+	import CryptoZbkcPlugin._
+	object IS_CryptoZbkc extends Stageable(Bool)
+	object CryptoZbkc_FINAL_OUTPUT extends Stageable(Bits(32 bits))
 	override def setup(pipeline: VexRiscv): Unit = {
 		import pipeline.config._
 		val immediateActions = List[(Stageable[_ <: BaseType],Any)](
@@ -99,7 +103,7 @@ class CryptoZkgPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] 
 			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
-			IS_CryptoZkg -> True
+			IS_CryptoZbkc -> True
 			)
 		val binaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -109,7 +113,7 @@ class CryptoZkgPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] 
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS2_USE -> True,
-			IS_CryptoZkg -> True
+			IS_CryptoZbkc -> True
 			)
 		val unaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -117,7 +121,7 @@ class CryptoZkgPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] 
 			BYPASSABLE_EXECUTE_STAGE -> Bool(earlyInjection),
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
-			IS_CryptoZkg -> True
+			IS_CryptoZbkc -> True
 			)
 		val ternaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -129,7 +133,7 @@ class CryptoZkgPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] 
 			RS1_USE -> True,
 			RS2_USE -> True,
 			RS3_USE -> True,
-			IS_CryptoZkg -> True
+			IS_CryptoZbkc -> True
 			)
 		val immTernaryActions = List[(Stageable[_ <: BaseType],Any)](
 			SRC1_CTRL                -> Src1CtrlEnum.RS,
@@ -140,13 +144,15 @@ class CryptoZkgPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] 
 			BYPASSABLE_MEMORY_STAGE  -> True,
 			RS1_USE -> True,
 			RS3_USE -> True,
-			IS_CryptoZkg -> True
+			IS_CryptoZbkc -> True
 			)
 		def CLMUL_KEY = M"0000101----------001-----0110011"
+		def CLMULRH_KEY = M"0000101----------01------0110011"
 		val decoderService = pipeline.service(classOf[DecoderService])
-		decoderService.addDefault(IS_CryptoZkg, False)
+		decoderService.addDefault(IS_CryptoZbkc, False)
 		decoderService.add(List(
-			CLMUL_KEY	-> (binaryActions ++ List(CryptoZkgCtrl -> CryptoZkgCtrlEnum.CTRL_CLMUL))
+			CLMUL_KEY	-> (binaryActions ++ List(CryptoZbkcCtrl -> CryptoZbkcCtrlEnum.CTRL_clmul, CryptoZbkcCtrlclmul -> CryptoZbkcCtrlclmulEnum.CTRL_CLMUL)),
+			CLMULRH_KEY	-> (binaryActions ++ List(CryptoZbkcCtrl -> CryptoZbkcCtrlEnum.CTRL_clmul, CryptoZbkcCtrlclmul -> CryptoZbkcCtrlclmulEnum.CTRL_CLMULRH))
 		))
 	} // override def setup
 	override def build(pipeline: VexRiscv): Unit = {
@@ -154,13 +160,17 @@ class CryptoZkgPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv] 
 		import pipeline.config._
 		execute plug new Area{
 			import execute._
-			insert(CryptoZkg_FINAL_OUTPUT) := fun_clmul(input(SRC1),input(SRC2)).asBits
+			val val_clmul = input(CryptoZbkcCtrlclmul).mux(
+				CryptoZbkcCtrlclmulEnum.CTRL_CLMUL -> fun_clmul(input(SRC1),input(SRC2)).asBits,
+				CryptoZbkcCtrlclmulEnum.CTRL_CLMULRH -> fun_clmulrh(input(SRC1),input(SRC2), input(INSTRUCTION)(12)).asBits
+			) // mux clmul
+			insert(CryptoZbkc_FINAL_OUTPUT) := val_clmul.asBits
 		} // execute plug newArea
 		val injectionStage = if(earlyInjection) execute else memory
 		injectionStage plug new Area {
 			import injectionStage._
-			when (arbitration.isValid && input(IS_CryptoZkg)) {
-				output(REGFILE_WRITE_DATA) := input(CryptoZkg_FINAL_OUTPUT)
+			when (arbitration.isValid && input(IS_CryptoZbkc)) {
+				output(REGFILE_WRITE_DATA) := input(CryptoZbkc_FINAL_OUTPUT)
 			} // when input is
 		} // injectionStage plug newArea
 	} // override def build

@@ -4,6 +4,9 @@ package vexriscv.plugin
 import spinal.core._
 import vexriscv.{Stageable, DecoderService, VexRiscv}
 object BitManipZbbPlugin {
+	object BitManipZbbCtrlgrevorcEnum extends SpinalEnum(binarySequential) {
+		 val CTRL_ORCdotB, CTRL_REV8 = newElement()
+	}
 	object BitManipZbbCtrlbitwiseEnum extends SpinalEnum(binarySequential) {
 		 val CTRL_ANDN, CTRL_ORN, CTRL_XNOR = newElement()
 	}
@@ -19,18 +22,15 @@ object BitManipZbbPlugin {
 	object BitManipZbbCtrlsignextendEnum extends SpinalEnum(binarySequential) {
 		 val CTRL_SEXTdotB, CTRL_SEXTdotH, CTRL_ZEXTdotH = newElement()
 	}
-	object BitManipZbbCtrlgrevorcEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_ORCdotB, CTRL_REV8 = newElement()
-	}
 	object BitManipZbbCtrlEnum extends SpinalEnum(binarySequential) {
-		 val CTRL_bitwise, CTRL_rotation, CTRL_minmax, CTRL_countzeroes, CTRL_signextend, CTRL_grevorc = newElement()
+		 val CTRL_grevorc, CTRL_bitwise, CTRL_rotation, CTRL_minmax, CTRL_countzeroes, CTRL_signextend = newElement()
 	}
+	object BitManipZbbCtrlgrevorc extends Stageable(BitManipZbbCtrlgrevorcEnum())
 	object BitManipZbbCtrlbitwise extends Stageable(BitManipZbbCtrlbitwiseEnum())
 	object BitManipZbbCtrlrotation extends Stageable(BitManipZbbCtrlrotationEnum())
 	object BitManipZbbCtrlminmax extends Stageable(BitManipZbbCtrlminmaxEnum())
 	object BitManipZbbCtrlcountzeroes extends Stageable(BitManipZbbCtrlcountzeroesEnum())
 	object BitManipZbbCtrlsignextend extends Stageable(BitManipZbbCtrlsignextendEnum())
-	object BitManipZbbCtrlgrevorc extends Stageable(BitManipZbbCtrlgrevorcEnum())
 	object BitManipZbbCtrl extends Stageable(BitManipZbbCtrlEnum())
 // Prologue
 
@@ -446,6 +446,8 @@ class BitManipZbbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			RS3_USE -> True,
 			IS_BitManipZbb -> True
 			)
+		def ORCdotB_KEY = M"001010000111-----101-----0010011"
+		def REV8_KEY = M"011010011000-----101-----0010011"
 		def ANDN_KEY = M"0100000----------111-----0110011"
 		def ORN_KEY = M"0100000----------110-----0110011"
 		def XNOR_KEY = M"0100000----------100-----0110011"
@@ -461,11 +463,11 @@ class BitManipZbbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 		def SEXTdotB_KEY = M"011000000100-----001-----0010011"
 		def SEXTdotH_KEY = M"011000000101-----001-----0010011"
 		def ZEXTdotH_KEY = M"000010000000-----100-----0110011"
-		def ORCdotB_KEY = M"001010000111-----101-----0010011"
-		def REV8_KEY = M"011010011000-----101-----0010011"
 		val decoderService = pipeline.service(classOf[DecoderService])
 		decoderService.addDefault(IS_BitManipZbb, False)
 		decoderService.add(List(
+			ORCdotB_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_grevorc, BitManipZbbCtrlgrevorc -> BitManipZbbCtrlgrevorcEnum.CTRL_ORCdotB)),
+			REV8_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_grevorc, BitManipZbbCtrlgrevorc -> BitManipZbbCtrlgrevorcEnum.CTRL_REV8)),
 			ANDN_KEY	-> (binaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_bitwise, BitManipZbbCtrlbitwise -> BitManipZbbCtrlbitwiseEnum.CTRL_ANDN)),
 			ORN_KEY	-> (binaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_bitwise, BitManipZbbCtrlbitwise -> BitManipZbbCtrlbitwiseEnum.CTRL_ORN)),
 			XNOR_KEY	-> (binaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_bitwise, BitManipZbbCtrlbitwise -> BitManipZbbCtrlbitwiseEnum.CTRL_XNOR)),
@@ -480,9 +482,7 @@ class BitManipZbbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 			CPOP_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_countzeroes, BitManipZbbCtrlcountzeroes -> BitManipZbbCtrlcountzeroesEnum.CTRL_CPOP)),
 			SEXTdotB_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_signextend, BitManipZbbCtrlsignextend -> BitManipZbbCtrlsignextendEnum.CTRL_SEXTdotB)),
 			SEXTdotH_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_signextend, BitManipZbbCtrlsignextend -> BitManipZbbCtrlsignextendEnum.CTRL_SEXTdotH)),
-			ZEXTdotH_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_signextend, BitManipZbbCtrlsignextend -> BitManipZbbCtrlsignextendEnum.CTRL_ZEXTdotH)),
-			ORCdotB_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_grevorc, BitManipZbbCtrlgrevorc -> BitManipZbbCtrlgrevorcEnum.CTRL_ORCdotB)),
-			REV8_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_grevorc, BitManipZbbCtrlgrevorc -> BitManipZbbCtrlgrevorcEnum.CTRL_REV8))
+			ZEXTdotH_KEY	-> (unaryActions ++ List(BitManipZbbCtrl -> BitManipZbbCtrlEnum.CTRL_signextend, BitManipZbbCtrlsignextend -> BitManipZbbCtrlsignextendEnum.CTRL_ZEXTdotH))
 		))
 	} // override def setup
 	override def build(pipeline: VexRiscv): Unit = {
@@ -490,6 +490,10 @@ class BitManipZbbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 		import pipeline.config._
 		execute plug new Area{
 			import execute._
+			val val_grevorc = input(BitManipZbbCtrlgrevorc).mux(
+				BitManipZbbCtrlgrevorcEnum.CTRL_ORCdotB -> fun_orcb(input(SRC1)).asBits,
+				BitManipZbbCtrlgrevorcEnum.CTRL_REV8 -> fun_rev8(input(SRC1)).asBits
+			) // mux grevorc
 			val val_bitwise = input(BitManipZbbCtrlbitwise).mux(
 				BitManipZbbCtrlbitwiseEnum.CTRL_ANDN -> (input(SRC1) & ~input(SRC2)).asBits,
 				BitManipZbbCtrlbitwiseEnum.CTRL_ORN -> (input(SRC1) | ~input(SRC2)).asBits,
@@ -514,17 +518,13 @@ class BitManipZbbPlugin(earlyInjection : Boolean = true) extends Plugin[VexRiscv
 				BitManipZbbCtrlsignextendEnum.CTRL_SEXTdotH -> (Bits(16 bits).setAllTo(input(SRC1)(15)) ## input(SRC1)(15 downto 0)).asBits,
 				BitManipZbbCtrlsignextendEnum.CTRL_ZEXTdotH -> (B"16'x0000" ## input(SRC1)(15 downto 0)).asBits
 			) // mux signextend
-			val val_grevorc = input(BitManipZbbCtrlgrevorc).mux(
-				BitManipZbbCtrlgrevorcEnum.CTRL_ORCdotB -> fun_orcb(input(SRC1)).asBits,
-				BitManipZbbCtrlgrevorcEnum.CTRL_REV8 -> fun_rev8(input(SRC1)).asBits
-			) // mux grevorc
 			insert(BitManipZbb_FINAL_OUTPUT) := input(BitManipZbbCtrl).mux(
+				BitManipZbbCtrlEnum.CTRL_grevorc -> val_grevorc.asBits,
 				BitManipZbbCtrlEnum.CTRL_bitwise -> val_bitwise.asBits,
 				BitManipZbbCtrlEnum.CTRL_rotation -> val_rotation.asBits,
 				BitManipZbbCtrlEnum.CTRL_minmax -> val_minmax.asBits,
 				BitManipZbbCtrlEnum.CTRL_countzeroes -> val_countzeroes.asBits,
-				BitManipZbbCtrlEnum.CTRL_signextend -> val_signextend.asBits,
-				BitManipZbbCtrlEnum.CTRL_grevorc -> val_grevorc.asBits
+				BitManipZbbCtrlEnum.CTRL_signextend -> val_signextend.asBits
 			) // primary mux
 		} // execute plug newArea
 		val injectionStage = if(earlyInjection) execute else memory

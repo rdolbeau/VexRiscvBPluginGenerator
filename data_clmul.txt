@@ -1,5 +1,5 @@
-I	CLMUL	CLMUL	0000101----------001-----0110011	clmul	Zbc Zkg
-I	CLMULRH	CLMULRH	0000101----------01------0110011	clmul	Zbc Zkg
+I	CLMUL	CLMUL	0000101----------001-----0110011	clmul	Zbc	Zbkc
+I	CLMULRH	CLMULRH	0000101----------01------0110011	clmul	Zbc	Zbkc
 
 S	CLMUL "fun_clmul(input(SRC1),input(SRC2))"
 S	CLMULRH "fun_clmulrh(input(SRC1),input(SRC2), input(INSTRUCTION)(12))"

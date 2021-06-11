@@ -16,14 +16,14 @@ I	ZEXTdotH ZEXTdotH 000010000000-----100-----0110011	signextend	Zbb
 // ORC.B -> GORCI w/ imm = 7 (0000111)
 I	ORCdotB	ORCdotB	  001010000111-----101-----0010011	grevorc		Zbb
 // REV8 -> GREVI w/ imm == 24 (0011000)
-I	REV8	REV8	  011010011000-----101-----0010011	grevorc		Zbb	Zkb
-// those are for Zkb only
+I	REV8	REV8	  011010011000-----101-----0010011	grevorc		Zbb	Zbkb
+// those are for Zbkb only
 // REVdotB -> GREVI w/ imm == 7 (0000111)
-I	REVdotB	REVdotB	  011010000111-----101-----0010011	grevorc			Zkb
+I	REVdotB	REVdotB	  011010000111-----101-----0010011	grevorc			Zbkb
 // ZIP -> SHFLI w/ imm == 01111
-I	ZIP	  	ZIP	  	  000010001111-----001-----0010011	shuffle			Zkb
+I	ZIP	ZIP	  000010001111-----001-----0010011	shuffle			Zbkb
 // UNZIP -> UNSHFLI w/ imm == 01111
-I	UNZIP	UNZIP	  000010001111-----101-----0010011	shuffle			Zkb
+I	UNZIP	UNZIP	  000010001111-----101-----0010011	shuffle			Zbkb
 
 // SEMANTIC
 S	REV8		"fun_rev8(input(SRC1))"
