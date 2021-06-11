@@ -1,6 +1,6 @@
 # B/K/... plugin generator for VexRiscv
 
-**beware** This is targeting the bitmanip extension (B) on an intermediate draft from January 20, 2021, so opcodes and subsets might be not match the current version of B. Ditto for Z, this is targeting version 0.9.0. Both may require feature patch to VexRiscv, see below. Packed SIMD (P) stuff is missing a lot of feature and targets 0.92.
+**beware** This is targeting the bitmanip extension (B) on an intermediate draft from January 20, 2021, so opcodes and subsets might be not match the current version of B. Ditto for K, this is targeting version 0.9.2. Both may require feature patch to VexRiscv, see below. Packed SIMD (P) stuff is missing a lot of feature and targets 0.92.
 
 ## This repository
 
@@ -19,7 +19,7 @@ This has received limited testing in a [Linux-on-Litex-VexRiscv](https://github.
 
 Also, the implementations of the instructions in SpinalHDL are written for tuncitonality, and not tuned or optimized in any way for performance/area/... (file usage.txt has some numbers).
 
-A separate data file include prototype support for RV32Zkn[ed] (AES encryption/decryption instructions) and RV32Zknh (SHA hash instructions) from the [K ("crypto")](https://github.com/riscv/riscv-crypto) extension draft 0.9.0. This requires another patch to VexRiscv, as Zkn[ed] use field rs1 instead of rd for the output register. There is now support for SM3 and SM4 acceleration (collectively Zks), which requires an expanded version of the rs1-for-rd patch. 
+A separate data file include prototype support for RV32Zkn[ed] (AES encryption/decryption instructions) and RV32Zknh (SHA hash instructions) from the [K ("crypto")](https://github.com/riscv/riscv-crypto) extension draft 0.9.2. There is also support for SM3 and SM4 acceleration (collectively Zks).
 
 There's also some experimental support for some [P ("packed SIMD")](https://github.com/riscv/riscv-p-spec) instructions. It requires even more patches to VexRiscv, first to use a third input sourced from the destination register (so not R4 format like B's ternaries), and second to enable Zp64 instructions that write to two registers (x(2n) and x(2n+1)).
 
