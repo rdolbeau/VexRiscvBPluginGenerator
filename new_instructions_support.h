@@ -27,7 +27,7 @@ typedef uint32_t uint_xlen_t;
 	       : "r" (rs1), "r" (rs2));					\
     return r;								\
   }
-// binary (destructive, e.g. aes32esmi from K)
+// binary (destructive, UNUSED [K removed it in 0.9.2])
 #define FUN2F(NAME, ASNAME)						\
   static inline uint32_t NAME(uint32_t rs1, uint32_t rs2) {		\
     uint32_t r = rs1;							\
