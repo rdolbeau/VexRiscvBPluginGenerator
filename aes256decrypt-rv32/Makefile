@@ -37,4 +37,4 @@ kernelrandombytes.o: random.cpp
 	$(R5IMA_GXX) $(R5IMA_OPT) $< -c -o $@
 
 cpucycles.o: riscv.c
-	$(R5IMA_GCC) $< -march=rv32ima -mabi=ilp32 -I. -O1 -c -o $@
+	$(R5IMA_GCC) $< -march=$(R5ISA) -mabi=$(R5ABI) -I. -O1 -c -o $@
