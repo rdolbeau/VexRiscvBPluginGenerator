@@ -1,0 +1,45 @@
+
+// ternary
+// we steal P's opcode here, so that I don't have to fix VexRiscv heuristic for src3
+//I	SMAQA   SMAQA	1100100----------000----01110111	fma8	Zxrender
+//I	UMAQA   UMAQA	1100110----------000----01110111	fma8	Zxrender
+
+I	UFMA8VxV   UFMA8VxV	11001-0----------000----01110111	fma8	Zxrender
+
+S	UFMA8VxV	"fun_ufma8vxv(input(SRC1), input(SRC2), input(SRC3), (input(INSTRUCTION)(26).asUInt === 1))"
+T   UFMA8VxV 96 "fun_ufma8vxv2"
+
+P	"""
+	def fun_ufma8vxv(rs1: Bits, rs2: Bits, rs3: Bits, low: Bool) : Bits = {
+	    val al = low ? rs2( 7 downto  0) | rs2(31 downto 24)
+		
+	    val h0 = (rs1( 7 downto  0).asUInt * al.asUInt).asBits
+	    val h1 = (rs1(15 downto  8).asUInt * al.asUInt).asBits
+	    val h2 = (rs1(23 downto 16).asUInt * al.asUInt).asBits
+	    val h3 = (rs1(31 downto 24).asUInt * al.asUInt).asBits
+
+		rs3 ## h3 ## h2 ## h1 ## h0
+	}
+
+	def fun_ufma8vxv2(input: Bits) : Bits = {
+		val rs3 = input(95 downto 64)
+		val h3 = input(63 downto 48)
+		val h2 = input(47 downto 32)
+		val h1 = input(31 downto 16)
+		val h0 = input(15 downto  0)
+
+		// divide by 255 (x<<8+x+x>>7)>>16)
+		var r0 = ((h0 ## B"8'x00").asUInt + h0.asUInt + h0(15 downto 7).asUInt).asBits
+		var r1 = ((h1 ## B"8'x00").asUInt + h1.asUInt + h1(15 downto 7).asUInt).asBits
+		var r2 = ((h2 ## B"8'x00").asUInt + h2.asUInt + h2(15 downto 7).asUInt).asBits
+		var r3 = ((h3 ## B"8'x00").asUInt + h3.asUInt + h3(15 downto 7).asUInt).asBits
+
+		// saturated accumulation
+	    val f0 = (r0(23 downto 16).asUInt +| rs3( 7 downto  0).asUInt).asBits.resize(8)
+	    val f1 = (r1(23 downto 16).asUInt +| rs3(15 downto  8).asUInt).asBits.resize(8)
+	    val f2 = (r2(23 downto 16).asUInt +| rs3(23 downto 16).asUInt).asBits.resize(8)
+	    val f3 = (r3(23 downto 16).asUInt +| rs3(31 downto 24).asUInt).asBits.resize(8)
+	
+	    f3 ## f2 ## f1 ## f0 // return value
+	}
+"""
