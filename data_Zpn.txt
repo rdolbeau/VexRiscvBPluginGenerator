@@ -621,7 +621,7 @@ P	"""
 	}
 
 // saturating, csr is missing
-// it seems sat() (and it's shortcut +| and -|) in SpinalHDL don't do what I need
+// it seems sat() (and its shortcut +| and -|) in SpinalHDL don't do what I need
 // for unsigned substraction (no way to tell the difference between overflow
 // and underflow unless going signed, I think)
    def fun_satsub8u(a: Bits, b: Bits) : Bits = {
